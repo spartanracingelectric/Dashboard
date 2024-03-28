@@ -43,8 +43,7 @@ void leds__launchReady(float launchReady, int displayScreen);
 void leds__hvlow(float hvlow);
 void leds__regenMode(int regenmode, int displayScreen);
 void leds__regenModeSet(int regenmode, int displayScreen, uint8_t mode);
-void leds__hvil(int hvil, float hv, int displayScreen);
-void leds__bspd(float BSPD, int displayScreen);
+void leds__hvil(int hvil, float hv);
 
 //create LEDs Update function that takes CAN data and changes LEDs
 

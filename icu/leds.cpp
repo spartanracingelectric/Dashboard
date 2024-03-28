@@ -15,11 +15,6 @@ uint32_t prev_millis_hvlow = 0;
 uint32_t prev_millis_hvtemp = 0;
 
 
-//For LED11, LED12, LED13, LED14, LED15, LED16
-//row 2 = blue, row 3 = red, row 4 = green
-//column 0 = LED11, column 1 = LED14, column 2 = LED12, column 3 = LED15, column 4 = LED13, column 5 = LED16
-
-
 void leds__init(MD_MAX72XX *leds_ptr)
 {
   leds = leds_ptr;
@@ -349,7 +344,6 @@ void leds__debug(int displayScreen){ // use functions like this to simplify the 
     leds->setPoint(4, 0, false);
   }
 }
-
 void leds__lv(float lv, int displayScreen)
 {
   if(displayScreen == 4){
@@ -362,47 +356,15 @@ void leds__lv(float lv, int displayScreen)
   }
 }
 
-
-//LEDS on displayScreen 0
-int prev_hvil  = -1;
-void leds__hvil(int hvil, float hv, int displayScreen){
-  if(displayScreen == 0){
-    if((hvil == (prev_hvil - 1)) && hv >= 60){
-      leds->setPoint(4, 1, true);
-      Serial.print("TRUE: ");
-      Serial.println(hvil);
-    }
-    else{
-      leds->setPoint(4, 1, false);
-      prev_hvil == -1;
-      Serial.print("NOT TRUE: ");
-      Serial.println(hvil);
-    }
+void leds__hvil(int hvil, float hv){
+  if(hvil == 0 && hv >= 60){
+    leds->setPoint(4, 1, true);
+    leds->setPoint(3, 1, true);
   }
 
-  if(prev_hvil == -1){
-    prev_hvil = hvil;
-  }
-}
-void leds__bspd(float BSPD, int displayScreen){
-  if(displayScreen == 0){
-    if(BSPD == 1){
-      leds->setPoint(3, 0, true);
-    }
-    else{
-      leds->setPoint(3, 0, false);
-    }
-  }
-}
-void leds__hvtemp(float hvtemp, int displayScreen)
-{
-  if(displayScreen == 0){
-    if(hvtemp > 60){
-      leds->setPoint(3, 3, true);
-    }
-    else{
-      leds->setPoint(3, 3, false);
-    }
+  else{
+    leds->setPoint(4, 1, false);
+     leds->setPoint(3, 1, false);
   }
 }
 
@@ -471,6 +433,22 @@ void leds__regenModeSet(int regenmode, int displayScreen, uint8_t mode){
     
   }
 
+}
+
+void leds__hvtemp(float hvtemp, int displayScreen)
+{
+  if(displayScreen == 0){
+    leds->setPoint(3, 1, false);
+    leds->setPoint(3, 5, false);
+  if(hvtemp > 60){
+    leds->setPoint(3, 3, true);
+    
+  }
+
+  else{
+    leds->setPoint(3, 3, false);
+  }
+  }
 }
 
 void leds__hvlow(float hvlow){

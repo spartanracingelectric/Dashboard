@@ -10,6 +10,8 @@ void can__start();
 void can__send(uint8_t regenmmode);
 void can__receive();
 
+// E car
+#if (POWERTRAIN_TYPE == 'E')
 static void can__hv_receive (const CANMessage & inMessage);
 static void can__hv_current_receive (const CANMessage & inMessage);
 static void can__soc_receive (const CANMessage & inMessage);
@@ -46,7 +48,6 @@ int can__get_drsMode();
 float can__get_launchReady();
 float can__get_launchStatus();
 int can__get_hvil();
-int can__get_bspd();
 // diagnostics ---------------------------
 float can__get_rpm(); // not tested
 float can__get_bms_fault(); //
@@ -66,6 +67,7 @@ int can__get_prechargefault();
 int can__get_failedthermistor();
 float can__get_maxtorque();
 void can__filtersetup();
+#endif
 
 void can__stop();
 

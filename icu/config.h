@@ -5,6 +5,16 @@
 /*  INSTRUMENT CLUSTER - SETUP CONFIGURATION FILE (for ports, etc)  */
 /*                                                                  */
 /********************************************************************/
+
+// Board Revision, select:
+// 'A' for Rev A
+// 'B' for Rev B
+// #define BOARD_REVISION 'A'
+#define BOARD_REVISION 'B'
+
+//#define POWERTRAIN_TYPE 'C'
+#define POWERTRAIN_TYPE 'E'
+
 // Set to 1 if you want to print the input data over serial
 #define SERIAL_DEBUG_EN 0
 
@@ -36,6 +46,27 @@
 /*---------------------------------------------------------------------------/
 / PIN INITIALIZATIONS
 /---------------------------------------------------------------------------*/
+
+//  Rev A
+#if (BOARD_REVISION == 'A')
+//  LCD
+#define PICO_LCD_SPI_CS     2
+#define PICO_LCD_SPI_MOSI   4
+#define PICO_LCD_SPI_SCK    5
+#define PICO_LCD_A0         3
+#define PICO_LCD_RST        U8X8_PIN_NONE
+//  LEDS, MAX7219
+#define PICO_LED_SPI_SCK    18
+#define PICO_LED_SPI_MOSI   19
+#define PICO_LED_SPI_CS     13
+//CAN, MCP2515
+#define PICO_CAN_SPI_SCK    18
+#define PICO_CAN_SPI_MOSI   19
+#define PICO_CAN_SPI_MISO   16
+#define PICO_CAN_SPI_CS     17
+
+//  Rev B
+#elif (BOARD_REVISION == 'B')
 //  LCD
 #define PICO_LCD_SPI_CS     5
 #define PICO_LCD_SPI_MOSI   3
@@ -55,6 +86,13 @@
 #define PICO_CAN_RST        15
 #endif
 
+/*---------------------------------------------------------------------------/
+/ BUTTON PINS AND Screen CONSTANTS
+/---------------------------------------------------------------------------*/
+#define CLK 6
+#define DT 7
+#define SW 8
+// #define BUT4 12 //extra
 
 #define TESTING_SCREEN 0
 #define MINIMALIST_SCREEN 1
@@ -70,7 +108,17 @@
 
 #define HOLD_TIME 1000 //Button hold time for bottom buttons on default screen
 
+//  CAN BUS
+/////////////////////
+/* #if (POWERTRAIN_TYPE == 'C')
+//#define CANBUS_SPEED 1000UL * 1000UL //1 Mbit/s
+#define CANBUS_SPEED 500UL * 1000UL //500 kbit/s
+#define CAN_RPM_ADDR    0x640
+#define CAN_GEAR_ADDR   0x703
+// lv, drs, oil pressure, coolant temp
+*/
 
+#if (POWERTRAIN_TYPE == 'E')
 #define CANBUS_SPEED 500UL * 1000UL //500 kbit/s
 #define CAN_RPM_ADDR 0x0A5
 #define CAN_TPS0 0x500
@@ -94,12 +142,28 @@
 #define CAN_SOC_ADDR 0x621
 #define CAN_HVLOW_ADDR 0x622
 #define CAN_BAT_TEMP_ADDR 0x623
+
+
+
+
+#endif
+
+//  LOW VOLTAGE
+/////////////////////
 #define LV_WARNING_THRESHOLD 12.0f
 
+//  WHEEL SPEEDS
+/////////////////////
+//Wheel diameter in inches
 #define WHEEL_DIAMETER_IN 16.0f
 #define WHEEL_CIRCUMFERENCE_M (WHEEL_DIAMETER_IN * 0.0254 * 3.141f)
 #define METERS_SEC_TO_MPH  2.237f
 
+/*---------------------------------------------------------------------------/
+/ LOW VOLTAGE
+/---------------------------------------------------------------------------*/
+
+#define LV_OFFSET .8f
 
 /*---------------------------------------------------------------------------/
 / CAN ADDRESSES
@@ -117,6 +181,19 @@
 #define REGEN2_ADDR 0x703       // (-> VCU)
 #define REGEN3_ADDR 0x704
 #define FAULT_ADDR 0x0AB
+
 #define MAX72XX_HARDWARE_TYPE MD_MAX72XX::PAROLA_HW
+
+#ifndef BOARD_REVISION
+#error "Select a board revision"
+#endif
+#ifndef POWERTRAIN_TYPE
+#error "Select a powertrain type (C for Combustion or E for Electric)"
+#endif
+
+/*---------------------------------------------------------------------------/
+/ HELPFUL MACROS
+/---------------------------------------------------------------------------*/
 #define MAX_LED_BRIGHTNESS 0xFF
 
+#endif /* CONF_H_ */
