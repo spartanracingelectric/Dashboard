@@ -27,12 +27,9 @@ void lcd_welcome_screen();
 void lcd__print_default_screen_template();
 void lcd__clear_section (uint8_t sect);
 
-// C car
-//void lcd__print_rpm(uint16_t rpm);
-//void lcd__print_gear(uint8_t gear);
-//void lcd__print_oilpress(float oilpress); // Oil coolant? pressure // float or uint8
+
 // E car
-void lcd__print_hv(float hv, int displayScreen, int prevDisplayScreen); // accumulator voltage
+void lcd__print_hv(float hv); // accumulator voltage
 void lcd__print_soc(uint8_t soc); // State of charge 0-100%
 void lcd__print_wattemp(uint8_t watertemp); // Water Coolant Temp
 // E & C car

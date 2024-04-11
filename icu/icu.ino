@@ -85,13 +85,7 @@ void setup()
 
   Serial.begin(9600);
   
-#if (BOARD_REVISION == 'A')
-  SPI.setSCK(PICO_CAN_SPI_SCK);
-  SPI.setTX(PICO_CAN_SPI_MOSI);
-  SPI.setRX(PICO_CAN_SPI_MISO);
-  SPI.setCS(PICO_CAN_SPI_CS);
-  SPI.begin();
-#elif (BOARD_REVISION == 'B')
+#if (BOARD_REVISION == 'B')
   pinMode(PICO_CAN_RST, OUTPUT);
   digitalWrite(PICO_CAN_RST, HIGH);
   SPI.setSCK(PICO_LED_SPI_SCK);
@@ -192,28 +186,6 @@ void loop()
 #endif
 
 //  drs = can__get_dr);
-
-#if (BOARD_REVISION == 'A')
-  can__stop();
-#endif
-
-  // placeholder values. uncomment when needed
-//  rpm = 10000;
-//  gear = 1;
-  //oilpress = 15; // most likely float - reference hv or lv
-  //drs = 3;
-  //lv = 14.540510;
-//  hv = 250.81430;
-//  soc = 97;
-//  hvtemp = 51.8234;
-    //hvlow = 3.2f;
-    // hvtemp = 52.3f;
-
-  //lcd__print_rpm(rpm, curr_millis);
-/* #if (POWERTRAIN_TYPE == 'C')
-    leds__rpm_update_flash(rpm, gear, curr_millis);
-    lcd__update_screen(rpm, gear, lv, oilpress, drs, curr_millis);
-*/
 
 #if (POWERTRAIN_TYPE == 'E')
 //     leds__safety_update_flash(hvlow, hvtemp, curr_millis);

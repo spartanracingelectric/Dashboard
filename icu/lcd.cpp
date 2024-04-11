@@ -135,13 +135,13 @@ void lcd__print_default_screen_template()
   //lcd__print8(0, 0, "RPM Screen");
   //lcd__print8(0, 10, "HV CURR");
   //lcd__print8(57, 28, "DRS");
-  lcd__print8(57, 58, "VCUF");  //VCU Fault
-  lcd__print8(57, 43, "LAUNCH"); // Launch Control
+  lcd__print8(95, 58, "VCUF");  //VCU Fault
+  lcd__print8(80, 43, "LAUNCH"); // Launch Control
   // lcd__print8(10, 10, "SOC"); // State of Charge
   //lcd__print8(10, 10, "VOL");
   //lcd__print8(10, 20, "0/400"); // Max Pack Voltage
-  lcd__print8(0, 20, "HV T"); // Lowest Cell Temp
-  lcd__print8(0, 38, "HV"); // Low Voltage
+  lcd__print8(0, 20, "HCT"); // Highest Cell Temp
+  lcd__print8(0, 38, "HCV"); // Highest Cell Voltage
   //lcd__print14(10, 62, "SOC");
   lcd__print8(0,55,"MTT"); // Motor Control
 
@@ -372,7 +372,7 @@ void lcd__print_monitorcomm(int mc, int displayScreen){
     char mc_str[5] = "   ";
     sprintf(mc_str, "%d", mc);
     lcd__clear_section(13);
-    lcd__print8(100, 46, mc_str);
+    lcd__print8(100, 46, mc_str); 
   }
 }
 
@@ -388,7 +388,7 @@ void lcd__print_precharge(int pc, int displayScreen){
     char pc_str[5] = "   ";
     sprintf(pc_str, "%d", pc);
     lcd__clear_section(14);
-    lcd__print8(80, 57, pc_str);
+    lcd__print8(80, 57, pc_str);  
   }
 }
 
@@ -464,7 +464,7 @@ void lcd__print_hvcurr(float hvcurr) // hv current
   lcd__print14(0, 34, hvcurr_str);
 }
 
-void lcd__print_hvtemp(float hvtemp) // Accumulator/Engine temperature
+void lcd__print_hvtemp(float hvtemp) // Accumulator temperature
 {
   if (hvtemp == hvtemp_prev) return; // if the value is the same, don't update that "section"
 
@@ -479,9 +479,9 @@ void lcd__print_hvtemp(float hvtemp) // Accumulator/Engine temperature
   lcd__print14(94, 64, hvtemp_str);
 }
 
-void lcd__print_drs(int drs, int displayScreen)
+void lcd__print_drs(int drs)
 {
-  if(displayScreen == 0){
+  
   if(drs == drs_prev){
     drs_prev = -1;
     return;
@@ -491,7 +491,7 @@ void lcd__print_drs(int drs, int displayScreen)
 
   char drs_str[5] = "    ";
 
-  if (drs == 0) {
+  /*if (drs == 0) {                 //Going to display if car is in reverse instead?
     sprintf(drs_str, "%s", "OFF");
     
   } else if (drs == 1)
@@ -505,18 +505,17 @@ void lcd__print_drs(int drs, int displayScreen)
   } else if (drs == 3)
   {
     sprintf(drs_str, "%s", "AUTO");
-  }
+  }*/
 
   lcd__clear_section(1);
-  lcd__print8(100, 25, drs_str);
-  }
+  //lcd__print8(100, 25, drs_str);
+  
 }
 
 // Electric car --------------------------------------------------------------- ---------------------------------------------------------------
-void lcd__print_hv(float hv, int displayScreen, int prevDisplayScreen) // accumulator voltage (comes in float or integer?)
+void lcd__print_hv(float hv) // accumulator voltage (comes in float or integer?)
 {
-  if(displayScreen == 0){
-  if (hv == hv_prev && displayScreen == prevDisplayScreen){ // if the value is the same, don't update that "section"
+  if (hv == hv_prev){ // if the value is the same, don't update that "section"
     hv_prev = -1;
     return;
   } 
@@ -530,7 +529,7 @@ void lcd__print_hv(float hv, int displayScreen, int prevDisplayScreen) // accumu
 
   lcd__clear_section(3);
   lcd__print14(40, 15, hv_str);
-  }
+  
 }
 
 void lcd__print_soc(float soc) // State of charge 0-100%
@@ -672,8 +671,8 @@ void lcd_settings(int rowCount, int prevRowCount) {
         lcd__print_default_screen_template();
       }
       
-    lcd__print_hv(hv, displayScreen, prevDisplayScreen);
-    lcd__print_drs(drsMode, displayScreen);
+    lcd__print_hv(hv);
+    lcd__print_drs(drsMode);
     lcd__print_rgm(regenmode, displayScreen);
     //lcd__print_launch(launchReady, displayScreen);
     }
