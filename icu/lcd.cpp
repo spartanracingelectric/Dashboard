@@ -134,79 +134,20 @@ void lcd__print_default_screen_template()
   //lcd__print8(47, 40, "SOC%");
   //lcd__print8(0, 0, "RPM Screen");
   //lcd__print8(0, 10, "HV CURR");
-  lcd__print8(57, 28, "DRS");
-  lcd__print8(57, 43, "REGEN");
-  //lcd__print8(57, 58, "LAUNCH"); // Launch Control
+  //lcd__print8(57, 28, "DRS");
+  lcd__print8(57, 58, "VCUF");  //VCU Fault
+  lcd__print8(57, 43, "LAUNCH"); // Launch Control
   // lcd__print8(10, 10, "SOC"); // State of Charge
   //lcd__print8(10, 10, "VOL");
   //lcd__print8(10, 20, "0/400"); // Max Pack Voltage
   lcd__print8(0, 20, "HV T"); // Lowest Cell Temp
   lcd__print8(0, 38, "HV"); // Low Voltage
   //lcd__print14(10, 62, "SOC");
-  // lcd__print8(5,5,"------");
+  lcd__print8(0,55,"MTT"); // Motor Control
 
-  /* #elif(POWERTRAIN_TYPE == 'C')
-    lcd__print8(128 - 20, 18, "rpm");
-    lcd__print8(52, 37, "Gear");
-    lcd__print8(95, 45, "Oil PSI");
-    lcd__print8(0, 45, "LV");
-    lcd__print8(90, 35, "DRS");
-  */
 }
 
-// Combustion Car --------------------------------------------------------------- ---------------------------------------------------------------
-/* void lcd__print_rpm(uint16_t rpm)
-  {
-  if (rpm == rpm_prev) return; // if the value is the same, don't update that "section"
-
-  rpm_prev = rpm; // else, update value_prev and redraw that section
-
-  char rpm_str[6] = "     ";
-  //RPM up to 5 digits
-  sprintf(rpm_str, "%5hu", rpm); // transforms int or float or # into a string with a specifying operator in the middle.
-
-  lcd__clear_section(4);
-  lcd__print18(35, 18, rpm_str);
-  }
-*/
-
-/* void lcd__print_gear(uint8_t gear)
-  {
-  if (gear == gear_prev) return; // if the value is the same, don't update that "section"
-
-  gear_prev = gear; // else, update value_prev and redraw that section
-
-  char gear_str[2] = " ";
-  //gear is uint8_t, so no negative values expected
-  //We only need to compare for gear values past 5
-  //If gear out of range
-  if (gear > 5) {
-    lcd__print24(56, 64, "¡");
-    return;
-  } else {
-    sprintf(gear_str, "%1d", gear);
-    lcd__clear_section(5);
-    lcd__print24(56, 64, gear_str);
-  }
-  }
-*/
-
-/* void lcd__print_oilpress(float oilpress) // Oil coolant? pressure // warn if below 15 psi // float or uint8
-  {
-  if (oilpress == oilpress_prev) return; // if the value is the same, don't update that "section"
-
-  oilpress_prev = oilpress; // else, update value_prev and redraw that section
-
-  char oil_str[4] = "   ";
-
-  leds__oilpress(oilpress); // updates RGB Oilpress led (bottom right)
-
-  sprintf(oil_str, "%3.1f", oilpress); // float or unsigned int?
-  lcd__clear_section(0);
-  lcd__print14(94, 64, oil_str);
-  }
-*/
-// E & C car --------------------------------------------------------------- ---------------------------------------------------------------
+// E car --------------------------------------------------------------- ---------------------------------------------------------------
 
 void lcd__clear_section (uint8_t sect)
 {

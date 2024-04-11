@@ -1,4 +1,4 @@
-# SR-14 Instrument Cluster Repository
+# SR-15 Dashboard
 A.k.a the ICU.<br/>
 <br/>
 
@@ -6,7 +6,7 @@ A.k.a the ICU.<br/>
 - Arduino IDE
 - earlephilhower Raspberry Pi Pico library
 - ACAN2515 2.1.0 library
-- U8g2 2.30.1 library (**AND NOT ANY VERSION AFTER**)
+- U8g2 2.30.1 library (**AND NOT ANY VERSION AFTER, screen will display black**)
 - MD_MAX72XX 3.3.0 library
 <br/>
 
@@ -26,14 +26,12 @@ A.k.a the ICU.<br/>
     1. If you get a `No drive to deploy` error, double check the `Port:` field in the `Tools` tab is set to a USB/COM port that the Pico is connected to. If this still doesn't work, do the BOOTSEL procedure as previously stated.
 <br/>
 
-## SR-14 Instrument Cluster Team
-_Shinika Balasundar_, Software Lead, Firmware & Hardware (Core Software Design, HW & FW Validation and Integration)<br/>
-_Sean Widjaja_, Project Lead, Hardware (Schematic and PCB design, PCBA)<br/>
-_Johnathon Lu_, Project Lead, Firmware (LCD FW design)<br/>
-_Shubham Mishra_, Project Designer, Firmware (LCD FW design)<br/>
+## SR-15 Dashboard
+_Shubham Mishra_, Software Lead, Project Designer, Firmware (LCD FW design)<br/>
+_Carlie Yem_, Project Intern, Firmware & Hardware (...)<br/>
 <br/>
 
-## Links
+## Links (need updating)
 [Spartan Racing Website](https://www.sjsuformulasae.com/)<br/>
 [Figma Mockup of Dashboard and Instrument Cluster Displays for SR-14](https://www.figma.com/file/OO0pxYkTq5pNKeiJYwpVl4/Dashboard-UI?node-id=4%3A48&t=adEPlYpGNrnOhfRT-0) <br />
 [Pico Pinout](https://microcontrollerslab.com/wp-content/uploads/2021/01/Raspberry-Pi-Pico-pinout-diagram.svg)<br/>
