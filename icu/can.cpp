@@ -42,6 +42,7 @@
   int curr_hvil = 1;
   // diagnostics ---------------------------------
   float curr_rpm = 0;
+  float curr_pack_voltage = 0;
   float curr_bms_fault = 0;
   float curr_bms_warn = 0;
   float curr_bms_stat = 0;
@@ -164,6 +165,13 @@
     }
     */
   }
+  static void can__bms_safety_checker_receive(const CANMessage & inMessage)
+  {
+    curr_pack_voltage = ((inMessage.data[3]) | (inMessage.data[4] >> 8) | (inMessage.data[5] >> 16) | (inMessage.data[6] >> 24));
+    if(curr_pack_voltage == 100){
+      digitalWrite(LED_BUILTIN,HIGH);
+    }
+  }
   static void can__bms_fault_receive (const CANMessage & inMessage)
   {
     curr_bms_fault = inMessage.data[0] << 16;
@@ -254,6 +262,10 @@
   {
     return curr_rpm;
   }
+  float can__get_bms_safety_checker()
+  {
+    return curr_pack_voltage; 
+  }
   float can__get_bms_fault()
   {
     return curr_bms_fault;
@@ -331,7 +343,7 @@
     //{standard2515Filter (CAN_LAUNCH_ADDR, 0, 0), can__launch_receive}, //0x50B
     {standard2515Filter (CAN_DRS_ADDR, 0,0), can__drs_receive}, //0x50C
     {standard2515Filter (CAN_SAFETY, 0, 0), can__vcu_safety_receive},
-    {standard2515Filter (CAN_HV_ADDR, 0, 0), can__hv_receive}, // 0x620
+    {standard2515Filter (CAN_BMS_SAFETY_CHECKER, 0, 0), can__bms_safety_checker_receive}, // 0x600
     {standard2515Filter (CAN_BAT_TEMP_ADDR, 0, 0), can__hvtemp_receive}, // 0x623
     
   };
@@ -351,14 +363,14 @@
    ACAN2515AcceptanceFilter filters3[] = 
    {
     {standard2515Filter (CAN_BPS0, 0, 0), can__bps0voltage_receive}, // 0x502
-    {standard2515Filter (CAN_BMS_FAULT_ADDR, 0, 0), can__bms_fault_receive}, // 0x602
+    // {standard2515Filter (CAN_BMS_FAULT_ADDR, 0, 0), can__bms_fault_receive}, // 0x602
    };
 
   ACAN2515AcceptanceFilter filters4[] = 
   {
     {standard2515Filter (CAN_LV_ADDR, 0, 0), can__lv_receive}, // 0x507
     {standard2515Filter (CAN_REGEN_ADDR, 0, 0), can__regenmode_receive}, //0x508
-    {standard2515Filter (CAN_BMS_FAULT_ADDR, 0, 0), can__bms_fault_receive}, // 0x602
+    // {standard2515Filter (CAN_BMS_FAULT_ADDR, 0, 0), can__bms_fault_receive}, // 0x602
   };
 
 

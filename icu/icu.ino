@@ -46,6 +46,7 @@ int drsMode = 0;
 float launchReady = 0.0f;
 float launchStatus = 0.0f;
 int hvil = 1;
+float packVoltage = 0.0f;
 
 // diagnostics ---------------------------
 uint16_t rpm = 0;
@@ -179,6 +180,7 @@ void loop()
   failedthermistor = can__get_failedthermistor();
   maxtorque = can__get_maxtorque();
 // diagnostics --------------------------------- // don't work
+  packVoltage = can__get_bms_safety_checker();
   cellfault = can__get_bms_fault();
   cellwarn = can__get_bms_warn();
   bmsstate = can__get_bms_stat();
@@ -193,7 +195,7 @@ void loop()
       launchReady, tps0volt, tps0calib, tps1volt, tps1calib, bps0volt, 
       bps0calib, cell_over_volt, pack_over_volt, monitor_comm, precharge, failedthermistor, maxtorque, displayScreen, rowCount, prevDisplayScreen, 
       prevRowCount,currentStateCLK, lastStateCLK, currentStateDT, curr_millis);
-    leds__rpm_update_tach(rpm);
+    leds__rpm_update_tach(0);
     leds__drsEnable(drsEnable, displayScreen);
     leds__launchReady(launchStatus, displayScreen);
     leds__lv(lv,displayScreen);

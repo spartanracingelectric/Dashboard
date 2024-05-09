@@ -132,9 +132,11 @@
 #define CAN_REGEN_ADDR 0x508 // Need to validate. technically done, test LCD
 #define CAN_LAUNCH_ADDR 0x50B // Need to validate. technically done, test LCD
 #define CAN_DRS_ADDR 0x50C // Need to validate
-#define CAN_BMS_FAULT_ADDR 0x602 // dec: 1538
-#define CAN_BMS_WARN_ADDR 0x604 // dec: 1540
-#define CAN_BMS_STAT_ADDR 0x610 // dec: 1552 // system status (should be idle - 1)
+#define CAN_BMS_SAFETY_CHECKER 0x600 // dec: 1536
+//old bms
+// #define CAN_BMS_FAULT_ADDR 0x602 // dec: 1538
+// #define CAN_BMS_WARN_ADDR 0x604 // dec: 1540
+// #define CAN_BMS_STAT_ADDR 0x610 // dec: 1552 // system status (should be idle - 1)
 
 #define CAN_HV_ADDR 0x620
 #define CAN_HV_CURRENT_ADDR 0x620

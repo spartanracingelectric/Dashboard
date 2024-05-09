@@ -126,7 +126,7 @@ void lcd_welcome_screen()
   lcd__clear_screen(); 
 }
 
-void lcd__print_default_screen_template()
+void lcd__print_default_screen_template()    //a 0 displays over tphe 'Launch' and I have no idea where it's from
 {
   //lcd__print8(104, 45, "HV T");
   //lcd__print8(0, 45, "LV");
@@ -228,14 +228,14 @@ void lcd__print_rgm(int rgm, int displayScreen) {
   
   
   lcd__clear_section(0);
-  lcd__print8(100, 43, rgm_str);
+  // lcd__print8(100, 43, rgm_str);
   }
 
   else if(displayScreen == 1){
     sprintf(rgm_str, "%d", rgm);
     lcd__clear_section(18);
     lcd->sendBuffer();
-    lcd__print8(85, 21.5, rgm_str);
+    // lcd__print8(85, 21.5, rgm_str);
   }
 
 }
