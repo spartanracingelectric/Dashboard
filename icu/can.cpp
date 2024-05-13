@@ -43,6 +43,7 @@
   // diagnostics ---------------------------------
   float curr_rpm = 0;
   float curr_pack_voltage = 0;
+  float curr_high_temp_fault = 0;
   float curr_bms_fault = 0;
   float curr_bms_warn = 0;
   float curr_bms_stat = 0;
@@ -168,7 +169,14 @@
   static void can__bms_safety_checker_receive(const CANMessage & inMessage)
   {
     curr_pack_voltage = ((inMessage.data[3]) | (inMessage.data[4] >> 8) | (inMessage.data[5] >> 16) | (inMessage.data[6] >> 24));
-    if(curr_pack_voltage == 100){
+    // if(curr_pack_voltage == 100){
+    //   digitalWrite(LED_BUILTIN,HIGH);
+    // }
+  }
+  static void can__bms_high_temp_fault_receive(const CANMessage & inMessage)
+  {
+    curr_high_temp_fault = (inMessage.data[0] >> 3);
+    if(curr_pack_voltage == 1){
       digitalWrite(LED_BUILTIN,HIGH);
     }
   }
@@ -266,11 +274,14 @@
   {
     return curr_pack_voltage; 
   }
+  float can__get_bms_high_temp_fault()
+  {
+    return curr_high_temp_fault;
+  }
   float can__get_bms_fault()
   {
     return curr_bms_fault;
   }
-
   float can__get_bms_warn()
   {
     return curr_bms_warn;

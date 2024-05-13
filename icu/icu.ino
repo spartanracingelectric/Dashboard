@@ -47,6 +47,7 @@ float launchReady = 0.0f;
 float launchStatus = 0.0f;
 int hvil = 1;
 float packVoltage = 0.0f;
+float highTempFault = 0.0f;
 
 // diagnostics ---------------------------
 uint16_t rpm = 0;
@@ -181,6 +182,7 @@ void loop()
   maxtorque = can__get_maxtorque();
 // diagnostics --------------------------------- // don't work
   packVoltage = can__get_bms_safety_checker();
+  highTempFault = can__get_bms_high_temp_fault();
   cellfault = can__get_bms_fault();
   cellwarn = can__get_bms_warn();
   bmsstate = can__get_bms_stat();

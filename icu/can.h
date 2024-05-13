@@ -33,6 +33,7 @@ static void can__vcu_safety_receive(const CANMessage &inMessage);
 // diagnostics ---------------------------
 static void can__rpm_receive (const CANMessage & inMessage); // rpm
 static void can__bms_safety_checker_receive(const CANMessage & inMessage); // pack voltage, etc
+static void can__bms_high_temp_fault_receive(const CANMessage & inMessage);
 static void can__bms_fault_receive (const CANMessage & inMessage); // cell under voltage fault
 static void can__bms_warn_receive (const CANMessage & inMessage); // cell under voltage warn
 static void can__bms_stat_receive (const CANMessage & inMessage); // bms status 0-5
@@ -52,6 +53,7 @@ int can__get_hvil();
 // diagnostics ---------------------------
 float can__get_rpm(); // not tested
 float can__get_bms_safety_checker(); //testing
+float can__get_bms_high_temp_fault(); // testing
 float can__get_bms_fault(); //
 float can__get_bms_warn(); //
 float can__get_bms_stat(); //
