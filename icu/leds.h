@@ -35,15 +35,12 @@ void leds__rpm_update_tach(uint16_t rpm);
 void leds__safety_update_flash(float hvlow, float hvtemp, uint32_t curr_millis);
 void leds__set_brightness(uint8_t brightness_value);
 //void leds__oilpress(float oilpress);
-void leds__debug(int displayScreen);
-void leds__lv(float lv, int displayScreen);
-void leds__hvtemp(float hvtemp, int displayScreen);
-void leds__drsEnable(float drsEnable, int displayScreen);
-void leds__launchReady(float launchReady, int displayScreen);
+void leds__lv(float lv);
+void leds__hvtemp(float hvtemp);
+void leds__drsEnable(float drsEnable);
+void leds__launchReady(float launchReady);
 void leds__hvlow(float hvlow);
-void leds__regenMode(int regenmode, int displayScreen);
-void leds__regenModeSet(int regenmode, int displayScreen, uint8_t mode);
-void leds__hvil(int hvil, float hv);
+void leds__regenMode(int regenmode);
 
 //create LEDs Update function that takes CAN data and changes LEDs
 

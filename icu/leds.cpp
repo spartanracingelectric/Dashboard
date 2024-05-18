@@ -335,65 +335,36 @@ void leds__oilpress(float oilpress) // float or uint8
 }
 */
 
-void leds__debug(int displayScreen){ // use functions like this to simplify the number of times displayScreen is passed
-  if(displayScreen == 2 | displayScreen == 3 | displayScreen == 4){
-    leds->setPoint(3, 3, false);
-    leds->setPoint(3, 5, false);
-    leds->setPoint(4, 2, false);
-    leds->setPoint(4, 4, false);
+void leds__lv(float lv)
+{
+  if (lv < 5.0){
+    leds->setPoint(3, 1, true);
+  }
+  else{
+    leds->setPoint(3, 1, false);
+  }
+ 
+}
+
+void leds__drsEnable(float drsEnable){
+  if(drsEnable == 1){
+    leds->setPoint(4, 0, true);
+  }
+  else{
     leds->setPoint(4, 0, false);
   }
 }
-void leds__lv(float lv, int displayScreen)
-{
-  if(displayScreen == 4){
-    if (lv < 5.0){
-      leds->setPoint(3, 1, true);
-    }
-    else{
-      leds->setPoint(3, 1, false);
-    }
-  }
-}
 
-void leds__hvil(int hvil, float hv){
-  if(hvil == 0 && hv >= 60){
-    leds->setPoint(4, 1, true);
-    leds->setPoint(3, 1, true);
+void leds__launchReady(float launchReady){
+  if(launchReady == 1){
+    leds->setPoint(4,4, true);
   }
-
   else{
-    leds->setPoint(4, 1, false);
-     leds->setPoint(3, 1, false);
-  }
-}
-
-
-void leds__drsEnable(float drsEnable, int displayScreen){
-  if(displayScreen == 0){
-    if(drsEnable == 1){
-      leds->setPoint(4, 0, true);
-    }
-    else{
-      leds->setPoint(4, 0, false);
-    }
-  }
-}
-
-void leds__launchReady(float launchReady, int displayScreen){
-  if(displayScreen == 0){
-    if(launchReady == 1){
-      leds->setPoint(4,4, true);
-    }
-    else{
     leds->setPoint(4,4, false);
-    }
   }
 
 }
-void leds__regenMode(int regenmode, int displayScreen){
-
-  if(displayScreen == 0){
+void leds__regenMode(int regenmode){
   if(regenmode == 1 | regenmode == 4){
     leds->setPoint(4, 2, true);
   }
@@ -401,53 +372,15 @@ void leds__regenMode(int regenmode, int displayScreen){
   else{
     leds->setPoint(4, 2, false);
   }
-  }
-  
 }
-
-void leds__regenModeSet(int regenmode, int displayScreen, uint8_t mode){
-  if(displayScreen == 1){
-    if(mode == 0){
-      leds->setPoint(3, 1, true);
-      leds->setPoint(3, 3, true);
-      leds->setPoint(3, 5, true);
-    }
-    else{
-      leds->setPoint(3, 1, false);
-      leds->setPoint(3, 3, false);
-      leds->setPoint(3, 5, false);
-    }
-
-    if(mode == 4){
-      leds->setPoint(4, 2, true);
-      leds->setPoint(4, 4, true);
-      leds->setPoint(4, 0, true);
-    }
-
-    else{
-      leds->setPoint(4, 2, false);
-      leds->setPoint(4, 4, false);
-      leds->setPoint(4, 0, false);
-    }
-
-    
-  }
-
-}
-
-void leds__hvtemp(float hvtemp, int displayScreen)
+void leds__hvtemp(float hvtemp)
 {
-  if(displayScreen == 0){
-    leds->setPoint(3, 1, false);
-    leds->setPoint(3, 5, false);
   if(hvtemp > 60){
     leds->setPoint(3, 3, true);
-    
   }
 
   else{
     leds->setPoint(3, 3, false);
-  }
   }
 }
 
