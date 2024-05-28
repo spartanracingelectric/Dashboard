@@ -32,12 +32,6 @@ static void can__soc_receive (const CANMessage & inMessage);
 static void can__lv_receive (const CANMessage & inMessage);
 static void can__hv_low_receive (const CANMessage & inMessage);
 static void can__hvtemp_receive (const CANMessage & inMessage);
-static void can__vcu_safety_receive(const CANMessage &inMessage);
-static void can__regenmode_receive(const CANMessage & inMessage);
-static void can__drs_receive(const CANMessage & inMessage);
-static void can__launch_receive(const CANMessage & inMessage);
-static void can__tps0voltage_receive(const CANMessage & inMessage);
-static void can__tps0calibmax_receive(const CANMessage & inMessage);
 
 // diagnostics ---------------------------
 static void can__rpm_receive (const CANMessage & inMessage); // rpm
@@ -51,22 +45,12 @@ float can__get_lv();
 float can__get_hvtemp(); // E car accumulator
 float can__get_hv_current();
 float can__get_hvlow(); // E car accumulator
-int can__get_regenmode();
-float can__get_drsEnable();
-int can__get_drsMode();
-float can__get_launchReady();
-float can__get_launchStatus();
-float can__get_vcuTps();
-float can__getvcuBps();
 
 // diagnostics ---------------------------
 float can__get_rpm(); // not tested
 float can__get_bms_fault(); //
 float can__get_bms_warn(); //
 float can__get_bms_stat(); //
-float can__get_tps0voltage();
-float can__get_tps0calibmax();
-
 
 #endif
 

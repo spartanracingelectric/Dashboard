@@ -9,7 +9,7 @@
 // Board Revision, select:
 // 'A' for Rev A
 // 'B' for Rev B
-// #define BOARD_REVISION 'A'
+//#define BOARD_REVISION 'A'
 #define BOARD_REVISION 'B'
 
 //#define POWERTRAIN_TYPE 'C'
@@ -17,6 +17,12 @@
 
 // Set to 1 if you want to print the input data over serial
 #define SERIAL_DEBUG_EN 0
+
+// Display Screen Status
+// 0 for Driver
+// 1 for Menu
+// 2 for Individual Menu Screens
+// 3 for RPM Threshold
 
 
 /*---------------------------------------------------------------------------/
@@ -89,19 +95,16 @@
 /*---------------------------------------------------------------------------/
 / BUTTON PINS AND Screen CONSTANTS
 /---------------------------------------------------------------------------*/
-#define CLK 6
-#define DT 7
-#define SW 8
-// #define BUT4 12 //extra
+#define BUT1 9 //PINC0
+#define BUT2 10 //PINC1
+#define BUT3 11 //PINC2
+#define BUT4 12 //PINC3
 
-#define TESTING_SCREEN 0
-#define MINIMALIST_SCREEN 1
-#define DEBUG_BMS_SCREEN 2
-#define DEBUG_VCU_SCREEN 3
-#define MENU_SCREEN 4         // menu screen always has to be last - when assigning row to screen after clicking it's 1 to 1 instead of many if statements
-
-#define NUMBER_OF_SCREENS 5   // change when add or subtract screens
-#define NUMBER_OF_ROWS 5      // number of rows at menu screen
+#define DEFAULT_SCREEN 0
+#define MENU_SCREEN 1
+#define DIAGNOSTICS_SCREEN 2
+#define RPM_SCREEN 3
+//#define OPTIONY_SCREEN 4
 
 #define DEBOUNCE_TIME 600
 #define LOCK_TIME 100
@@ -132,12 +135,10 @@
 #define CAN_SOC_ADDR 0x621
 #define CAN_HVLOW_ADDR 0x622
 #define CAN_BAT_TEMP_ADDR 0x623
-#define CAN_SAFETY_ADDR 0x506 // Need to validate
-#define CAN_LAUNCH_ADDR 0x50B // Need to validate. technically done, test LCD
-#define CAN_TPS0 0x50
 
-// Need to validate
-#define CAN_REGEN_ADDR 0x508 // Need to validate. technically done, test LCD
+
+// wrong addresses
+#define CAN_REGEN_ADDR 0x508
 #endif
 
 //  LOW VOLTAGE
@@ -165,7 +166,7 @@
 #define BAT_TEMP_ADDR 0x628
 #define RPM_ADDR 0x0A5
 #define WSS_ADDR 0x505      // Interpolated WSS address
-#define REGEN_ADDR 0x508 // using for Regen mode
+#define REGEN_ADDR 0x508
 #define HV_ADDR 0x623
 #define LV_ADDR 0x700
 #define TS_ADDR 0x701       // Timestamp Address (-> DAQ)
@@ -186,6 +187,6 @@
 /*---------------------------------------------------------------------------/
 / HELPFUL MACROS
 /---------------------------------------------------------------------------*/
-#define MAX_LED_BRIGHTNESS 0xFF
+#define MAX_LED_BRIGHTNESS 0xF
 
 #endif /* CONF_H_ */
