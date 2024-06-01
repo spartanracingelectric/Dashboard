@@ -14,7 +14,7 @@ float hv_prev = -1.0f;
 float lv_prev = -1.0f;
 float hvtemp_prev = -1.0f;
 float hvlow_prev = -1.0f;
-float oilpress_prev = -1.0f; // float or uint8
+float oilpress_prev = -1.0f; // float or uint8p
 uint8_t watertemp_prev = -1;
 uint8_t drs_prev = -1;
 
@@ -218,7 +218,7 @@ void lcd__print_hvtemp(float hvtemp) // Accumulator/Engine temperature
   hvtemp_prev = hvtemp; // else, update value_prev and redraw that section
   
   char hvtemp_str[5] = "    ";
-  leds__hvtemp(hvtemp);
+  // leds__hvtemp(hvtemp);
 
   sprintf(hvtemp_str, "%2.1f", hvtemp);
 
@@ -257,6 +257,20 @@ void lcd__print_hv(float hv) // accumulator voltage (comes in float or integer?)
 
   lcd__clear_section(1);
   lcd__print18(35, 18, hv_str);
+}
+
+void lcd__print_soc(float soc)
+{
+  if (soc == soc_prev) return; // if the value is the same, don't update
+
+  soc_prev = soc; // else update value_prev = value
+
+  char soc_str[] = "   ";
+  // Round to ?? decimal place 
+  // sprintf(soc_str, "%05f", soc);
+
+  // lcd__clear_screen(1);
+  // lcd__print18(35, 36, soc_str);  
 }
 
 
@@ -342,7 +356,7 @@ void lcd__update_screenE(float hv, float soc, float lv, float hvlow, float hvtem
     prev_millis_lcd = curr_millis_lcd;
 
       lcd__print_hv(hv);
-      lcd__print_hvlow(hvlow);
+      // lcd__print_hvlow(hvlow);
       // lcd__print_lv(lv);
       lcd__print_hvtemp(hvtemp);
     
