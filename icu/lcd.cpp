@@ -14,6 +14,8 @@ float hv_prev = -1.0f;
 float lv_prev = -1.0f;
 float hvtemp_prev = -1.0f;
 float hvlow_prev = -1.0f;
+float tps0_voltprev = -1.0f;
+float tps1_voltprev = -1.0f;
 float oilpress_prev = -1.0f; // float or uint8p
 uint8_t watertemp_prev = -1;
 uint8_t drs_prev = -1;
@@ -120,9 +122,11 @@ void lcd__clear_section (uint8_t sect)
   int hv[] = {30, 0, 70, 18};
   int lv[] = {0, 64-14, 45, 14};
   int soc[] = {40, 64-24, 45, 24};
+  int tps0volt[] = {70, 2, 20, 10};
+  int tps1volt[] = {70, 26, 20, 10};
   int rpm[] = {30, 0, 75,18};
   int gear[] = {50, 64-24, 30, 24};
-  int* sections[] = {hvtemp, hv, lv, soc, rpm, gear};
+  int* sections[] = {hvtemp, hv, lv, soc, tps0volt, tps1volt, rpm, gear};
   
   lcd->setDrawColor(0);
   lcd->drawBox(sections[sect][0], sections[sect][1], sections[sect][2], sections[sect][3]);
@@ -273,6 +277,8 @@ void lcd__print_soc(float soc)
   // lcd__print18(35, 36, soc_str);  
 }
 
+// void lcd__print_tps(){} // what is being displayed?
+
 
 // Menu Functions --------------------------------------------------------------- ---------------------------------------------------------------
 void lcd__highlight_screen(uint8_t row, const char* screen) // number 0-5
@@ -350,7 +356,7 @@ void lcd__print_rpm_diag(uint16_t rpm)
   }
 }
 */
-void lcd__update_screenE(float hv, float soc, float lv, float hvlow, float hvtemp, uint32_t curr_millis_lcd)
+void lcd__update_screenE(float hv, float soc, float lv, float tps0volt, float tps1volt, float hvtemp, float hvlow, uint32_t curr_millis_lcd)
 {
   if (curr_millis_lcd - prev_millis_lcd >= LCD_UPDATE_MS) {
     prev_millis_lcd = curr_millis_lcd;
