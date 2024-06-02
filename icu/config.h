@@ -12,7 +12,6 @@
 //#define BOARD_REVISION 'A'
 #define BOARD_REVISION 'B'
 
-//#define POWERTRAIN_TYPE 'C'
 #define POWERTRAIN_TYPE 'E'
 
 // Set to 1 if you want to print the input data over serial
@@ -113,17 +112,12 @@
 
 //  CAN BUS
 /////////////////////
-/* #if (POWERTRAIN_TYPE == 'C')
-//#define CANBUS_SPEED 1000UL * 1000UL //1 Mbit/s
-#define CANBUS_SPEED 500UL * 1000UL //500 kbit/s
-#define CAN_RPM_ADDR    0x640
-#define CAN_GEAR_ADDR   0x703
-// lv, drs, oil pressure, coolant temp
-*/
 
 #if (POWERTRAIN_TYPE == 'E')
 #define CANBUS_SPEED 500UL * 1000UL //500 kbit/s
 #define CAN_RPM_ADDR 0x0A5
+#define CAN_TPS0 0x500
+#define CAN_TPS1 0x501
 #define CAN_LV_ADDR 0x507
 #define CAN_HV_ADDR 0x620
 #define CAN_BMS_FAULT_ADDR 0x602 // dec: 1538

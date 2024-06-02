@@ -10,19 +10,6 @@ void can__start();
 void can__send_test();
 void can__receive();
 
-// C car
-/* #if (POWERTRAIN_TYPE == 'C')
-static void can__gear_receive (const CANMessage & inMessage);
-static void can__oilpress_receive (const CANMessage & inMessage);
-static void can__lv_receive (const CANMessage & inMessage);
-static void can__drs_receive (const CANMessage & inMessage);
-
-uint16_t can__get_rpm();
-uint8_t can__get_gear();
-float can__get_oilpress();
-float can__get_lv();
-uint8_t can__get_drs();
-*/
 
 // E car
 #if (POWERTRAIN_TYPE == 'E')
@@ -32,6 +19,8 @@ static void can__soc_receive (const CANMessage & inMessage);
 static void can__lv_receive (const CANMessage & inMessage);
 static void can__hv_low_receive (const CANMessage & inMessage);
 static void can__hvtemp_receive (const CANMessage & inMessage);
+static void can__tps0voltage_receive(const CANMessage & inMessage);
+static void can_tps1voltage_receive(const CANMessage & inMessage);
 
 // diagnostics ---------------------------
 static void can__rpm_receive (const CANMessage & inMessage); // rpm
@@ -45,6 +34,10 @@ float can__get_lv();
 float can__get_hvtemp(); // E car accumulator
 float can__get_hv_current();
 float can__get_hvlow(); // E car accumulator
+float can__get_tps0voltage();
+float can__get_tps0percent();
+float can__get_tps1voltage();
+float can__get_tps1percent();
 
 // diagnostics ---------------------------
 float can__get_rpm(); // not tested

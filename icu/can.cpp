@@ -18,6 +18,10 @@ float curr_lv = 0;
 float curr_hvlow = 0;
 float curr_hvtemp = 0;
 float curr_hv_current = 0;
+float curr_tps0voltage = 0;
+float curr_tps0percent = 0;
+float curr_tps1voltage = 0;
+float curr_tps1percent = 0;
 
 // diagnostics ---------------------------------
 float curr_rpm = 0;
@@ -54,6 +58,16 @@ static void can__hvlow_receive (const CANMessage & inMessage)
 static void can__hvtemp_receive (const CANMessage & inMessage)
 {
   curr_hvtemp = ((inMessage.data[7] << 8)  | (inMessage.data[6])) * 0.1f;
+}
+static void can__tps0voltage_receive(const CANMessage & inMessage) 
+{
+  curr_tps0percent = (inMessage.data[1]);
+  curr_tps0voltage = ((inMessage.data[3] << 8) | inMessage.data[2]) * 0.001f;
+}
+static void can__tps1voltage_receive(const CANMessage & inMessage) 
+{
+  curr_tps1percent = (inMessage.data[1]);
+  curr_tps1voltage = ((inMessage.data[3] << 8) | inMessage.data[2]) * 0.001f;
 }
 
 // diagnostics ---------------------------------
@@ -106,6 +120,22 @@ float can__get_hvlow()
 {
   return curr_hvlow;
 }
+float can__get_tps0percent()
+{
+  return curr_tps0percent;
+}
+float can__get_tps0voltage() 
+{
+  return curr_tps0voltage;
+}
+float can__get_tps1percent()
+{
+  return curr_tps1percent;
+}
+float can__get_tps1voltage() 
+{
+  return curr_tps1voltage;
+}
 
 // diagnostics ---------------------------------
 float can__get_rpm()
@@ -134,19 +164,6 @@ const ACAN2515Mask rxm0 = standard2515Mask (0x7FF, 0, 0) ;
 const ACAN2515Mask rxm1 = standard2515Mask (0x7FF, 0, 0) ;
 const ACAN2515Mask rxm2 = standard2515Mask (0x7FF, 0, 0) ;
 
-// POWERTRAIN_TYPE == 'C'
-/*
-#if (POWERTRAIN_TYPE == 'C')
-const ACAN2515AcceptanceFilter filters [] =
-{
-//  {standard2515Filter (CAN_GEAR_ADDR, 0, 0), can__drs_receive}, // not defined
-//  {standard2515Filter (CAN_GEAR_ADDR, 0, 0), can__oilpress_receive}, // not defined
-  {standard2515Filter (CAN_RPM_ADDR, 0, 0), can__rpm_receive}, // RXF0
-  {standard2515Filter (CAN_GEAR_ADDR, 0, 0), can__gear_receive} // RXF1
-  
-  //{standard2515Filter (0x7FE, 0, 0), can__dummy_receive}, // RXF2
-} ;
-*/
 // POWERTRAIN_TYPE == 'E'
 #if (POWERTRAIN_TYPE == 'E')
 const ACAN2515AcceptanceFilter filters [] =
@@ -159,7 +176,9 @@ const ACAN2515AcceptanceFilter filters [] =
   
   // {standard2515Filter (CAN_SOC_ADDR, 0, 0), can__soc_receive},          //RXF2
   {standard2515Filter (CAN_HVLOW_ADDR, 0, 0), can__hvlow_receive},          //RXF2
-  {standard2515Filter (CAN_BAT_TEMP_ADDR, 0, 0), can__hvtemp_receive}  //RXF3
+  {standard2515Filter (CAN_BAT_TEMP_ADDR, 0, 0), can__hvtemp_receive},  //RXF3
+  {standard2515Filter (CAN_TPS0, 0, 0), can__tps0voltage_receive}, // 0x500
+  {standard2515Filter (CAN_TPS1, 0, 0), can__tps1voltage_receive}//, // 0x501
   
 
 } ;
@@ -205,7 +224,7 @@ void can__start()
     Serial.println (errorCode, HEX) ;
   }
   
-  //Non-zero indicates error
+  //Non-4eqwd indicates error
   if (errorCode) {
     Serial.print ("Configuration error 0x") ;
     Serial.println (errorCode, HEX);

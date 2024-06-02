@@ -18,13 +18,6 @@ U8G2_ST7565_NHD_C12864_F_4W_SW_SPI lcd_u8g2(U8G2_R2, PICO_LCD_SPI_SCK, PICO_LCD_
 
 MD_MAX72XX leds_md = MD_MAX72XX(MAX72XX_HARDWARE_TYPE, PICO_LED_SPI_CS, 1);
 
-/* #if (POWERTRAIN_TYPE == 'C')
-uint16_t rpm = 0;
-uint8_t gear = 0;
-float oilpress = 0;
-float lv = 0.0f;
-uint8_t drs = 0;
-*/
 
 #if (POWERTRAIN_TYPE == 'E')
 float hv = 0.0f; 
@@ -32,6 +25,10 @@ float soc = 0.0f;
 float lv = 0.0f;
 float hvtemp = 0.0f;
 float hvlow = 0.0f;
+float tps0volt = 0.0f;
+float tps0percent = 0.0f;
+float tps1volt = 0.0f;
+float tps1percent = 0.0f;
 
 // diagnostics ---------------------------
 uint16_t rpm = 0;
@@ -115,13 +112,6 @@ void loop()
   //can__send_test();
   can__receive();
 
-/* #if(POWERTRAIN_TYPE == 'C')
-  rpm = can__get_rpm();
-  gear = can__get_gear();
-  oilpress = can__get_oilpress();
-  lv = can__get_lv();
-  drs = can__get_drs();
-*/
 #if (POWERTRAIN_TYPE == 'E')
   hv = can__get_hv();
   soc = can__get_soc();
@@ -130,6 +120,10 @@ void loop()
   // hvtemp = can__get_hv_current();
   lv = can__get_lv();
   hvlow = can__get_hvlow();
+  tps0volt = can__get_tps0voltage();
+  tps0percent = 0;//can__get_tps0percent();
+  tps1volt = can__get_tps1voltage();
+  tps1percent = 0;//can__get_tps1percent();
 
 // diagnostics ---------------------------------
   cellfault = can__get_bms_fault();
@@ -144,7 +138,7 @@ void loop()
 #endif
 
 #if (POWERTRAIN_TYPE == 'E')
-    lcd__update_screenE(hv, soc, lv, hvlow, hvtemp, curr_millis);
+    lcd__update_screenE(hv, soc, lv, hvlow, hvtemp, tps0volt, tps0percent, tps1volt, tps1percent, curr_millis);
     
 #endif
   //delay(500);

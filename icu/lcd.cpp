@@ -102,13 +102,6 @@ void lcd__print_default_screen_template()
     lcd__print8(47, 40, "SOC%");
     lcd__print8(0, 0, "RPM Screen");
     
-    /* #elif(POWERTRAIN_TYPE == 'C')
-    lcd__print8(128 - 20, 18, "rpm");
-    lcd__print8(52, 37, "Gear");
-    lcd__print8(95, 45, "Oil PSI");
-    lcd__print8(0, 45, "LV");
-    lcd__print8(90, 35, "DRS");
-    */
     
     #endif
   #elif (DISPLAY_SCREEN == 1)
@@ -133,58 +126,7 @@ void lcd__clear_section (uint8_t sect)
   lcd->setDrawColor(1);
 }
 
-// Combustion Car --------------------------------------------------------------- ---------------------------------------------------------------
-/* void lcd__print_rpm(uint16_t rpm)
-{
-  if (rpm == rpm_prev) return; // if the value is the same, don't update that "section" 
-  
-  rpm_prev = rpm; // else, update value_prev and redraw that section
-  
-  char rpm_str[6] = "     ";
-  //RPM up to 5 digits
-  sprintf(rpm_str, "%5hu", rpm); // transforms int or float or # into a string with a specifying operator in the middle.
-  
-  lcd__clear_section(4);
-  lcd__print18(35, 18, rpm_str);
-}
-*/
 
-/* void lcd__print_gear(uint8_t gear)
-{
-  if (gear == gear_prev) return; // if the value is the same, don't update that "section" 
-  
-  gear_prev = gear; // else, update value_prev and redraw that section
-  
-  char gear_str[2] = " ";
-  //gear is uint8_t, so no negative values expected
-  //We only need to compare for gear values past 5
-  //If gear out of range
-  if (gear > 5) {
-    lcd__print24(56, 64, "¡");
-    return;
-  } else {
-    sprintf(gear_str, "%1d", gear);
-    lcd__clear_section(5);
-    lcd__print24(56, 64, gear_str);
-  }
-}
-*/
-
-/* void lcd__print_oilpress(float oilpress) // Oil coolant? pressure // warn if below 15 psi // float or uint8
-{
-  if (oilpress == oilpress_prev) return; // if the value is the same, don't update that "section" 
-  
-  oilpress_prev = oilpress; // else, update value_prev and redraw that section
-  
-  char oil_str[4] = "   ";
-  
-  leds__oilpress(oilpress); // updates RGB Oilpress led (bottom right)
-  
-  sprintf(oil_str, "%3.1f", oilpress); // float or unsigned int?
-  lcd__clear_section(0);
-  lcd__print14(94, 64, oil_str);
-}
-*/
 // E & C car --------------------------------------------------------------- ---------------------------------------------------------------
 void lcd__print_lv(float lv) // low voltage battery
 {
@@ -263,21 +205,23 @@ void lcd__print_hv(float hv) // accumulator voltage (comes in float or integer?)
   lcd__print18(35, 18, hv_str);
 }
 
-void lcd__print_soc(float soc)
+void lcd__print_soc(float soc, float hv, float tps0percent, float tps1percent)
 {
   if (soc == soc_prev) return; // if the value is the same, don't update
 
   soc_prev = soc; // else update value_prev = value
 
-  char soc_str[] = "   ";
-  // Round to ?? decimal place 
-  // sprintf(soc_str, "%05f", soc);
+  char soc_str[6] = "   ";
+  if((tps0percent <= 5.0f) && (tps1percent <= 5.0f)){
+    //  Convert cell voltage 
+    float cellVoltage_converted = (hv/96);
+    
+    sprintf(soc_str, "%03.0f", soc);
 
-  // lcd__clear_screen(1);
-  // lcd__print18(35, 36, soc_str);  
+    // lcd__clear_section(); //Whats the soc section number
+    lcd__print18(43, 60, soc_str);  
+  }  
 }
-
-// void lcd__print_tps(){} // what is being displayed?
 
 
 // Menu Functions --------------------------------------------------------------- ---------------------------------------------------------------
@@ -356,7 +300,7 @@ void lcd__print_rpm_diag(uint16_t rpm)
   }
 }
 */
-void lcd__update_screenE(float hv, float soc, float lv, float tps0volt, float tps1volt, float hvtemp, float hvlow, uint32_t curr_millis_lcd)
+void lcd__update_screenE(float hv, float soc, float lv, float hvtemp, float hvlow, float tps0volt, float tps0percent, float tps1volt, float tps1percent, uint32_t curr_millis_lcd)
 {
   if (curr_millis_lcd - prev_millis_lcd >= LCD_UPDATE_MS) {
     prev_millis_lcd = curr_millis_lcd;
@@ -365,6 +309,7 @@ void lcd__update_screenE(float hv, float soc, float lv, float tps0volt, float tp
       // lcd__print_hvlow(hvlow);
       // lcd__print_lv(lv);
       lcd__print_hvtemp(hvtemp);
+      lcd__print_soc(soc, hv, tps0percent, tps1percent);
     
   }
 }
