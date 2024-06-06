@@ -34,10 +34,11 @@ float can__get_lv();
 float can__get_hvtemp(); // E car accumulator
 float can__get_hv_current();
 float can__get_hvlow(); // E car accumulator
-float can__get_tps0voltage();
-float can__get_tps0percent();
-float can__get_tps1voltage();
-float can__get_tps1percent();
+float can__get_motortemp(); 
+float can__get_tps0voltage(); 
+float can__get_tps0percent(); 
+float can__get_tps1voltage(); 
+float can__get_tps1percent(); 
 
 // diagnostics ---------------------------
 float can__get_rpm(); // not tested

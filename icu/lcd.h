@@ -32,6 +32,8 @@ void lcd__clear_section(uint8_t section);
 // E car
 void lcd__print_hv(float hv); // accumulator voltage
 void lcd__print_wattemp(uint8_t watertemp); // Water Coolant Temp
+void lcd__print_motortemp(float motortemp); // Motor temp
+
 // E & C car
 void lcd__print_lv(float lv); // low voltage battery soc
 void lcd__print_tps0voltage(float tps0, int displayScreen);
