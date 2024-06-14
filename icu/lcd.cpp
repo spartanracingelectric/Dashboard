@@ -8,6 +8,7 @@ uint32_t prev_millis_lcd = 0;
 
 // values to check current values and help with refresh rate on LCD
 uint16_t rpm_prev = -1;
+uint32_t power_prev = -1;
 uint8_t gear_prev = -1;
 float soc_prev = -1.0f;
 float hv_prev = -1.0f; 
@@ -167,6 +168,7 @@ void lcd__print_default_screen_template()
     lcd__print8(45, 28, "VOLTS");
     lcd__print8(47, 40, "SOC%");
     lcd__print8(0, 0, "RPM Screen");
+    lcd__pirnt8(0, 0, "POWER Screen");
     
     
     #endif
@@ -184,8 +186,9 @@ void lcd__clear_section (uint8_t sect)
   int tps0volt[] = {70, 2, 20, 10};
   int tps1volt[] = {70, 26, 20, 10};
   int rpm[] = {30, 0, 75,18};
+  int power[] = {30, 0, 75, 18};
   int gear[] = {50, 64-24, 30, 24};
-  int* sections[] = {hvtemp, hv, lv, soc, tps0volt, tps1volt, rpm, gear};
+  int* sections[] = {hvtemp, hv, lv, soc, tps0volt, tps1volt, rpm, power, gear};
   
   lcd->setDrawColor(0);
   lcd->drawBox(sections[sect][0], sections[sect][1], sections[sect][2], sections[sect][3]);
@@ -262,6 +265,8 @@ void lcd__print_drs(uint8_t drs) // DRS Open or Closed: 0 or 1
 // Electric car --------------------------------------------------------------- ---------------------------------------------------------------
 void lcd__print_hv(float hv) // accumulator voltage (comes in float or integer?)
 {
+  // Check
+  leds__hvtemp(1000);
   if (hv == hv_prev) return; // if the value is the same, don't update that "section" }
     
   hv_prev = hv; // else, update value_prev=value and redraw that section
@@ -273,11 +278,6 @@ void lcd__print_hv(float hv) // accumulator voltage (comes in float or integer?)
 
   lcd__clear_section(1);
   lcd__print18(35, 18, hv_str);
-  // check
-  if(hv > 0) 
-  {
-    digitalWrite(LED_BUILTIN, HIGH);
-  }
 }
 
 void lcd__print_soc(float soc, float hv, float tps0percent, float tps1percent) // SOC percentage 
@@ -373,6 +373,21 @@ void lcd__print_rpm_diag(uint16_t rpm)
   
   lcd__clear_section(4);
   lcd__print18(35, 18, rpm_str);
+}
+
+void lcd__print_power_diag(uint32_t power)
+{
+  char power_str[6] = "      ";
+  leds->setPoint(4, 4, true);
+  if (power > 50)
+  {
+    leds->setPoint(4, 2 true);
+    leds->setPoint(3, 2, true);
+    if(power > 70){
+      leds->setPoint(3, 1, true);
+    }
+  }
+  
 }
 
 // LCD Screen Update --------------------------------------------------------------- ---------------------------------------------------------------
