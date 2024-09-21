@@ -197,44 +197,44 @@ void leds__toggle_revlim()
     leds->setPoint(PIN_LED_SOLID[NUM_LED_SOLID-1][0], PIN_LED_SOLID[NUM_LED_SOLID-1][1], true);
   }
 }
-
+/*
 void leds__rpm_update_tach(uint16_t rpm) {
   uint8_t leds_to_turn_off;
   uint8_t leds_to_turn_on = 0;
   switch(rpm) {
-    case 1 ... 550:
-      leds_to_turn_on = 0;
-      break;
-    case 551 ... 1100:
+    case 500 ... 2749:
       leds_to_turn_on = 1;
       break;
-    case 1101 ... 1650:
+    case 2750 ... 4499:
       leds_to_turn_on = 2;
       break;
-    case 1651 ... 2200:
+    case 4500 ... 5999:
       leds_to_turn_on = 3;
       break;
-    case 2201 ... 2750:
+    case 6000 ... 6999:
       leds_to_turn_on = 4;
       break;
-    case 2751 ... 3300:
+    case 7000 ... 7999:
       leds_to_turn_on = 5;
       break;
-    case 3301 ... 3850:
+    case 8000 ... 8999:
       leds_to_turn_on = 6;
       break;
-    case 3851 ... 4400:
+    case 9000 ... 9999:
       leds_to_turn_on = 7;
       break;
-    case 4401 ... 4950:
+    case 10000 ... 10999:
       leds_to_turn_on = 8;
       break;
-    case 4951 ... 5499:
+    case 11000 ... 11999:
       leds_to_turn_on = 9;
       break;
-    case 5500: 
+    case 12000 ... 16000:
       leds_to_turn_on = 10;
-    
+      break;
+    default:
+      leds_to_turn_on = 0;
+      break;
   }
   //Inverse of # leds ON
   leds_to_turn_off = NUM_LED_SOLID-leds_to_turn_on;
@@ -247,6 +247,7 @@ void leds__rpm_update_tach(uint16_t rpm) {
     leds->setPoint(PIN_LED_SOLID[NUM_LED_SOLID-led_idx][0],PIN_LED_SOLID[NUM_LED_SOLID-led_idx][1],false);
   }
 }
+*/
 
 /*
 void leds__rpm_update_flash(uint16_t rpm, uint8_t gear, uint32_t curr_millis_flash)
@@ -335,127 +336,31 @@ void leds__oilpress(float oilpress) // float or uint8
 }
 */
 
-void leds__debug(int displayScreen){ // use functions like this to simplify the number of times displayScreen is passed
-  if(displayScreen == 2 | displayScreen == 3 | displayScreen == 4){
-    leds->setPoint(3, 3, false);
-    leds->setPoint(3, 5, false);
-    leds->setPoint(4, 2, false);
-    leds->setPoint(4, 4, false);
-    leds->setPoint(4, 0, false);
-  }
-}
-void leds__lv(float lv, int displayScreen)
+void leds__lv(float lv)
 {
-  if(displayScreen == 4){
-    if (lv < 5.0){
-      leds->setPoint(3, 1, true);
-    }
-    else{
-      leds->setPoint(3, 1, false);
-    }
+  if (lv < 10.0){
+    leds->setPoint(3, 1, false);
+    leds->setPoint(PIN_LED_RGB_R[3][0], PIN_LED_RGB_R[3][1], true);
   }
-}
-
-void leds__hvil(int hvil, float hv){
-  if(hvil == 0 && hv >= 60){
-    leds->setPoint(4, 1, true);
+  else{
+    leds->setPoint(PIN_LED_RGB_R[3][0], PIN_LED_RGB_R[3][1], false);
     leds->setPoint(3, 1, true);
   }
-
-  else{
-    leds->setPoint(4, 1, false);
-     leds->setPoint(3, 1, false);
-  }
 }
 
-
-void leds__drsEnable(float drsEnable, int displayScreen){
-  if(displayScreen == 0){
-    if(drsEnable == 1){
-      leds->setPoint(4, 0, true);
-    }
-    else{
-      leds->setPoint(4, 0, false);
-    }
-  }
-}
-
-void leds__launchReady(float launchReady, int displayScreen){
-  if(displayScreen == 0){
-    if(launchReady == 1){
-      leds->setPoint(4,4, true);
-    }
-    else{
-    leds->setPoint(4,4, false);
-    }
-  }
-
-}
-void leds__regenMode(int regenmode, int displayScreen){
-
-  if(displayScreen == 0){
-  if(regenmode == 1 | regenmode == 4){
-    leds->setPoint(4, 2, true);
-  }
-
-  else{
-    leds->setPoint(4, 2, false);
-  }
-  }
-  
-}
-
-void leds__regenModeSet(int regenmode, int displayScreen, uint8_t mode){
-  if(displayScreen == 1){
-    if(mode == 0){
-      leds->setPoint(3, 1, true);
-      leds->setPoint(3, 3, true);
-      leds->setPoint(3, 5, true);
-    }
-    else{
-      leds->setPoint(3, 1, false);
-      leds->setPoint(3, 3, false);
-      leds->setPoint(3, 5, false);
-    }
-
-    if(mode == 4){
-      leds->setPoint(4, 2, true);
-      leds->setPoint(4, 4, true);
-      leds->setPoint(4, 0, true);
-    }
-
-    else{
-      leds->setPoint(4, 2, false);
-      leds->setPoint(4, 4, false);
-      leds->setPoint(4, 0, false);
-    }
-
-    
-  }
-
-}
-
-void leds__hvtemp(float hvtemp, int displayScreen)
+void leds__hvtemp(float hvtemp)
 {
-  if(displayScreen == 0){
+  if (hvtemp < 10.0){
     leds->setPoint(3, 1, false);
-    leds->setPoint(3, 5, false);
-  if(hvtemp > 60){
-    leds->setPoint(3, 3, true);
-    
+    leds->setPoint(PIN_LED_RGB_R[3][0], PIN_LED_RGB_R[3][1], true);
   }
-
   else{
-    leds->setPoint(3, 3, false);
-  }
+    leds->setPoint(PIN_LED_RGB_R[3][0], PIN_LED_RGB_R[3][1], false);
+    leds->setPoint(3, 1, true);
   }
 }
 
-void leds__hvlow(float hvlow){
-  leds->setPoint(3,5,true);
-}
-
-void leds__safety_update_flash(float hvlow, float hvtemp, uint32_t curr_millis) {
+void leds__safety_update_flash(float hvtemp, uint32_t curr_millis) {
   if (hvtemp > 50) { //50 C is VCU limit
     //Toggle 2nd half
     if (curr_millis-prev_millis_hvtemp >= HVTEMP_THRESHOLD_FLASH_MS) {
@@ -467,16 +372,7 @@ void leds__safety_update_flash(float hvlow, float hvtemp, uint32_t curr_millis) 
     leds__disable_half_solid(false);
   }
   
-  if (hvlow < 3.3f) { //3.3 V is VCU limit
-    //Toggle 1st half
-    if (curr_millis-prev_millis_hvlow >= HVLOW_THRESHOLD_FLASH_MS) {
-      prev_millis_hvlow = curr_millis;
-      leds__toggle_half(true);
-    }
-  }
-  else {
-    leds__disable_half_solid(true);
-  }
+
 }
 
 /*
