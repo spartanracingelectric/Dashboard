@@ -97,7 +97,7 @@ void lcd__print_default_screen_template()
     #if (POWERTRAIN_TYPE == 'E')
     lcd__print8(104, 45, "HV T"); // Bottom Right of Screen
     lcd__print8(0, 45, "TPS0 %"); // Bottom Left
-    lcd__print8(45, 28, "No Load Voltage"); // Middle of Screen
+    lcd__print8(25, 28, "No Load Voltage"); // Middle of Screen
     lcd__print8(47, 40, "TPS1%");
 
     

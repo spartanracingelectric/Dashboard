@@ -37,7 +37,7 @@ static void can__lv_receive (const CANMessage & inMessage)
 
 static void can__hv_receive (const CANMessage & inMessage)
 {
-  curr_hv = ((inMessage.data[4]) | (inMessage.data[5] << 8) | (inMessage.data[6] << 16) | (inMessage.data[7] << 24)) * .001f;
+  curr_hv = ((inMessage.data[3]) | (inMessage.data[4] << 8) | (inMessage.data[5] << 16) | (inMessage.data[6] << 24)) * .001f;
 }
 
 static void can__hv_current_receive (const CANMessage & inMessage)

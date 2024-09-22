@@ -106,7 +106,7 @@
 #define CAN_TPS0 0x500 // dec: 1280
 #define CAN_TPS1 0x501 // dec: 1281
 #define CAN_LV_ADDR 0x507
-#define CAN_HV_ADDR 0x620 // dec: 1568
+#define CAN_HV_ADDR 0x600 // dec: 1536
 #define CAN_BAT_TEMP_ADDR 0x623 // dec: 1571
 
 #endif
