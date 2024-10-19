@@ -85,37 +85,73 @@ void lcd__print24(uint8_t x, uint8_t y, char *str)
   lcd->drawStr(x, y, str);  // write something to the internal memory
   lcd->sendBuffer();          // transfer internal memory to the display
 }
+
+//cute little screen that I want to bring back
+void lcd_welcome_screen()
+{
+  // char default_str[] = "Created by: Sarthak Chauhan";
+  // lcd__print14(0, 45, default_str);
+  // delay(100);
+  // Welcome screen with the Logo.
+  //lcd->setFont(u8g2_font_luRS18_tr);
+  // Setting the font monospace for the intial welcome screen
+  char LOGO_S[]  = "S";
+  char LOGO_R[]  = "R";
+//
+  char heading_One[] = "SPARTAN";
+  char heading_Two[] = "RACING";
+
+  lcd__print24(5,45,LOGO_S);
+  lcd__print24(25,45,LOGO_R);
+
+  lcd__print8(50,27,heading_One);
+  lcd__print14(50,45,heading_Two);
+ 
+  lcd__clear_screen(); 
+}
+
 void lcd__print_default_screen_template()
 {
-  char default_str[] = "Created by: johnathon lu";
-  lcd__print14(0, 45, default_str);
-  delay(100);
+  lcd__print8(50, 8, "SOC");
+  lcd__print8(0, 40, "NLV");
+  lcd__print8(100, 40, "HVT");
+//   char default_str[] = "Created by: johnathon lu";
+//   lcd__print14(0, 45, default_str);
+//   delay(100);
 
-  lcd__clear_screen();
+//   lcd__clear_screen();
 
-  #if (DISPLAY_SCREEN == 0)
-    #if (POWERTRAIN_TYPE == 'E')
-    lcd__print8(104, 45, "HV T"); // Bottom Right of Screen
-    lcd__print8(0, 45, "TPS0 %"); // Bottom Left
-    lcd__print8(45, 28, "No Load Voltage"); // Middle of Screen
-    lcd__print8(47, 40, "TPS1%");
+//   #if (DISPLAY_SCREEN == 0)
+//     #if (POWERTRAIN_TYPE == 'E')
+//     lcd__print8(104, 45, "HV T"); // Bottom Right of Screen
+//     lcd__print8(0, 45, "TPS0 %"); // Bottom Left
+//     lcd__print8(45, 28, "No Load Voltage"); // Middle of Screen
+//     lcd__print8(47, 40, "TPS1%");
 
     
-    #endif
-  #elif (DISPLAY_SCREEN == 1)
+//     #endif
+//   #elif (DISPLAY_SCREEN == 1)
     
-  #endif
+//   #endif
 }
+
+
 
 void lcd__clear_section (uint8_t sect)
 {
-  int hvtemp[] = {90, 64-14, 40, 14};
-  int hv[] = {30, 0, 70, 18};
+  // int hvtemp[] = {90, 64-14, 40, 14};
+  // int hv[] = {30, 0, 70, 18};
   int tps0[] = {0, 64-14, 45, 14};
   int tps1[] = {40, 64-24, 45, 24};
   int rpm[] = {30, 0, 75,18};
   int gear[] = {50, 64-24, 30, 24};
-  int* sections[] = {hvtemp, hv, tps0, tps1, rpm, gear};
+
+  
+  int hvtemp[] = {80, 60, 30, 18}; 
+  int hv[] = {0, 60, 24, 18};
+  int soc[] = {30, 35, 35, 24};
+
+  int* sections[] = {hvtemp, hv, tps0, tps1, rpm, gear, soc};
   
   lcd->setDrawColor(0);
   lcd->drawBox(sections[sect][0], sections[sect][1], sections[sect][2], sections[sect][3]);
@@ -158,12 +194,13 @@ void lcd__print_hvtemp(float hvtemp) // Accumulator/Engine temperature
   hvtemp_prev = hvtemp; // else, update value_prev and redraw that section
   
   char hvtemp_str[5] = "    ";
-  leds__hvtemp(hvtemp);
+  // leds__hvtemp(hvtemp);
 
   sprintf(hvtemp_str, "%2.1f", hvtemp);
 
   lcd__clear_section(0);
-  lcd__print14(94, 64, hvtemp_str);
+  // lcd__print14(94, 64, hvtemp_str);
+  lcd__print18(80, 60, hvtemp_str);
 }
 
 void lcd__print_drs(uint8_t drs) // DRS Open or Closed: 0 or 1
@@ -196,7 +233,8 @@ void lcd__print_hv(float hv) // accumulator voltage (comes in float or integer?)
   sprintf(hv_str, "%5.1f", hv);
 
   lcd__clear_section(1);
-  lcd__print18(35, 18, hv_str);
+  // lcd__print18(35, 18, hv_str);
+  lcd__print18(0, 60, hv_str);
 }
 
 void lcd__print_tps1percent(float tps1percent) 
@@ -213,6 +251,21 @@ void lcd__print_tps1percent(float tps1percent)
   lcd__clear_section(3);
   lcd__print18(46, 64, tps1_str);
 }
+
+void lcd__print_soc(float soc) // State of charge 0-100%
+{
+  if (soc == soc_prev) return; // if the value is the same, don't update that "section"
+
+  soc_prev = soc; // else, update value_prev=value and redraw that section
+
+  char soc_str[5] = "    ";
+
+  sprintf(soc_str, "%3.0f", soc);
+
+  lcd__clear_section(6);
+  lcd__print24(30, 35, soc_str);
+}
+
 
 // Menu Functions --------------------------------------------------------------- ---------------------------------------------------------------
 void lcd__highlight_screen(uint8_t row, const char* screen) // number 0-5
@@ -262,13 +315,17 @@ void lcd__print_rpm_diag(uint16_t rpm)
   lcd__print18(35, 18, rpm_str);
 }
 
-void lcd__update_screenE(float hv, float tps0percent, float tps1percent, float hvtemp, uint32_t curr_millis_lcd)
+void lcd__update_screenE(float hv, float soc, float tps0percent, float tps1percent, float hvtemp, uint32_t curr_millis_lcd)
 {
   if (curr_millis_lcd - prev_millis_lcd >= LCD_UPDATE_MS) {
     prev_millis_lcd = curr_millis_lcd;
 
-    lcd__print_tps0percent(tps0percent);
-    lcd__print_tps1percent(tps1percent);
+    // lcd__print_tps0percent(tps0percent);
+    // lcd__print_tps1percent(tps1percent);
+    // lcd__print_hv(hv);
+    // lcd__print_hvtemp(hvtemp);
+
+    lcd__print_soc(soc);
     lcd__print_hv(hv);
     lcd__print_hvtemp(hvtemp);
 

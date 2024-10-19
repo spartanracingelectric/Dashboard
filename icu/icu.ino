@@ -25,6 +25,8 @@ float hvtemp = 0.0f;
 float tps0percent = 0.0f;
 float tps1percent = 0.0f;
 
+float soc = 0.0f;
+
 #endif
 
 void setup()
@@ -44,15 +46,15 @@ void setup()
 #elif (BOARD_REVISION == 'B')
   pinMode(PICO_CAN_RST, OUTPUT);
   digitalWrite(PICO_CAN_RST, HIGH);
-  SPI.setSCK(PICO_LED_SPI_SCK);
-  SPI.setTX(PICO_LED_SPI_MOSI);
-  SPI.setCS(PICO_LED_SPI_CS);
-  SPI1.setSCK(PICO_CAN_SPI_SCK);
-  SPI1.setTX(PICO_CAN_SPI_MOSI);
-  SPI1.setRX(PICO_CAN_SPI_MISO);
-  SPI1.setCS(PICO_CAN_SPI_CS);
-  SPI.begin();
-  SPI1.begin();
+  // SPI.setSCK(PICO_LED_SPI_SCK);
+  // SPI.setTX(PICO_LED_SPI_MOSI);
+  // SPI.setCS(PICO_LED_SPI_CS);
+  // SPI1.setSCK(PICO_CAN_SPI_SCK);
+  // SPI1.setTX(PICO_CAN_SPI_MOSI);
+  // SPI1.setRX(PICO_CAN_SPI_MISO);
+  // SPI1.setCS(PICO_CAN_SPI_CS);
+  // SPI.begin();
+  // SPI1.begin();
 #endif
 
   // No need to initialize CABN here, as can.begin seems to hog the data
@@ -65,6 +67,8 @@ void setup()
   lcd__init(&lcd_u8g2);
 
   //Non functional as clearBuffer in loop overwrites for now
+  // lcd_welcome_screen();
+  // delay(1000);
   lcd__print_default_screen_template();
   leds__set_brightness(MAX_LED_BRIGHTNESS);
   leds__wake();
@@ -88,6 +92,8 @@ void loop()
   hvtemp = can__get_hvtemp();
   tps0percent = can__get_tps0percent();
   tps1percent = can__get_tps1percent();
+  
+  soc = can__get_hvtemp();
 
   if(tps0percent < 10 && tps1percent < 10){
     hv = can__get_hv(); // should be able to give no load voltage
@@ -104,8 +110,9 @@ void loop()
 
 #if (POWERTRAIN_TYPE == 'E')
     leds__safety_update_flash(hvtemp, curr_millis);
-    lcd__update_screenE(hv, tps0percent, tps1percent, hvtemp, curr_millis);
-    
+    // lcd__update_screenE(hv, tps0percent, tps1percent, hvtemp, curr_millis);
+    lcd__update_screenE(hv, soc, tps0percent, tps1percent, hvtemp, curr_millis);
+
 #endif
   
 }
