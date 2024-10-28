@@ -107,6 +107,11 @@ void loop()
   can__stop();
 #endif
 
+// placeholder values
+// soc = 29.3f;
+// hv = 7.7f;
+// hvtemp = 5.8f;
+
 
 #if (POWERTRAIN_TYPE == 'E')
     leds__safety_update_flash(hvtemp, curr_millis);

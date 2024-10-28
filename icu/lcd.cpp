@@ -112,9 +112,9 @@ void lcd_welcome_screen()
 
 void lcd__print_default_screen_template()
 {
-  lcd__print8(50, 8, "SOC");
+  lcd__print8(53, 8, "SOC");
   lcd__print8(0, 40, "NLV");
-  lcd__print8(100, 40, "HVT");
+  lcd__print8(107, 40, "HVT");
 //   char default_str[] = "Created by: johnathon lu";
 //   lcd__print14(0, 45, default_str);
 //   delay(100);
@@ -147,9 +147,9 @@ void lcd__clear_section (uint8_t sect)
   int gear[] = {50, 64-24, 30, 24};
 
   
-  int hvtemp[] = {80, 60, 30, 18}; 
-  int hv[] = {0, 60, 24, 18};
-  int soc[] = {30, 35, 35, 24};
+  int hvtemp[] = {80, 60, 50, 18}; 
+  int hv[] = {0, 60, 50, 18};
+  int soc[] = {30, 35, 50, 24};
 
   int* sections[] = {hvtemp, hv, tps0, tps1, rpm, gear, soc};
   
@@ -196,11 +196,13 @@ void lcd__print_hvtemp(float hvtemp) // Accumulator/Engine temperature
   char hvtemp_str[5] = "    ";
   // leds__hvtemp(hvtemp);
 
-  sprintf(hvtemp_str, "%2.1f", hvtemp);
+  // sprintf(hvtemp_str, "%2.1f", hvtemp);
+  sprintf(hvtemp_str, "%2.0f", hvtemp);
 
   lcd__clear_section(0);
   // lcd__print14(94, 64, hvtemp_str);
-  lcd__print18(80, 60, hvtemp_str);
+  // lcd__print18(81, 60, hvtemp_str); //if 2 values + 1 digit after decimal
+  lcd__print18(103, 60, hvtemp_str); // 2 values + 0 digits after decimal
 }
 
 void lcd__print_drs(uint8_t drs) // DRS Open or Closed: 0 or 1
@@ -229,8 +231,12 @@ void lcd__print_hv(float hv) // accumulator voltage (comes in float or integer?)
   // to test: 0 == hv_prev & hv=hv_prev--
   
   char hv_str[6] = "   ";
+  // char hv_str[1] = "";
+
   // Round to one decimal place
-  sprintf(hv_str, "%5.1f", hv);
+  // sprintf(hv_str, "%5.1f", hv);
+  //3 digits
+  sprintf(hv_str, "%3.0f", hv);
 
   lcd__clear_section(1);
   // lcd__print18(35, 18, hv_str);
@@ -260,10 +266,21 @@ void lcd__print_soc(float soc) // State of charge 0-100%
 
   char soc_str[5] = "    ";
 
-  sprintf(soc_str, "%3.0f", soc);
+  // sprintf(soc_str, "%3.0f", soc);
+  // sprintf(soc_str, "%3.0f", soc);
 
   lcd__clear_section(6);
-  lcd__print24(30, 35, soc_str);
+  
+  if ((int) soc == 100){
+    sprintf(soc_str, "%3.0f", soc);
+    lcd__print24(37, 35, soc_str);
+  } else if ((int) soc >= 10){
+    sprintf(soc_str, "%2.0f", soc);
+    lcd__print24(46, 35, soc_str);
+  } else {
+    sprintf(soc_str, "%1.0f", soc);
+    lcd__print24(55, 35, soc_str);
+  }
 }
 
 
