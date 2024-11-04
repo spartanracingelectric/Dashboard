@@ -86,30 +86,6 @@ void lcd__print24(uint8_t x, uint8_t y, char *str)
   lcd->sendBuffer();          // transfer internal memory to the display
 }
 
-//cute little screen that I want to bring back
-void lcd_welcome_screen()
-{
-  // char default_str[] = "Created by: Sarthak Chauhan";
-  // lcd__print14(0, 45, default_str);
-  // delay(100);
-  // Welcome screen with the Logo.
-  //lcd->setFont(u8g2_font_luRS18_tr);
-  // Setting the font monospace for the intial welcome screen
-  char LOGO_S[]  = "S";
-  char LOGO_R[]  = "R";
-//
-  char heading_One[] = "SPARTAN";
-  char heading_Two[] = "RACING";
-
-  lcd__print24(5,45,LOGO_S);
-  lcd__print24(25,45,LOGO_R);
-
-  lcd__print8(50,27,heading_One);
-  lcd__print14(50,45,heading_Two);
- 
-  lcd__clear_screen(); 
-}
-
 void lcd__print_default_screen_template()
 {
   lcd__print8(53, 8, "SOC");
@@ -197,12 +173,19 @@ void lcd__print_hvtemp(float hvtemp) // Accumulator/Engine temperature
   // leds__hvtemp(hvtemp);
 
   // sprintf(hvtemp_str, "%2.1f", hvtemp);
-  sprintf(hvtemp_str, "%2.0f", hvtemp);
 
   lcd__clear_section(0);
   // lcd__print14(94, 64, hvtemp_str);
   // lcd__print18(81, 60, hvtemp_str); //if 2 values + 1 digit after decimal
-  lcd__print18(103, 60, hvtemp_str); // 2 values + 0 digits after decimal
+
+  if ((int) hvtemp >= 10) {
+    sprintf(hvtemp_str, "%2.0f", hvtemp);
+    lcd__print18(103, 60, hvtemp_str);
+  } else {
+    sprintf(hvtemp_str, "%1.0f", hvtemp);
+    lcd__print18(116, 60, hvtemp_str);
+  }
+
 }
 
 void lcd__print_drs(uint8_t drs) // DRS Open or Closed: 0 or 1
@@ -235,12 +218,21 @@ void lcd__print_hv(float hv) // accumulator voltage (comes in float or integer?)
 
   // Round to one decimal place
   // sprintf(hv_str, "%5.1f", hv);
-  //3 digits
-  sprintf(hv_str, "%3.0f", hv);
 
   lcd__clear_section(1);
   // lcd__print18(35, 18, hv_str);
-  lcd__print18(0, 60, hv_str);
+
+  if ((int) hv >= 100) {
+    sprintf(hv_str, "%3.0f", hv);
+    lcd__print18(0, 60, hv_str);
+  } else if ((int) hv >= 10) {
+    sprintf(hv_str, "%2.0f", hv);
+    lcd__print18(0, 60, hv_str);
+  } else {
+    sprintf(hv_str, "%1.0f", hv);
+    lcd__print18(0, 60, hv_str);
+  }
+
 }
 
 void lcd__print_tps1percent(float tps1percent) 

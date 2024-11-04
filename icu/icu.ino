@@ -109,8 +109,8 @@ void loop()
 
 // placeholder values
 // soc = 29.3f;
-// hv = 7.7f;
-// hvtemp = 5.8f;
+// hv = 377.0f;
+// hvtemp = 58.0f;
 
 
 #if (POWERTRAIN_TYPE == 'E')
