@@ -87,7 +87,7 @@ void lcd__print24(uint8_t x, uint8_t y, char *str)
 }
 void lcd__print_default_screen_template()
 {
-  char default_str[] = "Created by: johnathon lu";
+  char default_str[] = "Created by: Carlie Yem";
   lcd__print14(0, 45, default_str);
   delay(100);
 
@@ -107,34 +107,19 @@ void lcd__print_default_screen_template()
   #endif
 }
 
-void lcd__clear_section (uint8_t sect)
+void lcd__clear_section (uint8_t sect) //{x, y, ??, ??}
 {
-  int hvtemp[] = {90, 64-14, 40, 14};
+  int hvtemp[] = {76, 64-9, 40, 14};
   int hv[] = {30, 0, 70, 18};
   int tps0[] = {0, 64-14, 45, 14};
-  int tps1[] = {40, 64-24, 45, 24};
-  int rpm[] = {30, 0, 75,18};
+  int tps1[] = {35, 64-24, 60, 24};
+  int rpm[] = {76, 64-14, 45, 14};
   int gear[] = {50, 64-24, 30, 24};
   int* sections[] = {hvtemp, hv, tps0, tps1, rpm, gear};
   
   lcd->setDrawColor(0);
   lcd->drawBox(sections[sect][0], sections[sect][1], sections[sect][2], sections[sect][3]);
   lcd->setDrawColor(1);
-}
-
-
-void lcd__print_tps0percent(float tps0percent) 
-{
-  if (tps0percent == tps0percent_prev) return; // if the value is the same, don't update that "section" 
-  
-  tps0percent_prev = tps0percent; // else, update value_prev and redraw that section
-  
-  char tps0_str[5] = "   ";
-  
-  sprintf(tps0_str, "%0.1f", tps0percent);
-  
-  lcd__clear_section(2);
-  lcd__print14(0, 64, tps0_str);
 }
 
 void lcd__print_hvlow(float hvlow) // low voltage battery
@@ -148,22 +133,7 @@ void lcd__print_hvlow(float hvlow) // low voltage battery
   sprintf(hvlow_str, "%1.2f", hvlow);
   
   lcd__clear_section(2);
-  lcd__print14(0, 64, hvlow_str);
-}
-
-void lcd__print_hvtemp(float hvtemp) // Accumulator/Engine temperature
-{
-  if (hvtemp == hvtemp_prev) return; // if the value is the same, don't update that "section" 
-  
-  hvtemp_prev = hvtemp; // else, update value_prev and redraw that section
-  
-  char hvtemp_str[5] = "    ";
-  leds__hvtemp(hvtemp);
-
-  sprintf(hvtemp_str, "%2.1f", hvtemp);
-
-  lcd__clear_section(0);
-  lcd__print14(94, 64, hvtemp_str);
+  // lcd__print14(0, 64, hvlow_str);
 }
 
 void lcd__print_drs(uint8_t drs) // DRS Open or Closed: 0 or 1
@@ -193,10 +163,24 @@ void lcd__print_hv(float hv) // accumulator voltage (comes in float or integer?)
   
   char hv_str[6] = "   ";
   // Round to one decimal place
-  sprintf(hv_str, "%5.1f", hv);
+  sprintf(hv_str, "%3.1f", hv);
 
   lcd__clear_section(1);
-  lcd__print18(35, 18, hv_str);
+  lcd__print18(45, 18, hv_str);
+}
+
+void lcd__print_tps0percent(float tps0percent) 
+{
+  if (tps0percent == tps0percent_prev) return; // if the value is the same, don't update that "section" 
+  
+  tps0percent_prev = tps0percent; // else, update value_prev and redraw that section
+  
+  char tps0_str[5] = "   ";
+  
+  sprintf(tps0_str, "%0.1f", tps0percent);
+  
+  lcd__clear_section(2);
+  lcd__print14(0, 64, tps0_str);
 }
 
 void lcd__print_tps1percent(float tps1percent) 
@@ -208,10 +192,31 @@ void lcd__print_tps1percent(float tps1percent)
   char tps1_str[5] = "    ";
 
 
-  sprintf(tps1_str, "%3.1f", tps1percent);
+  if(tps1percent < 100){
+    sprintf(tps1_str, "%3.1f", tps1percent);
+  }
+  else{
+    sprintf(tps1_str, "%3.0f", tps1percent);
+  }
   
   lcd__clear_section(3);
-  lcd__print18(46, 64, tps1_str);
+  lcd__print18(40, 64, tps1_str);
+}
+
+void lcd__print_hvtemp(float hvtemp) // Accumulator/Engine temperature
+{
+  if (hvtemp == hvtemp_prev) return; // if the value is the same, don't update that "section" 
+  
+  hvtemp_prev = hvtemp; // else, update value_prev and redraw that section
+  
+  char hvtemp_str[5] = "    ";
+  leds__hvtemp(hvtemp);
+
+  sprintf(hvtemp_str, "%2.1f", hvtemp);
+
+  lcd__clear_section(0);
+  lcd__clear_section(4);
+  lcd__print14(96, 64, hvtemp_str);
 }
 
 // Menu Functions --------------------------------------------------------------- ---------------------------------------------------------------
@@ -245,21 +250,21 @@ void lcd__diagnostics(uint8_t cellfault, uint8_t cellwarn, uint8_t bmsstate)
   
   char cellfault_str[2] = " ";
   sprintf(cellfault_str, "%hu", cellfault);
-  lcd__print8(56, 9, cellfault_str);
+  // lcd__print8(56, 9, cellfault_str);
 
   char bmsstate_str[2] = " ";
   sprintf(bmsstate_str, "%hu", bmsstate);
-  lcd__print8(56, 9+12, bmsstate_str);
+  // lcd__print8(56, 9+12, bmsstate_str);
 }
 
 void lcd__print_rpm_diag(uint16_t rpm)
 { 
   char rpm_str[6] = "     ";
   //RPM up to 5 digits
-  sprintf(rpm_str, "%5hu", rpm); // transforms int or float or # into a string with a specifying operator in the middle.
+  // sprintf(rpm_str, "%5hu", rpm); // transforms int or float or # into a string with a specifying operator in the middle.
   
   lcd__clear_section(4);
-  lcd__print18(35, 18, rpm_str);
+  // lcd__print18(35, 18, rpm_str);
 }
 
 void lcd__update_screenE(float hv, float tps0percent, float tps1percent, float hvtemp, uint32_t curr_millis_lcd)
