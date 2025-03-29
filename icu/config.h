@@ -108,6 +108,7 @@
 #define CAN_LV_ADDR 0x507
 #define CAN_HV_ADDR 0x620 // dec: 1568
 #define CAN_BAT_TEMP_ADDR 0x623 // dec: 1571
+#define CAN_SOC_ADDR 0x621 // dec: 1569
 
 #endif
 

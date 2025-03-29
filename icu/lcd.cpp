@@ -87,7 +87,7 @@ void lcd__print24(uint8_t x, uint8_t y, char *str)
 }
 void lcd__print_default_screen_template()
 {
-  char default_str[] = "Created by: johnathon lu";
+  char default_str[] = "Created by: Carlie Yem";
   lcd__print14(0, 45, default_str);
   delay(100);
 
@@ -97,7 +97,7 @@ void lcd__print_default_screen_template()
     #if (POWERTRAIN_TYPE == 'E')
     lcd__print8(104, 45, "HV T"); // Bottom Right of Screen
     lcd__print8(0, 45, "TPS0 %"); // Bottom Left
-    lcd__print8(45, 28, "No Load Voltage"); // Middle of Screen
+    lcd__print8(53, 28, "SoC"); // Middle of Screen
     lcd__print8(47, 40, "TPS1%");
 
     
@@ -113,9 +113,10 @@ void lcd__clear_section (uint8_t sect)
   int hv[] = {30, 0, 70, 18};
   int tps0[] = {0, 64-14, 45, 14};
   int tps1[] = {40, 64-24, 45, 24};
+  int soc[] = {30, 0, 70, 18};
   int rpm[] = {30, 0, 75,18};
   int gear[] = {50, 64-24, 30, 24};
-  int* sections[] = {hvtemp, hv, tps0, tps1, rpm, gear};
+  int* sections[] = {hvtemp, hv, tps0, tps1, soc, rpm, gear};
   
   lcd->setDrawColor(0);
   lcd->drawBox(sections[sect][0], sections[sect][1], sections[sect][2], sections[sect][3]);
@@ -197,6 +198,22 @@ void lcd__print_hv(float hv) // accumulator voltage (comes in float or integer?)
 
   lcd__clear_section(1);
   lcd__print18(35, 18, hv_str);
+  /*Using SoC instead*/
+}
+
+void lcd__print_soc(float soc) // State of Charge Percentage (comes in float or integer?)
+{
+  if (soc == soc_prev) return; // if the value is the same, don't update that "section" }
+    
+  soc_prev = soc; // else, update value_prev=value and redraw that section
+  // to test: 0 == soc_prev & soc=soc_prev--
+  
+  char soc_str[6] = "   ";
+  // Round to one decimal place
+  // sprintf(soc_str, "%3.1f", soc);
+
+  // lcd__clear_section(4);
+  // lcd__print18(35, 18, soc_str);
 }
 
 void lcd__print_tps1percent(float tps1percent) 
@@ -262,14 +279,15 @@ void lcd__print_rpm_diag(uint16_t rpm)
   lcd__print18(35, 18, rpm_str);
 }
 
-void lcd__update_screenE(float hv, float tps0percent, float tps1percent, float hvtemp, uint32_t curr_millis_lcd)
+void lcd__update_screenE(float hv, float tps0percent, float tps1percent, float hvtemp, float soc, uint32_t curr_millis_lcd)
 {
   if (curr_millis_lcd - prev_millis_lcd >= LCD_UPDATE_MS) {
     prev_millis_lcd = curr_millis_lcd;
 
     lcd__print_tps0percent(tps0percent);
     lcd__print_tps1percent(tps1percent);
-    lcd__print_hv(hv);
+    lcd__print_soc(soc_prev); // SoC is in the same section as HV
+    // lcd__print_hv(hv);
     lcd__print_hvtemp(hvtemp);
 
   }

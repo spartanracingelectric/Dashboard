@@ -51,6 +51,6 @@ void lcd__diagnostics(uint8_t cellfault, uint8_t cellwarn, uint8_t bmsstate);
 void lcd__print_rpm_diag(uint16_t rpm); // rpm diagnostics for ev
 
 void lcd__update_screen(uint16_t rpm, uint8_t gear, float lv, float oilpress, uint8_t drs, uint32_t curr_millis_lcd);
-void lcd__update_screenE(float hv, float tps0percent, float tps1percent, float hvtemp, uint32_t curr_millis_lcd);
+void lcd__update_screenE(float hv, float tps0percent, float tps1percent, float hvtemp, float soc, uint32_t curr_millis_lcd);
 
 #endif /* LCD_H_ */

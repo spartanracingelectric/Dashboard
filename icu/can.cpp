@@ -47,7 +47,7 @@ static void can__hv_current_receive (const CANMessage & inMessage)
 
 static void can__soc_receive (const CANMessage & inMessage)
 {
-  curr_soc = ((inMessage.data[6]) | (inMessage.data[7] << 8)) * 0.1f;
+  curr_soc = ((inMessage.data[2]) << 0) * 0.1f;
 }
 
 static void can__hvlow_receive (const CANMessage & inMessage)
@@ -173,6 +173,7 @@ const ACAN2515AcceptanceFilter filters [] =
   {standard2515Filter (CAN_TPS1, 0, 0), can__tps1_receive}, // 0x501
   {standard2515Filter (CAN_HV_ADDR, 0, 0), can__hv_receive}, // 0x620
   {standard2515Filter (CAN_BAT_TEMP_ADDR, 0, 0), can__hvtemp_receive},  //0x623
+  {standard2515Filter (CAN_SOC_ADDR, 0, 0), can__soc_receive}, // 0x621
   
 
 } ;

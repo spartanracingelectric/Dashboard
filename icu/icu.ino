@@ -24,6 +24,7 @@ float hv = 0.0f;
 float hvtemp = 0.0f;
 float tps0percent = 0.0f;
 float tps1percent = 0.0f;
+float soc = 0.0f;
 
 #endif
 
@@ -88,6 +89,7 @@ void loop()
   hvtemp = can__get_hvtemp();
   tps0percent = can__get_tps0percent();
   tps1percent = can__get_tps1percent();
+  soc = can__get_soc();
 
   if(tps0percent < 10 && tps1percent < 10){
     hv = can__get_hv(); // should be able to give no load voltage
@@ -104,7 +106,7 @@ void loop()
 
 #if (POWERTRAIN_TYPE == 'E')
     leds__safety_update_flash(hvtemp, curr_millis);
-    lcd__update_screenE(hv, tps0percent, tps1percent, hvtemp, curr_millis);
+    lcd__update_screenE(hv, tps0percent, tps1percent, hvtemp, soc, curr_millis);
     
 #endif
   
