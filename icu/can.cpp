@@ -37,7 +37,8 @@ static void can__lv_receive (const CANMessage & inMessage)
 
 static void can__hv_receive (const CANMessage & inMessage)
 {
-  curr_hv = ((inMessage.data[4]) | (inMessage.data[5] << 8) | (inMessage.data[6] << 16) | (inMessage.data[7] << 24)) * .001f;
+//  curr_hv = ((inMessage.data[4]) | (inMessage.data[5] << 8) | (inMessage.data[6] << 16) | (inMessage.data[7] << 24)) * .001f; old code
+  curr_hv = ((inMessage.data[6]) | (inMessage.data[7] << 8)) * 0.01f;
 }
 
 static void can__hv_current_receive (const CANMessage & inMessage)
@@ -57,7 +58,8 @@ static void can__hvlow_receive (const CANMessage & inMessage)
 
 static void can__hvtemp_receive (const CANMessage & inMessage)
 {
-  curr_hvtemp = ((inMessage.data[7] << 8)  | (inMessage.data[6])) * 0.1f;
+//  curr_hvtemp = ((inMessage.data[7] << 8)  | (inMessage.data[6])) * 0.1f; old code
+  curr_hvtemp = inMessage.data[4] * 1.0f;
 }
 static void can__tps0_receive(const CANMessage & inMessage) 
 {
@@ -171,8 +173,8 @@ const ACAN2515AcceptanceFilter filters [] =
   
   {standard2515Filter (CAN_TPS0, 0, 0), can__tps0_receive},  // 0x500
   {standard2515Filter (CAN_TPS1, 0, 0), can__tps1_receive}, // 0x501
-  {standard2515Filter (CAN_HV_ADDR, 0, 0), can__hv_receive}, // 0x620
-  {standard2515Filter (CAN_BAT_TEMP_ADDR, 0, 0), can__hvtemp_receive},  //0x623
+  {standard2515Filter (CAN_HV_ADDR, 0, 0), can__hv_receive}, // 0x600
+  {standard2515Filter (CAN_BAT_TEMP_ADDR, 0, 0), can__hvtemp_receive},  //0x622
   
 
 } ;
