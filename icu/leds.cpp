@@ -339,24 +339,24 @@ void leds__oilpress(float oilpress) // float or uint8
 void leds__lv(float lv)
 {
   if (lv < 10.0){
-    leds->setPoint(3, 1, false);
-    leds->setPoint(PIN_LED_RGB_R[3][0], PIN_LED_RGB_R[3][1], true);
+    // leds->setPoint(3, 1, false);
+    // leds->setPoint(PIN_LED_RGB_R[3][0], PIN_LED_RGB_R[3][1], true);
   }
   else{
-    leds->setPoint(PIN_LED_RGB_R[3][0], PIN_LED_RGB_R[3][1], false);
-    leds->setPoint(3, 1, true);
+    // leds->setPoint(PIN_LED_RGB_R[3][0], PIN_LED_RGB_R[3][1], false);
+    // leds->setPoint(3, 1, true);
   }
 }
 
 void leds__hvtemp(float hvtemp)
 {
   if (hvtemp < 10.0){
-    leds->setPoint(3, 1, false);
-    leds->setPoint(PIN_LED_RGB_R[3][0], PIN_LED_RGB_R[3][1], true);
+    // leds->setPoint(3, 1, false);
+    // leds->setPoint(PIN_LED_RGB_R[3][0], PIN_LED_RGB_R[3][1], true);
   }
   else{
-    leds->setPoint(PIN_LED_RGB_R[3][0], PIN_LED_RGB_R[3][1], false);
-    leds->setPoint(3, 1, true);
+    // leds->setPoint(PIN_LED_RGB_R[3][0], PIN_LED_RGB_R[3][1], false);
+    // leds->setPoint(3, 1, true);
   }
 }
 
