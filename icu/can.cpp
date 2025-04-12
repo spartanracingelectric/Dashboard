@@ -60,7 +60,7 @@ static void can__hvlow_receive (const CANMessage & inMessage)
 static void can__hvtemp_receive (const CANMessage & inMessage)
 {
 //  curr_hvtemp = ((inMessage.data[7] << 8)  | (inMessage.data[6])) * 0.1f; old code
-  curr_hvtemp = inMessage.data[4] * 1.0f;
+  curr_hvtemp = inMessage.data[4] * 1.0f; //custom bms high cell temp
 }
 static void can__tps0_receive(const CANMessage & inMessage) 
 {
