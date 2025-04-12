@@ -106,7 +106,8 @@
 #define CAN_TPS0 0x500 // dec: 1280
 #define CAN_TPS1 0x501 // dec: 1281
 #define CAN_LV_ADDR 0x507
-#define CAN_HV_ADDR 0x600 // dec: 1536, Packvoltage.0x621, 1569 is for SoC
+#define CAN_HV_ADDR 0x600 // dec: 1536, Packvoltage
+#define CAN_SOC_ADDR 0x621 // dec: 1569, SoC
 #define CAN_BAT_TEMP_ADDR 0x622 // dec: 1570
 
 #endif
