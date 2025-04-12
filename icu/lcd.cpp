@@ -98,7 +98,8 @@ void lcd__print_default_screen_template()
     lcd__print8(104, 45, "HV T"); // Bottom Right of Screen
     lcd__print8(0, 45, "TPS0 %"); // Bottom Left
     lcd__print8(25, 28, "No Load Voltage"); // Middle of Screen
-    lcd__print8(47, 40, "TPS1%");
+    // lcd__print8(47, 40, "TPS1%");
+    lcd__print8(47, 40, "SoC%");
 
     
     #endif
@@ -112,7 +113,7 @@ void lcd__clear_section (uint8_t sect)
   int hvtemp[] = {90, 64-14, 40, 14};
   int hv[] = {30, 0, 70, 18};
   int tps0[] = {0, 64-14, 45, 14};
-  int tps1[] = {40, 64-24, 45, 24};
+  int tps1[] = {40, 64-24, 45, 24}; //and SoC section
   int rpm[] = {30, 0, 75,18};
   int gear[] = {50, 64-24, 30, 24};
   int* sections[] = {hvtemp, hv, tps0, tps1, rpm, gear};
@@ -201,17 +202,32 @@ void lcd__print_hv(float hv) // accumulator voltage (comes in float or integer?)
 
 void lcd__print_tps1percent(float tps1percent) 
 {
-  if (tps1percent == tps1percent_prev) return; // if the value is the same, don't update that "section" 
+  // if (tps1percent == tps1percent_prev) return; // if the value is the same, don't update that "section" 
   
-  tps1percent_prev = tps1percent; // else, update value_prev=value and redraw that section
+  // tps1percent_prev = tps1percent; // else, update value_prev=value and redraw that section
 
-  char tps1_str[5] = "    ";
+  // char tps1_str[5] = "    ";
 
 
-  sprintf(tps1_str, "%3.1f", tps1percent);
+  // sprintf(tps1_str, "%3.1f", tps1percent);
   
-  lcd__clear_section(3);
-  lcd__print18(46, 64, tps1_str);
+  // lcd__clear_section(3);
+  // lcd__print18(46, 64, tps1_str);
+}
+
+void lcd__print_soc(float soc) 
+{
+  if (soc == soc_prev) return; // if the value is the same, don't update that "section" 
+  
+  soc_prev = soc; // else, update value_prev=value and redraw that section
+
+  char soc_str[5] = "    ";
+
+
+  sprintf(soc_str, "%3.1f", soc);
+  
+  lcd__clear_section(3); //use to be tps 1 section
+  lcd__print18(46, 64, soc_str);
 }
 
 // Menu Functions --------------------------------------------------------------- ---------------------------------------------------------------
@@ -262,15 +278,16 @@ void lcd__print_rpm_diag(uint16_t rpm)
   lcd__print18(35, 18, rpm_str);
 }
 
-void lcd__update_screenE(float hv, float tps0percent, float tps1percent, float hvtemp, uint32_t curr_millis_lcd)
+void lcd__update_screenE(float hv, float tps0percent, float tps1percent, float hvtemp, float soc, uint32_t curr_millis_lcd)
 {
   if (curr_millis_lcd - prev_millis_lcd >= LCD_UPDATE_MS) {
     prev_millis_lcd = curr_millis_lcd;
 
     lcd__print_tps0percent(tps0percent);
-    lcd__print_tps1percent(tps1percent);
+    // lcd__print_tps1percent(tps1percent);
     lcd__print_hv(hv);
     lcd__print_hvtemp(hvtemp);
+    lcd__print_soc(soc);
 
   }
 }
