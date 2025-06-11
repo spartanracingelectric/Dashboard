@@ -49,7 +49,7 @@ static void can__hv_current_receive (const CANMessage & inMessage)
 static void can__soc_receive (const CANMessage & inMessage)
 {
   // curr_soc = ((inMessage.data[6]) | (inMessage.data[7] << 8)) * 0.1f;
-  curr_soc = (inMessage.data[2]) * 0.01f; //custom bms soc
+  curr_soc = (inMessage.data[2]); //custom bms soc
 }
 
 static void can__hvlow_receive (const CANMessage & inMessage)

@@ -224,7 +224,7 @@ void lcd__print_soc(float soc)
   char soc_str[5] = "    ";
 
 
-  sprintf(soc_str, "%3.1f", soc);
+  sprintf(soc_str, "%3.0f", soc);
   
   lcd__clear_section(3); //use to be tps 1 section
   lcd__print18(46, 64, soc_str);
