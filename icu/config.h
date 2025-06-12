@@ -109,6 +109,7 @@
 #define CAN_HV_ADDR 0x600 // dec: 1536, Packvoltage
 #define CAN_SOC_ADDR 0x621 // dec: 1569, SoC
 #define CAN_BAT_TEMP_ADDR 0x622 // dec: 1570
+#define CAN_POWERLIMIT_ADDR 0x511
 
 #endif
 

@@ -21,6 +21,7 @@ static void can__hv_low_receive (const CANMessage & inMessage);
 static void can__hvtemp_receive (const CANMessage & inMessage);
 static void can__tps0_receive(const CANMessage & inMessage);
 static void can_tps1_receive(const CANMessage & inMessage);
+static void can__powerLimit_receive(const CANMessage & inMessage);
 
 // diagnostics ---------------------------
 static void can__rpm_receive (const CANMessage & inMessage); // rpm
@@ -38,7 +39,8 @@ float can__get_motortemp();
 float can__get_tps0voltage(); 
 float can__get_tps0percent(); 
 float can__get_tps1voltage(); 
-float can__get_tps1percent(); 
+float can__get_tps1percent();
+float can__get_powerLimit(); 
 
 // diagnostics ---------------------------
 float can__get_rpm(); // not tested

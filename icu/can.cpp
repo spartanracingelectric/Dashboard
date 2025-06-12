@@ -22,6 +22,7 @@ float curr_tps0voltage = 0;
 float curr_tps0percent = 0;
 float curr_tps1voltage = 0;
 float curr_tps1percent = 0;
+float curr_powerLimit = 0;
 
 // diagnostics ---------------------------------
 float curr_rpm = 0;
@@ -48,7 +49,7 @@ static void can__hv_current_receive (const CANMessage & inMessage)
 
 static void can__soc_receive (const CANMessage & inMessage)
 {
-  // curr_soc = ((inMessage.data[6]) | (inMessage.data[7] << 8)) * 0.1f;
+  // curr_soc = ((inMessage.data[6]) | (inMessage.data[7] << 8)) * 0.1f; //Stafls
   curr_soc = (inMessage.data[2]); //custom bms soc
 }
 
@@ -71,6 +72,9 @@ static void can__tps1_receive(const CANMessage & inMessage)
 {
   curr_tps1percent = (inMessage.data[0]) * 0.392156862746; // TPS1ThrottlePercentOFF
   curr_tps1voltage = ((inMessage.data[3] << 8) | inMessage.data[2]) * 0.001f;
+}
+static void can__powerLimit_receive(const CANMessage & inMessage){
+  curr_powerLimit = (inMessage.data[2] << 8);
 }
 
 // diagnostics ---------------------------------
@@ -139,6 +143,10 @@ float can__get_tps1voltage()
 {
   return curr_tps1voltage;
 }
+float can__get_powerLimit() 
+{
+  return curr_powerLimit;
+}
 
 // diagnostics ---------------------------------
 float can__get_rpm()
@@ -177,7 +185,7 @@ const ACAN2515AcceptanceFilter filters [] =
   {standard2515Filter (CAN_HV_ADDR, 0, 0), can__hv_receive}, // 0x600
   {standard2515Filter (CAN_SOC_ADDR, 0, 0), can__soc_receive}, // 0x621
   {standard2515Filter (CAN_BAT_TEMP_ADDR, 0, 0), can__hvtemp_receive},  //0x622
-  
+  {standard2515Filter (CAN_POWERLIMIT_ADDR, 0, 0), can__powerLimit_receive}, //0x511
 
 } ;
 

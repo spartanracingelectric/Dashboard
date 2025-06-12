@@ -16,6 +16,7 @@ float tps1percent_prev = -1.0f;
 float hvtemp_prev = -1.0f;
 float hvlow_prev = -1.0f;
 float oilpress_prev = -1.0f; // float or uint8
+uint8_t powerLimit_prev = -1;
 uint8_t watertemp_prev = -1;
 uint8_t drs_prev = -1;
 
@@ -87,7 +88,7 @@ void lcd__print24(uint8_t x, uint8_t y, char *str)
 }
 void lcd__print_default_screen_template()
 {
-  char default_str[] = "Created by: johnathon lu";
+  char default_str[] = "Created by: Carlie Yem";
   lcd__print14(0, 45, default_str);
   delay(100);
 
@@ -96,10 +97,11 @@ void lcd__print_default_screen_template()
   #if (DISPLAY_SCREEN == 0)
     #if (POWERTRAIN_TYPE == 'E')
     lcd__print8(104, 45, "HV T"); // Bottom Right of Screen
-    lcd__print8(0, 45, "TPS0 %"); // Bottom Left
-    lcd__print8(25, 28, "No Load Voltage"); // Middle of Screen
+    lcd__print8(0, 45, "TPS%"); // Bottom Left
+    lcd__print8(20, 28, "Voltage"); // Middle of Screen
     // lcd__print8(47, 40, "TPS1%");
-    lcd__print8(47, 40, "SoC%");
+    lcd__print8(80, 28, "SoC%");
+    lcd__print8(37, 40, "Power Limit");
 
     
     #endif
@@ -113,10 +115,10 @@ void lcd__clear_section (uint8_t sect)
   int hvtemp[] = {90, 64-14, 40, 14};
   int hv[] = {30, 0, 70, 18};
   int tps0[] = {0, 64-14, 45, 14};
-  int tps1[] = {40, 64-24, 45, 24}; //and SoC section
+  int tps1[] = {40, 64-24, 45, 24}; //and power limit
   int rpm[] = {30, 0, 75,18};
-  int gear[] = {50, 64-24, 30, 24};
-  int* sections[] = {hvtemp, hv, tps0, tps1, rpm, gear};
+  int soc[] = {55, 64-24, 70, 18};
+  int* sections[] = {hvtemp, hv, tps0, tps1, rpm, soc};
   
   lcd->setDrawColor(0);
   lcd->drawBox(sections[sect][0], sections[sect][1], sections[sect][2], sections[sect][3]);
@@ -197,7 +199,7 @@ void lcd__print_hv(float hv) // accumulator voltage (comes in float or integer?)
   sprintf(hv_str, "%5.1f", hv);
 
   lcd__clear_section(1);
-  lcd__print18(35, 18, hv_str);
+  lcd__print18(20, 18, hv_str);
 }
 
 void lcd__print_tps1percent(float tps1percent) 
@@ -227,7 +229,22 @@ void lcd__print_soc(float soc)
   sprintf(soc_str, "%3.0f", soc);
   
   lcd__clear_section(3); //use to be tps 1 section
-  lcd__print18(46, 64, soc_str);
+  lcd__print18(80, 18, soc_str);
+}
+
+void lcd__print_powerLimit(uint8_t powerLimit) 
+{
+  if (powerLimit == powerLimit_prev) return; // if the value is the same, don't update that "section" 
+  
+  powerLimit_prev = powerLimit; // else, update value_prev=value and redraw that section
+
+  char powerLimit_str[5] = "    ";
+
+
+  sprintf(powerLimit_str, "%d", powerLimit);
+  
+  lcd__clear_section(3);
+  lcd__print18(55, 64, powerLimit_str);
 }
 
 // Menu Functions --------------------------------------------------------------- ---------------------------------------------------------------
@@ -278,7 +295,7 @@ void lcd__print_rpm_diag(uint16_t rpm)
   lcd__print18(35, 18, rpm_str);
 }
 
-void lcd__update_screenE(float hv, float tps0percent, float tps1percent, float hvtemp, float soc, uint32_t curr_millis_lcd)
+void lcd__update_screenE(float hv, float tps0percent, float tps1percent, float hvtemp, float soc, uint8_t powerLimit, uint32_t curr_millis_lcd)
 {
   if (curr_millis_lcd - prev_millis_lcd >= LCD_UPDATE_MS) {
     prev_millis_lcd = curr_millis_lcd;
@@ -288,6 +305,6 @@ void lcd__update_screenE(float hv, float tps0percent, float tps1percent, float h
     lcd__print_hv(hv);
     lcd__print_hvtemp(hvtemp);
     lcd__print_soc(soc);
-
+     lcd__print_powerLimit(powerLimit);
   }
 }
