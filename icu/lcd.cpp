@@ -112,12 +112,12 @@ void lcd__print_default_screen_template()
 
 void lcd__clear_section (uint8_t sect)
 {
-  int hvtemp[] = {90, 64-14, 40, 14};
-  int hv[] = {30, 0, 70, 18};
-  int tps0[] = {0, 64-14, 45, 14};
-  int tps1[] = {40, 64-24, 45, 24}; //and power limit
+  int hvtemp[] = {90, 64-14, 40, 14}; //lower right corner
+  int hv[] = {30, 0, 70, 18}; //suppose to be top right
+  int tps0[] = {0, 64-14, 45, 14}; //lower left corner
+  int tps1[] = {40, 64-24, 45, 24}; //and power limit (lower middle)
   int rpm[] = {30, 0, 75,18};
-  int soc[] = {55, 64-24, 70, 18};
+  int soc[] = {55, 64-24, 70, 18}; //supppose to be top left
   int* sections[] = {hvtemp, hv, tps0, tps1, rpm, soc};
   
   lcd->setDrawColor(0);
@@ -202,6 +202,9 @@ void lcd__print_hv(float hv) // accumulator voltage (comes in float or integer?)
   lcd__print18(20, 18, hv_str);
 }
 
+/*
+* Not currently used, power limit is shown instead of tps1percent
+*/
 void lcd__print_tps1percent(float tps1percent) 
 {
   // if (tps1percent == tps1percent_prev) return; // if the value is the same, don't update that "section" 
@@ -228,7 +231,7 @@ void lcd__print_soc(float soc)
 
   sprintf(soc_str, "%3.0f", soc);
   
-  lcd__clear_section(3); //use to be tps 1 section
+  lcd__clear_section(5); 
   lcd__print18(80, 18, soc_str);
 }
 
@@ -305,6 +308,6 @@ void lcd__update_screenE(float hv, float tps0percent, float tps1percent, float h
     lcd__print_hv(hv);
     lcd__print_hvtemp(hvtemp);
     lcd__print_soc(soc);
-     lcd__print_powerLimit(powerLimit);
+    lcd__print_powerLimit(powerLimit);
   }
 }
