@@ -117,7 +117,7 @@ void lcd__clear_section (uint8_t sect)
   int tps0[] = {0, 64-14, 45, 14}; //lower left corner
   int tps1[] = {40, 64-24, 45, 24}; //and power limit (lower middle)
   int rpm[] = {30, 0, 75,18};
-  int soc[] = {55, 64-24, 70, 18}; //supppose to be top left
+  int soc[] = {55, 64-24, 30, 24}; //supppose to be top left
   int* sections[] = {hvtemp, hv, tps0, tps1, rpm, soc};
   
   lcd->setDrawColor(0);
