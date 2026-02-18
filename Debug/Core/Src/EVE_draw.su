@@ -1,0 +1,13 @@
+../Core/Src/EVE_draw.cpp:24:20:void eve_spi_tx_buf(const uint8_t*, uint32_t)	16	static
+../Core/Src/EVE_draw.cpp:29:10:uint16_t EVE_Point(uint16_t, uint16_t, uint16_t, uint16_t)	24	static
+../Core/Src/EVE_draw.cpp:41:10:uint16_t EVE_Line(uint16_t, uint16_t, uint16_t, uint16_t, uint16_t, uint16_t)	24	static
+../Core/Src/EVE_draw.cpp:54:10:uint16_t EVE_Filled_Rectangle(uint16_t, uint16_t, uint16_t, uint16_t, uint16_t)	24	static
+../Core/Src/EVE_draw.cpp:66:10:uint16_t EVE_Open_Rectangle(uint16_t, uint16_t, uint16_t, uint16_t, uint16_t, uint16_t)	24	static
+../Core/Src/EVE_draw.cpp:90:10:uint16_t EVE_Text(uint16_t, uint16_t, uint16_t, uint16_t, uint16_t, const char*)	16	static
+../Core/Src/EVE_draw.cpp:122:10:)	296	static
+../Core/Src/EVE_draw.cpp:138:10:uint16_t Start_Busy_Spinner_Screen(uint16_t, uint32_t, uint32_t, uint32_t, const char*)	32	static
+../Core/Src/EVE_draw.cpp:163:10:uint16_t Stop_Busy_Spinner_Screen(uint16_t, uint32_t, uint32_t, const char*)	32	static
+../Core/Src/EVE_draw.cpp:187:10:uint16_t Calibrate_Touch(uint16_t)	24	static
+../Core/Src/EVE_draw.cpp:209:10:uint16_t EVE_Load_PNG_to_RAM_G(uint16_t, const uint8_t*, uint32_t, uint32_t*, uint32_t*, uint32_t*)	24	static
+../Core/Src/EVE_draw.cpp:261:10:uint16_t EVE_Inflate_to_RAM_G(uint16_t, const uint8_t*, uint32_t, uint32_t*)	32	static
+../Core/Src/EVE_draw.cpp:292:6:void EVE_Load_File_To_RAM_G(uint32_t, const char*, uint32_t*)	24	static

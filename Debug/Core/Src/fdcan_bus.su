@@ -1,0 +1,4 @@
+../Core/Src/fdcan_bus.cpp:7:6:bool FdcanBus::initClassic500k()	48	static
+../Core/Src/fdcan_bus.cpp:24:6:bool FdcanBus::addStdFilter(uint16_t)	48	static
+../Core/Src/fdcan_bus.cpp:37:6:bool FdcanBus::receive(CanFrame&)	56	static
+../Core/Src/fdcan_bus.cpp:47:6:bool FdcanBus::send(const CanFrame&)	56	static

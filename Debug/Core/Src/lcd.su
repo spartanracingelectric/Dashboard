@@ -1,0 +1,35 @@
+D:\STMCubeIDE\STM32CubeIDE_1.19.0\STM32CubeIDE\plugins\com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.13.3.rel1.win32_1.0.0.202411081344\tools\bin/../lib/gcc/arm-none-eabi/13.3.1/../../../../arm-none-eabi/include/c++/13.3.1/cmath:215:3:constexpr float std::exp(float)	16	static
+D:\STMCubeIDE\STM32CubeIDE_1.19.0\STM32CubeIDE\plugins\com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.13.3.rel1.win32_1.0.0.202411081344\tools\bin/../lib/gcc/arm-none-eabi/13.3.1/../../../../arm-none-eabi/include/c++/13.3.1/cmath:234:3:constexpr float std::fabs(float)	16	static
+D:\STMCubeIDE\STM32CubeIDE_1.19.0\STM32CubeIDE\plugins\com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.13.3.rel1.win32_1.0.0.202411081344\tools\bin/../lib/gcc/arm-none-eabi/13.3.1/../../../../arm-none-eabi/include/c++/13.3.1/cmath:2380:3:constexpr long int std::lround(float)	16	static
+../Core/Src/lcd.cpp:17:20:void eve_flush()	8	static
+../Core/Src/lcd.cpp:23:8:void EVE_Init()	4	static
+../Core/Src/lcd.cpp:29:8:void EVE_BeginFrame()	8	static
+../Core/Src/lcd.cpp:37:8:void EVE_EndFrame()	8	static
+../Core/Src/lcd.cpp:45:8:void EVE_SetBackColor(uint8_t, uint8_t, uint8_t)	16	static
+../Core/Src/lcd.cpp:51:8:void EVE_SetFgColor(uint8_t, uint8_t, uint8_t)	16	static
+../Core/Src/lcd.cpp:55:8:void EVE_Text(int16_t, int16_t, uint8_t, uint16_t, const char*)	32	static
+../Core/Src/lcd.cpp:60:8:void EVE_RectFill(int16_t, int16_t, int16_t, int16_t)	24	static
+../Core/Src/lcd.cpp:75:29:float can_service_get_energy_used_kWh()	4	static
+../Core/Src/lcd.cpp:146:20:bool changed_f(float, float, float)	24	static
+../Core/Src/lcd.cpp:152:6:void {anonymous}::draw_static_labels()	16	static
+../Core/Src/lcd.cpp:159:6:void {anonymous}::draw_dynamic_values()	16	static
+../Core/Src/lcd.cpp:167:6:void {anonymous}::render_base_screen()	8	static
+../Core/Src/lcd.cpp:206:23:float energybar::clampf(float, float, float)	24	static
+../Core/Src/lcd.cpp:210:16:float energybar::smooth_step(float, float, float, float)	32	static
+../Core/Src/lcd.cpp:218:22:void energybar::rect(int, int, int, int)	32	static
+../Core/Src/lcd.cpp:223:14:int energybar::fillUnitsToX(int, int)	24	static
+../Core/Src/lcd.cpp:241:8:void energybar::update(uint32_t)	32	static
+../Core/Src/lcd.cpp:251:8:void energybar::draw(uint32_t)	80	static
+../Core/Src/lcd.cpp:305:6:void lcd::render_energy_bar_demo(uint32_t)	16	static
+../Core/Src/lcd.cpp:313:6:void lcd::print_default_screen_template()	16	static
+../Core/Src/lcd.cpp:321:6:void lcd::init()	8	static
+../Core/Src/lcd.cpp:327:6:void lcd::clear()	8	static
+../Core/Src/lcd.cpp:332:6:void lcd::clear_section(uint8_t)	24	static
+../Core/Src/lcd.cpp:349:6:void lcd::print_hv(float)	24	static
+../Core/Src/lcd.cpp:357:6:void lcd::print_tps0percent(float)	24	static
+../Core/Src/lcd.cpp:365:6:void lcd::print_tps1percent(float)	24	static
+../Core/Src/lcd.cpp:373:6:void lcd::print_hvtemp(float)	24	static
+../Core/Src/lcd.cpp:382:6:void lcd::print_hvlow(float)	24	static
+../Core/Src/lcd.cpp:394:6:void lcd::diagnostics(uint8_t, uint8_t, uint8_t)	24	static
+../Core/Src/lcd.cpp:406:6:void lcd::print_rpm_diag(uint16_t)	24	static
+../Core/Src/lcd.cpp:424:6:void lcd::update_screenE(float, float, float, float, uint32_t)	40	static

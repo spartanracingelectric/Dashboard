@@ -1,0 +1,5 @@
+../Core/Inc/fdcan_bus.h:18:12:FdcanBus::FdcanBus(FDCAN_HandleTypeDef*)	16	static
+../Core/Inc/max7219.h:9:3:Max7219::Max7219(SPI_HandleTypeDef*, GPIO_TypeDef*, uint16_t)	24	static
+../Core/Inc/timebase.h:4:17:uint32_t now_ms()	8	static
+../Core/Inc/timebase.h:5:13:bool every_ms(uint32_t&, uint32_t)	24	static
+../Core/Src/app_main.cpp:37:6:void app_main()	48	static

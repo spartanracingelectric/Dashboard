@@ -1,0 +1,29 @@
+D:\STMCubeIDE\STM32CubeIDE_1.19.0\STM32CubeIDE\plugins\com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.13.3.rel1.win32_1.0.0.202411081344\tools\bin/../lib/gcc/arm-none-eabi/13.3.1/../../../../arm-none-eabi/include/c++/13.3.1/cmath:234:3:constexpr float std::fabs(float)	1
+D:\STMCubeIDE\STM32CubeIDE_1.19.0\STM32CubeIDE\plugins\com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.13.3.rel1.win32_1.0.0.202411081344\tools\bin/../lib/gcc/arm-none-eabi/13.3.1/../../../../arm-none-eabi/include/c++/13.3.1/cmath:253:3:constexpr float std::floor(float)	1
+D:\STMCubeIDE\STM32CubeIDE_1.19.0\STM32CubeIDE\plugins\com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.13.3.rel1.win32_1.0.0.202411081344\tools\bin/../lib/gcc/arm-none-eabi/13.3.1/../../../../arm-none-eabi/include/c++/13.3.1/cmath:400:3:constexpr float std::sin(float)	1
+../Core/Src/leds.cpp:60:15:void {anonymous}::clearDesired()	2
+../Core/Src/leds.cpp:64:15:void {anonymous}::setRGBDesired(int, float, float, float)	3
+../Core/Src/leds.cpp:71:15:void {anonymous}::hwSetRGB(int, bool, bool, bool)	1
+../Core/Src/leds.cpp:77:15:void {anonymous}::hwApplyDither()	2
+../Core/Src/leds.cpp:86:15:void {anonymous}::renderOnTarget(float)	1
+../Core/Src/leds.cpp:113:21:{anonymous}::renderBar(float)::<lambda(int, float)>	1
+../Core/Src/leds.cpp:114:20:{anonymous}::renderBar(float)::<lambda(int, float)>	1
+../Core/Src/leds.cpp:97:15:void {anonymous}::renderBar(float)	17
+../Core/Src/leds.cpp:148:6:void leds::init(Max7219*)	1
+../Core/Src/leds.cpp:162:6:void leds::wake()	7
+../Core/Src/leds.cpp:200:6:void leds::efficiency_on_can_ratio(float)	1
+../Core/Src/leds.cpp:208:6:void leds::efficiency_on_can_error(float)	1
+../Core/Src/leds.cpp:215:6:void leds::efficiency_tick(uint32_t)	8
+../Core/Src/leds.cpp:257:6:void leds::enable_shift()	3
+../Core/Src/leds.cpp:268:6:void leds::disable_shift()	2
+../Core/Src/leds.cpp:274:6:void leds::disable_all_solid()	2
+../Core/Src/leds.cpp:280:6:void leds::disable_half_solid(bool)	4
+../Core/Src/leds.cpp:288:6:void leds::toggle_overrev()	3
+../Core/Src/leds.cpp:300:6:void leds::toggle_half(bool)	4
+../Core/Src/leds.cpp:309:6:void leds::toggle_revlim()	3
+../Core/Src/leds.cpp:325:6:void leds::set_brightness(uint8_t)	1
+../Core/Src/leds.cpp:327:6:void leds::lv(float)	1
+../Core/Src/leds.cpp:334:6:void leds::hvtemp(float)	1
+../Core/Src/leds.cpp:340:6:void leds::safety_update_flash(float, uint32_t)	3
+../Core/Src/leds.cpp:21:22:constexpr const T& std::clamp(const T&, const T&, const T&) [with T = float]	3
+D:\STMCubeIDE\STM32CubeIDE_1.19.0\STM32CubeIDE\plugins\com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.13.3.rel1.win32_1.0.0.202411081344\tools\arm-none-eabi\include\c++\13.3.1\bits\stl_algobase.h:233:5:constexpr const _Tp& std::min(const _Tp&, const _Tp&) [with _Tp = int]	2

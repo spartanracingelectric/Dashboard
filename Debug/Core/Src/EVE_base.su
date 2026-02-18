@@ -1,0 +1,32 @@
+../Core/Src/EVE_base.cpp:19:23:uint8_t eve_spi_txrx(uint8_t)	32	static
+../Core/Src/EVE_base.cpp:27:20:void eve_delay_ms(uint32_t)	16	static
+../Core/Src/EVE_base.cpp:30:6:)	272	static
+../Core/Src/EVE_base.cpp:42:6:void DBG_GEEK_Decode_Flash_Status(uint8_t)	16	static
+../Core/Src/EVE_base.cpp:57:6:void DBG_GEEK_Decode_FastFlash_Status(uint32_t)	16	static
+../Core/Src/EVE_base.cpp:74:9:uint8_t Validate_and_Print_Chip_ID(uint32_t)	32	static
+../Core/Src/EVE_base.cpp:101:6:void _EVE_Select_and_Address(uint32_t, uint8_t)	16	static
+../Core/Src/EVE_base.cpp:109:6:void EVE_Command_Write(uint8_t, uint8_t)	16	static
+../Core/Src/EVE_base.cpp:118:6:void _EVE_send_32(uint32_t)	16	static
+../Core/Src/EVE_base.cpp:126:6:void EVE_REG_Write_8(uint32_t, uint8_t)	16	static
+../Core/Src/EVE_base.cpp:133:6:void EVE_REG_Write_16(uint32_t, uint16_t)	16	static
+../Core/Src/EVE_base.cpp:141:6:void EVE_REG_Write_32(uint32_t, uint32_t)	16	static
+../Core/Src/EVE_base.cpp:148:10:uint16_t EVE_Cmd_Dat_0(uint16_t, uint32_t)	16	static
+../Core/Src/EVE_base.cpp:156:10:uint16_t EVE_Cmd_Dat_1(uint16_t, uint32_t, uint32_t)	24	static
+../Core/Src/EVE_base.cpp:165:10:uint16_t EVE_Cmd_Dat_2(uint16_t, uint32_t, uint32_t, uint32_t)	24	static
+../Core/Src/EVE_base.cpp:175:10:uint16_t EVE_Cmd_Dat_3(uint16_t, uint32_t, uint32_t, uint32_t, uint32_t)	24	static
+../Core/Src/EVE_base.cpp:186:9:uint8_t EVE_REG_Read_8(uint32_t)	24	static
+../Core/Src/EVE_base.cpp:195:10:uint16_t EVE_REG_Read_16(uint32_t)	24	static
+../Core/Src/EVE_base.cpp:205:10:uint32_t EVE_REG_Read_32(uint32_t)	24	static
+../Core/Src/EVE_base.cpp:217:6:void EVE_Read_Array(uint32_t, uint16_t, uint8_t*)	32	static
+../Core/Src/EVE_base.cpp:227:17:uint16_t Reset_EVE_Coprocessor()	144	static
+../Core/Src/EVE_base.cpp:255:10:uint16_t Wait_for_EVE_Execution_Complete(uint16_t)	56	static
+../Core/Src/EVE_base.cpp:299:10:uint16_t Get_Free_CMD_Space(uint16_t)	16	static
+../Core/Src/EVE_base.cpp:305:10:uint16_t Get_RAM_G_Pointer_After_INFLATE(uint16_t, uint32_t*)	16	static
+../Core/Src/EVE_base.cpp:315:10:uint16_t Get_RAM_G_Properties_After_LOADIMAGE(uint16_t, uint32_t*, uint32_t*, uint32_t*)	32	static
+../Core/Src/EVE_base.cpp:328:10:uint32_t EVE_Set_Flash_to_Fast(uint16_t)	24	static
+../Core/Src/EVE_base.cpp:345:10:uint16_t EVE_Initialize_Flash(uint16_t)	24	static
+../Core/Src/EVE_base.cpp:365:10:uint16_t Erase_Entire_Flash_Chip(uint16_t)	16	static
+../Core/Src/EVE_base.cpp:433:9:uint8_t Read_Touch(int16_t*, int16_t*)	24	static
+../Core/Src/EVE_base.cpp:465:6:void Read_and_Dump_Touch_Matrix(const char*)	56	static
+../Core/Src/EVE_base.cpp:489:6:void Force_Touch_Matrix()	8	static
+../Core/Src/EVE_base.cpp:509:9:uint8_t EVE_Initialize()	48	static
