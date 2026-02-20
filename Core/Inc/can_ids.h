@@ -12,6 +12,6 @@ constexpr uint16_t CAN_BMS_WARN_ADDR = 0x002;
 constexpr uint16_t CAN_BMS_STAT_ADDR = 0x003;
 constexpr uint16_t CAN_HV_CURRENT_ADDR = 0x004;
 constexpr uint16_t CAN_ENERGY_USED_ADDR =0x6A1;
-constexpr uint16_t CAN_EFF_SCORE_ADDR = 0x5A0;
+constexpr uint16_t CAN_EFF_SCORE_ADDR = CAN_LV_ADDR; // both are on the same id
 
 constexpr uint16_t CAN_RPM_ADDR      = 0x0A5;

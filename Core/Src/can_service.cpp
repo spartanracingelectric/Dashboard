@@ -48,7 +48,6 @@ bool init(FdcanBus& bus) {
   };
   for (uint16_t id : ids) bus.addStdFilter(id);
   bus.addStdFilter(CAN_ENERGY_USED_ADDR);
-  bus.addStdFilter(CAN_EFF_SCORE_ADDR);   
   return true;
 }
 
@@ -67,8 +66,10 @@ void poll(FdcanBus& bus) {
     const uint8_t* d = f.data;
 
     switch (f.id) {
-      case CAN_LV_ADDR:           // curr_lv = (b0 | b1<<8) * 0.001f
-        s_curr_lv = u16(d,0,1) * 0.001f;                                          
+      case CAN_LV_ADDR:           // 0x507: LV (bytes 0-1), eff score (bytes 6-7)
+        s_curr_lv = u16(d,0,1) * 0.001f;
+        { int16_t cp = (int16_t)u16(d, 6, 7);
+          leds::efficiency_on_can_error(float(cp) / 10000.0f); }
         break;
       case CAN_HV_ADDR:           // curr_hv = (b4..b7) * 0.001f
         s_curr_hv = u32(d,4,5,6,7) * 0.001f;                                          
@@ -114,16 +115,6 @@ void poll(FdcanBus& bus) {
           s_energy_used_kWh = kWh;
         }
         s_energy_ts_ms = now_ms();
-        break;
-      }
-
-      case CAN_EFF_SCORE_ADDR: {
-      // Efficiency Score frame
-      // Example: +600 = +6.00% overshoot (lay off)
-      //          -450 = -4.50% undershoot (push)
-        int16_t cp = (int16_t)u16(d, 0, 1);   
-        float err = float(cp) / 10000.0f;     
-        leds::efficiency_on_can_error(err);
         break;
       }
 
