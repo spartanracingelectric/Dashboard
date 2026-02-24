@@ -470,52 +470,45 @@ static void MX_GPIO_Init(void)
   __HAL_RCC_GPIOE_CLK_ENABLE();
   __HAL_RCC_GPIOC_CLK_ENABLE();
   __HAL_RCC_GPIOH_CLK_ENABLE();
+  __HAL_RCC_GPIOA_CLK_ENABLE();
   __HAL_RCC_GPIOB_CLK_ENABLE();
   __HAL_RCC_GPIOD_CLK_ENABLE();
-  __HAL_RCC_GPIOA_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOE, LT_RIGHT_DI_Pin|LT_RIGHT_CI_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13|GPIO_PIN_14|GPIO_PIN_15|LCD_GPIO2_Pin
+                          |LCD_GPIO1_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOC, LCD_GPIO0_Pin|LCD_GPIO1_Pin|LCD_GPIO2_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOA, LT_LEFT_DI_Pin|LT_LEFT_CI_Pin|LCD_GPIO0_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOD, LT_LEFT_DI_Pin|LT_LEFT_CI_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOD, LT_RIGHT_CI_Pin|LT_RIGHT_DI_Pin|LT_BAR_CI_Pin|LT_BAR_DI_Pin, GPIO_PIN_RESET);
 
-  /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOA, LT_BAR_DI_Pin|LT_BAR_CI_Pin, GPIO_PIN_RESET);
-
-  /*Configure GPIO pins : LT_RIGHT_DI_Pin LT_RIGHT_CI_Pin */
-  GPIO_InitStruct.Pin = LT_RIGHT_DI_Pin|LT_RIGHT_CI_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
-
-  /*Configure GPIO pins : LCD_GPIO0_Pin LCD_GPIO1_Pin LCD_GPIO2_Pin */
-  GPIO_InitStruct.Pin = LCD_GPIO0_Pin|LCD_GPIO1_Pin|LCD_GPIO2_Pin;
+  /*Configure GPIO pins : PC13 PC14 PC15 LCD_GPIO2_Pin
+                           LCD_GPIO1_Pin */
+  GPIO_InitStruct.Pin = GPIO_PIN_13|GPIO_PIN_14|GPIO_PIN_15|LCD_GPIO2_Pin
+                          |LCD_GPIO1_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : LT_LEFT_DI_Pin LT_LEFT_CI_Pin */
-  GPIO_InitStruct.Pin = LT_LEFT_DI_Pin|LT_LEFT_CI_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
-
-  /*Configure GPIO pins : LT_BAR_DI_Pin LT_BAR_CI_Pin */
-  GPIO_InitStruct.Pin = LT_BAR_DI_Pin|LT_BAR_CI_Pin;
+  /*Configure GPIO pins : LT_LEFT_DI_Pin LT_LEFT_CI_Pin LCD_GPIO0_Pin */
+  GPIO_InitStruct.Pin = LT_LEFT_DI_Pin|LT_LEFT_CI_Pin|LCD_GPIO0_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
+  /*Configure GPIO pins : LT_RIGHT_CI_Pin LT_RIGHT_DI_Pin LT_BAR_CI_Pin LT_BAR_DI_Pin */
+  GPIO_InitStruct.Pin = LT_RIGHT_CI_Pin|LT_RIGHT_DI_Pin|LT_BAR_CI_Pin|LT_BAR_DI_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
+
   /*AnalogSwitch Config */
-  HAL_SYSCFG_AnalogSwitchConfig(SYSCFG_SWITCH_PC2, SYSCFG_SWITCH_PC2_CLOSE);
+  HAL_SYSCFG_AnalogSwitchConfig(SYSCFG_SWITCH_PA1, SYSCFG_SWITCH_PA1_CLOSE);
 
   /* USER CODE BEGIN MX_GPIO_Init_2 */
 

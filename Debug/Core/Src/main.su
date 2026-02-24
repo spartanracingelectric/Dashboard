@@ -6,5 +6,5 @@
 ../Core/Src/main.c:340:13:MX_TIM1_Init	96	static
 ../Core/Src/main.c:414:13:MX_USART1_UART_Init	8	static
 ../Core/Src/main.c:462:13:MX_GPIO_Init	56	static
-../Core/Src/main.c:531:6:MPU_Config	24	static
-../Core/Src/main.c:562:6:Error_Handler	8	static,ignoring_inline_asm
+../Core/Src/main.c:524:6:MPU_Config	24	static
+../Core/Src/main.c:555:6:Error_Handler	8	static,ignoring_inline_asm
