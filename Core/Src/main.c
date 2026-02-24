@@ -108,6 +108,7 @@ int main(void)
   /* USER CODE BEGIN 2 */
   //static_assert(sizeof(HAL_StatusTypeDef) > 0, "HAL_StatusTypeDef missing");
   extern void app_main();
+  app_main();
 
   printf("\nCODE EXECUTION DONE!!!\n");
   /* USER CODE END 2 */
@@ -257,9 +258,9 @@ static void MX_FDCAN2_Init(void)
   hfdcan2.Init.DataTimeSeg1 = 1;
   hfdcan2.Init.DataTimeSeg2 = 1;
   hfdcan2.Init.MessageRAMOffset = 0;
-  hfdcan2.Init.StdFiltersNbr = 0;
+  hfdcan2.Init.StdFiltersNbr = 14;
   hfdcan2.Init.ExtFiltersNbr = 0;
-  hfdcan2.Init.RxFifo0ElmtsNbr = 0;
+  hfdcan2.Init.RxFifo0ElmtsNbr = 8;
   hfdcan2.Init.RxFifo0ElmtSize = FDCAN_DATA_BYTES_8;
   hfdcan2.Init.RxFifo1ElmtsNbr = 0;
   hfdcan2.Init.RxFifo1ElmtSize = FDCAN_DATA_BYTES_8;
@@ -267,7 +268,7 @@ static void MX_FDCAN2_Init(void)
   hfdcan2.Init.RxBufferSize = FDCAN_DATA_BYTES_8;
   hfdcan2.Init.TxEventsNbr = 0;
   hfdcan2.Init.TxBuffersNbr = 0;
-  hfdcan2.Init.TxFifoQueueElmtsNbr = 0;
+  hfdcan2.Init.TxFifoQueueElmtsNbr = 3;
   hfdcan2.Init.TxFifoQueueMode = FDCAN_TX_FIFO_OPERATION;
   hfdcan2.Init.TxElmtSize = FDCAN_DATA_BYTES_8;
   if (HAL_FDCAN_Init(&hfdcan2) != HAL_OK)
@@ -299,7 +300,7 @@ static void MX_SPI4_Init(void)
   hspi4.Instance = SPI4;
   hspi4.Init.Mode = SPI_MODE_MASTER;
   hspi4.Init.Direction = SPI_DIRECTION_2LINES;
-  hspi4.Init.DataSize = SPI_DATASIZE_4BIT;
+  hspi4.Init.DataSize = SPI_DATASIZE_8BIT;
   hspi4.Init.CLKPolarity = SPI_POLARITY_LOW;
   hspi4.Init.CLKPhase = SPI_PHASE_1EDGE;
   hspi4.Init.NSS = SPI_NSS_SOFT;
