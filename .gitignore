@@ -1,3 +1,31 @@
-.vscode
-.vscode/arduino.json
-.vscode/c_cpp_properties.json
+# ===== STM32CubeIDE / Eclipse build artifacts =====
+Debug/
+Release/
+build/
+*.o
+*.d
+*.su
+*.cyclo
+*.list
+*.map
+*.elf
+*.bin
+*.hex
+*.srec
+
+# ===== IDE metadata =====
+.vscode/
+.settings/
+.metadata/
+.cproject
+.project
+
+# ===== OS junk =====
+Thumbs.db
+.DS_Store
+desktop.ini
+
+# ===== Secrets / credentials =====
+*.env
+*.pem
+*.key
