@@ -26,7 +26,7 @@ namespace lcd {
 //External handles from CubeMX
 extern SPI_HandleTypeDef hspi4;
 //extern SPI_HandleTypeDef hspi1;
-extern FDCAN_HandleTypeDef hfdcan1;
+extern FDCAN_HandleTypeDef hfdcan2;
 SPI_HandleTypeDef& hspi_lcd = hspi4;
 SPI_HandleTypeDef& hspi_led = hspi4;
 
@@ -38,7 +38,7 @@ void app_main()
 {
 
   // Drivers
-  FdcanBus bus(&hfdcan1);
+  FdcanBus bus(&hfdcan2);
   Max7219 max(&hspi_led, MAX_PINS.cs_port, MAX_PINS.cs_pin);
 
   // Services

@@ -16,7 +16,7 @@ bool FdcanBus::initClassic500k() {
 	  f.RxBufferIndex = 0;                         // keep (harmless in new HAL)
 	  if (HAL_FDCAN_ConfigFilter(h_, &f) != HAL_OK) return false;
 
-	  // HAL_FDCAN_ConfigGlobalFilter(h_, FDCAN_ACCEPT_IN_RX_FIFO0, FDCAN_REJECT, FDCAN_FILTER_REMOTE, FDCAN_FILTER_REMOTE);
+	  HAL_FDCAN_ConfigGlobalFilter(h_, FDCAN_REJECT, FDCAN_REJECT, FDCAN_FILTER_REMOTE, FDCAN_FILTER_REMOTE);
 
 	  return HAL_FDCAN_Start(h_) == HAL_OK;
 }
@@ -39,7 +39,7 @@ bool FdcanBus::receive(CanFrame& out) {
   if (HAL_FDCAN_GetRxFifoFillLevel(h_, FDCAN_RX_FIFO0) == 0) return false;
   if (HAL_FDCAN_GetRxMessage(h_, FDCAN_RX_FIFO0, &hdr, out.data) != HAL_OK) return false;
   out.id = hdr.Identifier;
-  out.len = hdr.DataLength >> 16; 
+  out.len = hdr.DataLength;  // HAL already returns DLC code (0-8 for classic CAN)
   if (out.len > 8) out.len = 8;
   return true;
 }
@@ -49,7 +49,7 @@ bool FdcanBus::send(const CanFrame& in) {
   hdr.Identifier = in.id;
   hdr.IdType = FDCAN_STANDARD_ID;
   hdr.TxFrameType = FDCAN_DATA_FRAME;
-  hdr.DataLength = in.len << 16;
+  hdr.DataLength = in.len;  // HAL shifts internally when writing to message RAM
   hdr.ErrorStateIndicator = FDCAN_ESI_ACTIVE;
   hdr.BitRateSwitch = FDCAN_BRS_OFF;
   hdr.FDFormat = FDCAN_CLASSIC_CAN;
