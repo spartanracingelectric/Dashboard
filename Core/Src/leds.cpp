@@ -51,6 +51,12 @@ namespace {
   static float desG[NUM_LED_RGB]{};
   static float desB[NUM_LED_RGB]{};
 
+  // Safety overrides — lv()/hvtemp() set these so they survive hwApplyDither
+  static bool  g_safetyOverride[NUM_LED_RGB]{};
+  static float g_safetyR[NUM_LED_RGB]{};
+  static float g_safetyG[NUM_LED_RGB]{};
+  static float g_safetyB[NUM_LED_RGB]{};
+
   // Phases
   static uint32_t g_lastTickMs = 0;
   static float    g_pulsePhase = 0.0f;
@@ -147,7 +153,7 @@ namespace leds {
 
 void init(Max7219* dev) { g = dev; g->begin(); }
 
-/*
+
 void wake() {
   // Simple chase like original  
   for (int i=0;i<NUM_LED_RGB;i++) { g->setPoint(PIN_LED_RGB_R[i][0], PIN_LED_RGB_R[i][1], true); HAL_Delay(50); }
@@ -156,46 +162,46 @@ void wake() {
   HAL_Delay(100);
   for (uint8_t i=0;i<NUM_LED_SOLID;i++) g->setPoint(PIN_LED_SOLID[i][0], PIN_LED_SOLID[i][1], false);
 }
-*/
+
 
 //Updated Wake function, uncomment top one if this does not work
-void wake() {
-  // Per-LED: turn on R -> G -> B (like leds__wake)
-  for (int i = 0; i < NUM_LED_RGB; i++) {
-    g->setPoint(PIN_LED_RGB_R[i][0], PIN_LED_RGB_R[i][1], true);
-    HAL_Delay(50);
-    g->setPoint(PIN_LED_RGB_G[i][0], PIN_LED_RGB_G[i][1], true);
-    HAL_Delay(50);
-    g->setPoint(PIN_LED_RGB_B[i][0], PIN_LED_RGB_B[i][1], true);
-    HAL_Delay(50);
-  }
-
-  // Per-LED: turn off R -> G -> B
-  for (int i = 0; i < NUM_LED_RGB; i++) {
-    g->setPoint(PIN_LED_RGB_R[i][0], PIN_LED_RGB_R[i][1], false);
-    HAL_Delay(50);
-    g->setPoint(PIN_LED_RGB_G[i][0], PIN_LED_RGB_G[i][1], false);
-    HAL_Delay(50);
-    g->setPoint(PIN_LED_RGB_B[i][0], PIN_LED_RGB_B[i][1], false);
-    HAL_Delay(50);
-  }
-
-  // Solid LEDs: on -> off -> on -> off (two blinks), 100 ms cadence
-  for (uint8_t i = 0; i < NUM_LED_SOLID; i++)
-    g->setPoint(PIN_LED_SOLID[i][0], PIN_LED_SOLID[i][1], true);
-  HAL_Delay(100);
-
-  for (uint8_t i = 0; i < NUM_LED_SOLID; i++)
-    g->setPoint(PIN_LED_SOLID[i][0], PIN_LED_SOLID[i][1], false);
-  HAL_Delay(100);
-
-  for (uint8_t i = 0; i < NUM_LED_SOLID; i++)
-    g->setPoint(PIN_LED_SOLID[i][0], PIN_LED_SOLID[i][1], true);
-  HAL_Delay(100);
-
-  for (uint8_t i = 0; i < NUM_LED_SOLID; i++)
-    g->setPoint(PIN_LED_SOLID[i][0], PIN_LED_SOLID[i][1], false);
-}
+//void wake() {
+//  // Per-LED: turn on R -> G -> B (like leds__wake)
+//  for (int i = 0; i < NUM_LED_RGB; i++) {
+//    g->setPoint(PIN_LED_RGB_R[i][0], PIN_LED_RGB_R[i][1], true);
+//    HAL_Delay(50);
+//    g->setPoint(PIN_LED_RGB_G[i][0], PIN_LED_RGB_G[i][1], true);
+//    HAL_Delay(50);
+//    g->setPoint(PIN_LED_RGB_B[i][0], PIN_LED_RGB_B[i][1], true);
+//    HAL_Delay(50);
+//  }
+//
+//  // Per-LED: turn off R -> G -> B
+//  for (int i = 0; i < NUM_LED_RGB; i++) {
+//    g->setPoint(PIN_LED_RGB_R[i][0], PIN_LED_RGB_R[i][1], false);
+//    HAL_Delay(50);
+//    g->setPoint(PIN_LED_RGB_G[i][0], PIN_LED_RGB_G[i][1], false);
+//    HAL_Delay(50);
+//    g->setPoint(PIN_LED_RGB_B[i][0], PIN_LED_RGB_B[i][1], false);
+//    HAL_Delay(50);
+//  }
+//
+//  // Solid LEDs: on -> off -> on -> off (two blinks), 100 ms cadence
+//  for (uint8_t i = 0; i < NUM_LED_SOLID; i++)
+//    g->setPoint(PIN_LED_SOLID[i][0], PIN_LED_SOLID[i][1], true);
+//  HAL_Delay(100);
+//
+//  for (uint8_t i = 0; i < NUM_LED_SOLID; i++)
+//    g->setPoint(PIN_LED_SOLID[i][0], PIN_LED_SOLID[i][1], false);
+//  HAL_Delay(100);
+//
+//  for (uint8_t i = 0; i < NUM_LED_SOLID; i++)
+//    g->setPoint(PIN_LED_SOLID[i][0], PIN_LED_SOLID[i][1], true);
+//  HAL_Delay(100);
+//
+//  for (uint8_t i = 0; i < NUM_LED_SOLID; i++)
+//    g->setPoint(PIN_LED_SOLID[i][0], PIN_LED_SOLID[i][1], false);
+//}
 
 void efficiency_on_can_ratio(float ratio) {
   // Signed error where +ve means overshoot (lay off), -ve means undershoot (push)
@@ -249,7 +255,15 @@ void efficiency_tick(uint32_t now_ms) {
     g_pwmPhase01 = float(elapsed) / float(pwmPeriodMs);
   }
 
- 
+  // Safety warnings override efficiency bar on their LED
+  for (int i = 0; i < NUM_LED_RGB; i++) {
+    if (g_safetyOverride[i]) {
+      desR[i] = g_safetyR[i];
+      desG[i] = g_safetyG[i];
+      desB[i] = g_safetyB[i];
+    }
+  }
+
   hwApplyDither();
 }
 
@@ -326,15 +340,18 @@ void set_brightness(uint8_t v) { g->intensity(v); }
 
 void lv(float lv) {
   bool low = (lv < LV_WARNING_THRESHOLD);
- 
-  g->setPoint(3,1,false);
-  g->setPoint(PIN_LED_RGB_R[3][0], PIN_LED_RGB_R[3][1], low);
+  g_safetyOverride[3] = low;
+  g_safetyR[3] = low ? 1.0f : 0.0f;
+  g_safetyG[3] = 0.0f;
+  g_safetyB[3] = 0.0f;
 }
 
 void hvtemp(float hvtemp) {
   bool hot = (hvtemp > HVTEMP_LIMIT_C);
-  g->setPoint(3,1,false);
-  g->setPoint(PIN_LED_RGB_R[3][0], PIN_LED_RGB_R[3][1], hot);
+  g_safetyOverride[3] = hot;
+  g_safetyR[3] = hot ? 1.0f : 0.0f;
+  g_safetyG[3] = 0.0f;
+  g_safetyB[3] = 0.0f;
 }
 
 void safety_update_flash(float hvtemp, uint32_t now_ms) {

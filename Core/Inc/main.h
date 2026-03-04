@@ -77,6 +77,8 @@ void Error_Handler(void);
 #define LCD_GPIO2_GPIO_Port GPIOC
 #define PWM1_Pin GPIO_PIN_9
 #define PWM1_GPIO_Port GPIOE
+#define MAX_CS_Pin GPIO_PIN_12
+#define MAX_CS_GPIO_Port GPIOB
 #define LT_LEFT_DI_Pin GPIO_PIN_12
 #define LT_LEFT_DI_GPIO_Port GPIOD
 #define LT_LEFT_CI_Pin GPIO_PIN_14

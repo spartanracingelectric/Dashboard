@@ -314,7 +314,7 @@ void print_default_screen_template() {
   EVE_BeginFrame();
   EVE_SetBackColor(0, 0, 0);
   EVE_SetFgColor(255, 255, 255);
-  EVE_Text(30, TFT_H - 60, FONT_MED, 0, "Created by: Aryan Singh");
+  EVE_Text(30, TFT_H - 60, FONT_MED, 0, "John Pork Was Here");
   EVE_EndFrame();
 }
 

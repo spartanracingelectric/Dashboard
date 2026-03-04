@@ -39,7 +39,7 @@ bool FdcanBus::receive(CanFrame& out) {
   if (HAL_FDCAN_GetRxFifoFillLevel(h_, FDCAN_RX_FIFO0) == 0) return false;
   if (HAL_FDCAN_GetRxMessage(h_, FDCAN_RX_FIFO0, &hdr, out.data) != HAL_OK) return false;
   out.id = hdr.Identifier;
-  out.len = hdr.DataLength;  // HAL already returns DLC code (0-8 for classic CAN)
+  out.len = (uint8_t)(hdr.DataLength >> 16);  // HAL enum has byte count in bits [19:16]
   if (out.len > 8) out.len = 8;
   return true;
 }
@@ -49,7 +49,7 @@ bool FdcanBus::send(const CanFrame& in) {
   hdr.Identifier = in.id;
   hdr.IdType = FDCAN_STANDARD_ID;
   hdr.TxFrameType = FDCAN_DATA_FRAME;
-  hdr.DataLength = in.len;  // HAL shifts internally when writing to message RAM
+  hdr.DataLength = (uint32_t)in.len << 16;  // HAL expects DLC in bits [19:16]
   hdr.ErrorStateIndicator = FDCAN_ESI_ACTIVE;
   hdr.BitRateSwitch = FDCAN_BRS_OFF;
   hdr.FDFormat = FDCAN_CLASSIC_CAN;
