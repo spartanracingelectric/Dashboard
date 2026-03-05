@@ -1,23 +1,19 @@
-// leds.h
 #pragma once
 #include <cstdint>
-#include "max7219.h"
 #include "config.h"
 
-constexpr uint8_t NUM_LED_SOLID = 10;
-constexpr uint8_t NUM_LED_RGB   = 6;
+class Apa102Chain;
 
-extern const uint8_t PIN_LED_SOLID[NUM_LED_SOLID][2];
-extern const uint8_t PIN_LED_RGB_R[NUM_LED_RGB][2];
-extern const uint8_t PIN_LED_RGB_G[NUM_LED_RGB][2];
-extern const uint8_t PIN_LED_RGB_B[NUM_LED_RGB][2];
+constexpr uint8_t NUM_LED_BAR   = 12;
+constexpr uint8_t NUM_LED_LEFT  = 3;
+constexpr uint8_t NUM_LED_RIGHT = 3;
 
 namespace leds {
 // lifecycle
-void init(Max7219* dev);
+void init(Apa102Chain* bar, Apa102Chain* left, Apa102Chain* right);
 void wake();
 
-
+// shift indicator (bar chain)
 void enable_shift();
 void disable_shift();
 void disable_all_solid();
@@ -26,9 +22,13 @@ void toggle_overrev();
 void toggle_half(bool firstHalf);
 void toggle_revlim();
 void set_brightness(uint8_t value);
-void lv(float lv);             
+
+// safety warnings (left/right chains)
+void lv(float lv);
 void hvtemp(float hvtemp);
 void safety_update_flash(float hvtemp, uint32_t now_ms);
+
+// efficiency bar (bar chain)
 void efficiency_on_can_ratio(float ratio);
 void efficiency_on_can_error(float signed_err);
 void efficiency_tick(uint32_t now_ms);

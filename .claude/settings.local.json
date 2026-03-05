@@ -1,7 +1,10 @@
 {
   "permissions": {
     "allow": [
-      "Bash(dir:*)"
+      "Bash(dir:*)",
+      "WebFetch(domain:www.mouser.com)",
+      "WebFetch(domain:www.americanbrightled.com)",
+      "WebFetch(domain:www.digikey.com)"
     ]
   }
 }

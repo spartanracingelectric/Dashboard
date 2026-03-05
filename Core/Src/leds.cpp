@@ -1,19 +1,17 @@
 // leds.cpp
 #include "main.h"
 #include "leds.h"
-#include <array>
+#include "apa102.h"
 #include <cmath>
 #include <algorithm>
 
-static Max7219* g = nullptr;
-static uint8_t pin_led_solid_state[NUM_LED_SOLID]{};
-static uint32_t prev_overrev=0, prev_revlim=0, prev_hvtemp=0;
+static Apa102Chain* g_bar   = nullptr;
+static Apa102Chain* g_left  = nullptr;
+static Apa102Chain* g_right = nullptr;
 
-// Going to be called by max7219 setpoint function later, needed for that
-const uint8_t PIN_LED_SOLID[NUM_LED_SOLID][2] = {{0,0},{0,1},{0,2},{0,3},{0,4},{1,0},{1,1},{1,2},{1,3},{1,4}};  
-const uint8_t PIN_LED_RGB_R[NUM_LED_RGB][2]   = {{2,0},{2,2},{2,4},{2,1},{2,3},{2,5}};                            
-const uint8_t PIN_LED_RGB_G[NUM_LED_RGB][2]   = {{3,0},{3,2},{3,4},{3,1},{3,3},{3,5}};                             
-const uint8_t PIN_LED_RGB_B[NUM_LED_RGB][2]   = {{4,0},{4,2},{4,4},{4,1},{4,3},{4,5}};                            
+// Shift indicator state on bar chain
+static uint8_t bar_solid_state[NUM_LED_BAR]{};
+static bool g_shiftActive = false;
 
 #if __cplusplus < 201703L
 namespace std {
@@ -26,190 +24,156 @@ namespace std {
 
 namespace {
   struct EffCfg {
-    // Mapping/geometry
-    static constexpr int N = NUM_LED_RGB;           // total RGB LEDs
-    static constexpr int CENTER_L = (N/2) - 1;      
-    static constexpr int CENTER_R = (N/2);          
-    // Visual shaping
-    float deadband       = 0.02f;   
-    float displayRange   = 0.15f;   
-    float alphaLPF       = 0.85f;   // error smoothing
-    float pulseHz        = 1.0f;    
-    float baseBright     = 0.65f;   // full LED brightness (0 to 1)
-    float fracBright     = 0.65f;   
-    // Dither PWM
-    uint16_t pwmHz       = 120;     // software PWM rate
+    static constexpr int N = NUM_LED_BAR;          // 12 LEDs
+    static constexpr int CENTER_L = (N/2) - 1;     // index 5
+    static constexpr int CENTER_R = (N/2);          // index 6
+    float deadband       = 0.02f;
+    float displayRange   = 0.15f;
+    float alphaLPF       = 0.85f;
+    float pulseHz        = 1.0f;
+    float baseBright     = 0.65f;
+    float fracBright     = 0.65f;
   } cfg;
 
-  //negative = undershoot→right/green, positive = overshoot→left/yellow
+  // negative = undershoot→right/green, positive = overshoot→left/yellow
   static float g_rawErr = 0.0f;
   static float g_err    = 0.0f;
   static bool  g_hasNew = false;
 
-  // Per-LED desired brightness for each color channel
-  static float desR[NUM_LED_RGB]{};
-  static float desG[NUM_LED_RGB]{};
-  static float desB[NUM_LED_RGB]{};
+  // Per-bar-LED desired brightness (0.0–1.0)
+  static float desR[NUM_LED_BAR]{};
+  static float desG[NUM_LED_BAR]{};
+  static float desB[NUM_LED_BAR]{};
 
-  // Safety overrides — lv()/hvtemp() set these so they survive hwApplyDither
-  static bool  g_safetyOverride[NUM_LED_RGB]{};
-  static float g_safetyR[NUM_LED_RGB]{};
-  static float g_safetyG[NUM_LED_RGB]{};
-  static float g_safetyB[NUM_LED_RGB]{};
+  // Left chain warning state
+  static bool  g_leftOverride[NUM_LED_LEFT]{};
+  static float g_leftR[NUM_LED_LEFT]{}, g_leftG[NUM_LED_LEFT]{}, g_leftB[NUM_LED_LEFT]{};
 
-  // Phases
+  // Right chain warning state
+  static bool  g_rightOverride[NUM_LED_RIGHT]{};
+  static float g_rightR[NUM_LED_RIGHT]{}, g_rightG[NUM_LED_RIGHT]{}, g_rightB[NUM_LED_RIGHT]{};
+
+  // Timebase
   static uint32_t g_lastTickMs = 0;
   static float    g_pulsePhase = 0.0f;
-  static uint32_t g_lastPwmFlipMs = 0;
-  static float    g_pwmPhase01 = 0.0f; 
 
   inline void clearDesired() {
-    for (int i=0;i<NUM_LED_RGB;i++) { desR[i]=desG[i]=desB[i]=0.0f; }
+    for (int i = 0; i < NUM_LED_BAR; i++) { desR[i] = desG[i] = desB[i] = 0.0f; }
   }
 
   inline void setRGBDesired(int idx, float r, float g, float b) {
-    if (idx < 0 || idx >= NUM_LED_RGB) return;
+    if (idx < 0 || idx >= NUM_LED_BAR) return;
     desR[idx] = std::clamp(r, 0.0f, 1.0f);
     desG[idx] = std::clamp(g, 0.0f, 1.0f);
     desB[idx] = std::clamp(b, 0.0f, 1.0f);
   }
 
-  inline void hwSetRGB(int i, bool rOn, bool gOn, bool bOn) {
-    g->setPoint(PIN_LED_RGB_R[i][0], PIN_LED_RGB_R[i][1], rOn);
-    g->setPoint(PIN_LED_RGB_G[i][0], PIN_LED_RGB_G[i][1], gOn);
-    g->setPoint(PIN_LED_RGB_B[i][0], PIN_LED_RGB_B[i][1], bOn);
-  }
-
-  inline void hwApplyDither() { // 1 bit PWM for ON/OFF for each LED channel
-    for (int i=0;i<NUM_LED_RGB;i++) {
-      const bool rOn = (desR[i] > g_pwmPhase01);
-      const bool gOn = (desG[i] > g_pwmPhase01);
-      const bool bOn = (desB[i] > g_pwmPhase01);
-      hwSetRGB(i, rOn, gOn, bOn);
-    }
-  }
-
   inline void renderOnTarget(float dt_s) {
     clearDesired();
-  
     g_pulsePhase += cfg.pulseHz * dt_s;
     const float s = 0.5f + 0.5f * std::sin(2.0f * 3.14159265f * g_pulsePhase);
-    const float bright = 0.30f + 0.40f * s; 
-    
+    const float bright = 0.30f + 0.40f * s;
     setRGBDesired(EffCfg::CENTER_L, 0.85f*bright, 0.92f*bright, 1.00f*bright);
     setRGBDesired(EffCfg::CENTER_R, 0.85f*bright, 0.92f*bright, 1.00f*bright);
   }
 
   inline void renderBar(float err) {
     clearDesired();
-    // Determine side & magnitude
     const float abserr = std::fabs(err);
-    if (abserr <= cfg.deadband) return; // on-target handled by caller
+    if (abserr <= cfg.deadband) return;
 
-    const int L = NUM_LED_RGB / 2; // LEDs per side
+    const int L = NUM_LED_BAR / 2;  // 6 LEDs per side
     float mag01 = std::clamp(abserr / cfg.displayRange, 0.0f, 1.0f);
-    const float pos = mag01 * float(L);      // 0..L
-    const int   k   = std::min(int(std::floor(pos)), L); // full LEDs
+    const float pos = mag01 * float(L);
+    const int   k   = std::min(int(std::floor(pos)), L);
     const float f   = std::clamp(pos - float(k), 0.0f, 1.0f);
 
-    const bool overshoot = (err > 0.0f); // overshoot → left (yellow), undershoot → right (green)
+    const bool overshoot = (err > 0.0f);
     const float fullB = cfg.baseBright;
     const float fracB = cfg.fracBright;
 
-    auto setGreen = [&](int idx, float b){ setRGBDesired(idx, 0.0f, b, 0.0f); };
-    auto setYellow=[&](int idx, float b){ setRGBDesired(idx, b,   b, 0.0f); };
+    auto setGreen  = [&](int idx, float b){ setRGBDesired(idx, 0.0f, b, 0.0f); };
+    auto setYellow = [&](int idx, float b){ setRGBDesired(idx, b,    b, 0.0f); };
 
-    // Anchor: faint center pair to stabilize eye
+    // Faint center anchor
     setRGBDesired(EffCfg::CENTER_L, 0.06f, 0.06f, 0.06f);
     setRGBDesired(EffCfg::CENTER_R, 0.06f, 0.06f, 0.06f);
 
     if (!overshoot) {
-      // undershoot → rightwards from CENTER_R
-      // Full LEDs
-      for (int i=0;i<k; ++i) {
+      for (int i = 0; i < k; ++i) {
         int idx = EffCfg::CENTER_R + i;
-        if (idx >= 0 && idx < NUM_LED_RGB) setGreen(idx, fullB);
+        if (idx >= 0 && idx < NUM_LED_BAR) setGreen(idx, fullB);
       }
-      // Fractional
       if (k < L && f > 1e-3f) {
         int idxF = EffCfg::CENTER_R + k;
-        if (idxF >=0 && idxF < NUM_LED_RGB) setGreen(idxF, fracB * f);
+        if (idxF >= 0 && idxF < NUM_LED_BAR) setGreen(idxF, fracB * f);
       }
     } else {
-      // overshoot → leftwards from CENTER_L
-      for (int i=0;i<k; ++i) {
+      for (int i = 0; i < k; ++i) {
         int idx = EffCfg::CENTER_L - i;
-        if (idx >= 0 && idx < NUM_LED_RGB) setYellow(idx, fullB);
+        if (idx >= 0 && idx < NUM_LED_BAR) setYellow(idx, fullB);
       }
       if (k < L && f > 1e-3f) {
         int idxF = EffCfg::CENTER_L - k;
-        if (idxF >=0 && idxF < NUM_LED_RGB) setYellow(idxF, fracB * f);
+        if (idxF >= 0 && idxF < NUM_LED_BAR) setYellow(idxF, fracB * f);
       }
     }
+  }
+
+  // Flush shift indicator pattern to bar chain (white LEDs for active positions)
+  inline void applyBarSolid() {
+    if (!g_bar) return;
+    for (uint8_t i = 0; i < NUM_LED_BAR; ++i) {
+      if (bar_solid_state[i])
+        g_bar->setLed(i, 255, 255, 255, 31);
+      else
+        g_bar->setLed(i, 0, 0, 0, 0);
+    }
+    g_bar->show();
   }
 }
 
 namespace leds {
 
-void init(Max7219* dev) { g = dev; g->begin(); }
-
-
-void wake() {
-  // Simple chase like original  
-  for (int i=0;i<NUM_LED_RGB;i++) { g->setPoint(PIN_LED_RGB_R[i][0], PIN_LED_RGB_R[i][1], true); HAL_Delay(50); }
-  for (int i=0;i<NUM_LED_RGB;i++) { g->setPoint(PIN_LED_RGB_R[i][0], PIN_LED_RGB_R[i][1], false); HAL_Delay(50); }
-  for (uint8_t i=0;i<NUM_LED_SOLID;i++) g->setPoint(PIN_LED_SOLID[i][0], PIN_LED_SOLID[i][1], true);
-  HAL_Delay(100);
-  for (uint8_t i=0;i<NUM_LED_SOLID;i++) g->setPoint(PIN_LED_SOLID[i][0], PIN_LED_SOLID[i][1], false);
+void init(Apa102Chain* bar, Apa102Chain* left, Apa102Chain* right) {
+    g_bar = bar;
+    g_left = left;
+    g_right = right;
+    g_bar->clear();  g_bar->show();
+    g_left->clear(); g_left->show();
+    g_right->clear();g_right->show();
 }
 
+void wake() {
+  // Chase red across bar
+  for (int i = 0; i < NUM_LED_BAR; ++i) {
+    g_bar->setLed(i, 255, 0, 0, 31);
+    g_bar->show();
+    HAL_Delay(50);
+  }
+  g_bar->clear();
+  g_bar->show();
 
-//Updated Wake function, uncomment top one if this does not work
-//void wake() {
-//  // Per-LED: turn on R -> G -> B (like leds__wake)
-//  for (int i = 0; i < NUM_LED_RGB; i++) {
-//    g->setPoint(PIN_LED_RGB_R[i][0], PIN_LED_RGB_R[i][1], true);
-//    HAL_Delay(50);
-//    g->setPoint(PIN_LED_RGB_G[i][0], PIN_LED_RGB_G[i][1], true);
-//    HAL_Delay(50);
-//    g->setPoint(PIN_LED_RGB_B[i][0], PIN_LED_RGB_B[i][1], true);
-//    HAL_Delay(50);
-//  }
-//
-//  // Per-LED: turn off R -> G -> B
-//  for (int i = 0; i < NUM_LED_RGB; i++) {
-//    g->setPoint(PIN_LED_RGB_R[i][0], PIN_LED_RGB_R[i][1], false);
-//    HAL_Delay(50);
-//    g->setPoint(PIN_LED_RGB_G[i][0], PIN_LED_RGB_G[i][1], false);
-//    HAL_Delay(50);
-//    g->setPoint(PIN_LED_RGB_B[i][0], PIN_LED_RGB_B[i][1], false);
-//    HAL_Delay(50);
-//  }
-//
-//  // Solid LEDs: on -> off -> on -> off (two blinks), 100 ms cadence
-//  for (uint8_t i = 0; i < NUM_LED_SOLID; i++)
-//    g->setPoint(PIN_LED_SOLID[i][0], PIN_LED_SOLID[i][1], true);
-//  HAL_Delay(100);
-//
-//  for (uint8_t i = 0; i < NUM_LED_SOLID; i++)
-//    g->setPoint(PIN_LED_SOLID[i][0], PIN_LED_SOLID[i][1], false);
-//  HAL_Delay(100);
-//
-//  for (uint8_t i = 0; i < NUM_LED_SOLID; i++)
-//    g->setPoint(PIN_LED_SOLID[i][0], PIN_LED_SOLID[i][1], true);
-//  HAL_Delay(100);
-//
-//  for (uint8_t i = 0; i < NUM_LED_SOLID; i++)
-//    g->setPoint(PIN_LED_SOLID[i][0], PIN_LED_SOLID[i][1], false);
-//}
+  // Flash left and right green
+  for (int i = 0; i < NUM_LED_LEFT; ++i)
+    g_left->setLed(i, 0, 255, 0, 31);
+  for (int i = 0; i < NUM_LED_RIGHT; ++i)
+    g_right->setLed(i, 0, 255, 0, 31);
+  g_left->show();
+  g_right->show();
+  HAL_Delay(200);
+
+  g_left->clear();
+  g_left->show();
+  g_right->clear();
+  g_right->show();
+}
 
 void efficiency_on_can_ratio(float ratio) {
-  // Signed error where +ve means overshoot (lay off), -ve means undershoot (push)
-  ratio = std::clamp(ratio, 0.0f, 4.0f); 
+  ratio = std::clamp(ratio, 0.0f, 4.0f);
   g_rawErr = ratio - 1.0f;
   g_hasNew = true;
 }
-
 
 void efficiency_on_can_error(float signed_err) {
   signed_err = std::clamp(signed_err, -2.0f, 2.0f);
@@ -217,9 +181,8 @@ void efficiency_on_can_error(float signed_err) {
   g_hasNew = true;
 }
 
-
 void efficiency_tick(uint32_t now_ms) {
-  if (!g) return;
+  if (!g_bar) return;
 
   // Timebase
   if (g_lastTickMs == 0) g_lastTickMs = now_ms;
@@ -233,140 +196,161 @@ void efficiency_tick(uint32_t now_ms) {
     g_hasNew = false;
   }
 
-
-  if (std::fabs(g_err) <= cfg.deadband) {
-    renderOnTarget(dt_s);
-  } else {
-    renderBar(g_err);
-  }
-
- 
-  const uint32_t pwmPeriodMs = (cfg.pwmHz == 0) ? 10 : (1000u / cfg.pwmHz);
-  if (pwmPeriodMs == 0) {
-    g_pwmPhase01 = 0.0f;
-  } else {
-    
-    uint32_t elapsed = now_ms - g_lastPwmFlipMs;
-    if (elapsed >= pwmPeriodMs) {
-      
-      g_lastPwmFlipMs = now_ms - (elapsed % pwmPeriodMs);
-      elapsed = elapsed % pwmPeriodMs;
+  // Render efficiency bar (skip if shift indicator is active)
+  if (!g_shiftActive) {
+    if (std::fabs(g_err) <= cfg.deadband) {
+      renderOnTarget(dt_s);
+    } else {
+      renderBar(g_err);
     }
-    g_pwmPhase01 = float(elapsed) / float(pwmPeriodMs);
-  }
 
-  // Safety warnings override efficiency bar on their LED
-  for (int i = 0; i < NUM_LED_RGB; i++) {
-    if (g_safetyOverride[i]) {
-      desR[i] = g_safetyR[i];
-      desG[i] = g_safetyG[i];
-      desB[i] = g_safetyB[i];
+    // Flush bar chain: convert float 0–1 → uint8 0–255
+    for (int i = 0; i < NUM_LED_BAR; ++i) {
+      g_bar->setLed(i,
+        (uint8_t)(desR[i] * 255.0f),
+        (uint8_t)(desG[i] * 255.0f),
+        (uint8_t)(desB[i] * 255.0f),
+        31);
     }
+    g_bar->show();
   }
 
-  hwApplyDither();
+  // Flush left chain warnings
+  for (int i = 0; i < NUM_LED_LEFT; ++i) {
+    if (g_leftOverride[i])
+      g_left->setLed(i,
+        (uint8_t)(g_leftR[i] * 255.0f),
+        (uint8_t)(g_leftG[i] * 255.0f),
+        (uint8_t)(g_leftB[i] * 255.0f), 31);
+    else
+      g_left->setLed(i, 0, 0, 0, 0);
+  }
+  g_left->show();
+
+  // Flush right chain warnings
+  for (int i = 0; i < NUM_LED_RIGHT; ++i) {
+    if (g_rightOverride[i])
+      g_right->setLed(i,
+        (uint8_t)(g_rightR[i] * 255.0f),
+        (uint8_t)(g_rightG[i] * 255.0f),
+        (uint8_t)(g_rightB[i] * 255.0f), 31);
+    else
+      g_right->setLed(i, 0, 0, 0, 0);
+  }
+  g_right->show();
 }
 
+// --- Shift indicator functions (bar chain, white LEDs) ---
 
 void enable_shift() {
-  for (uint8_t i=0;i<NUM_LED_SOLID-2;i++) {
-    pin_led_solid_state[i+1] = 1;
-    g->setPoint(PIN_LED_SOLID[i+1][0], PIN_LED_SOLID[i+1][1], true);
-  }
-  if (pin_led_solid_state[1]) {
-    pin_led_solid_state[0]=0; pin_led_solid_state[NUM_LED_SOLID-1]=0;
-    g->setPoint(PIN_LED_SOLID[0][0], PIN_LED_SOLID[0][1], false);
-    g->setPoint(PIN_LED_SOLID[NUM_LED_SOLID-1][0], PIN_LED_SOLID[NUM_LED_SOLID-1][1], false);
-  }
+  g_shiftActive = true;
+  for (uint8_t i = 1; i <= NUM_LED_BAR - 2; ++i)
+    bar_solid_state[i] = 1;
+  bar_solid_state[0] = 0;
+  bar_solid_state[NUM_LED_BAR - 1] = 0;
+  applyBarSolid();
 }
+
 void disable_shift() {
-  for (uint8_t i=0;i<NUM_LED_SOLID-2;i++) {
-    pin_led_solid_state[i+1] = 0;
-    g->setPoint(PIN_LED_SOLID[i+1][0], PIN_LED_SOLID[i+1][1], false);
-  }
+  for (uint8_t i = 1; i <= NUM_LED_BAR - 2; ++i)
+    bar_solid_state[i] = 0;
+  g_shiftActive = false;
+  applyBarSolid();
 }
+
 void disable_all_solid() {
-  for (uint8_t i=0;i<NUM_LED_SOLID;i++) {
-    pin_led_solid_state[i]=0;
-    g->setPoint(PIN_LED_SOLID[i][0], PIN_LED_SOLID[i][1], false);
-  }
+  for (uint8_t i = 0; i < NUM_LED_BAR; ++i)
+    bar_solid_state[i] = 0;
+  g_shiftActive = false;
+  applyBarSolid();
 }
+
 void disable_half_solid(bool firstHalf) {
-  uint8_t s = firstHalf ? 0 : NUM_LED_SOLID/2;
-  uint8_t e = firstHalf ? NUM_LED_SOLID/2 : NUM_LED_SOLID;
-  for (uint8_t i=s;i<e;i++) {
-    pin_led_solid_state[i]=0;
-    g->setPoint(PIN_LED_SOLID[i][0], PIN_LED_SOLID[i][1], false);
-  }
+  uint8_t s = firstHalf ? 0 : NUM_LED_BAR / 2;
+  uint8_t e = firstHalf ? NUM_LED_BAR / 2 : NUM_LED_BAR;
+  for (uint8_t i = s; i < e; ++i)
+    bar_solid_state[i] = 0;
+  // Check if any still active
+  g_shiftActive = false;
+  for (uint8_t i = 0; i < NUM_LED_BAR; ++i)
+    if (bar_solid_state[i]) { g_shiftActive = true; break; }
+  applyBarSolid();
 }
+
 void toggle_overrev() {
-  for (uint8_t i=1;i<NUM_LED_SOLID-1;i++) {
-    bool on = !pin_led_solid_state[i];
-    pin_led_solid_state[i]= on;
-    g->setPoint(PIN_LED_SOLID[i][0], PIN_LED_SOLID[i][1], on);
+  g_shiftActive = true;
+  for (uint8_t i = 1; i < NUM_LED_BAR - 1; ++i)
+    bar_solid_state[i] = !bar_solid_state[i];
+  if (bar_solid_state[1]) {
+    bar_solid_state[0] = 0;
+    bar_solid_state[NUM_LED_BAR - 1] = 0;
   }
-  if (pin_led_solid_state[1]) {
-    pin_led_solid_state[0]=0; pin_led_solid_state[NUM_LED_SOLID-1]=0;
-    g->setPoint(PIN_LED_SOLID[0][0], PIN_LED_SOLID[0][1], false);
-    g->setPoint(PIN_LED_SOLID[NUM_LED_SOLID-1][0], PIN_LED_SOLID[NUM_LED_SOLID-1][1], false);
-  }
+  applyBarSolid();
 }
+
 void toggle_half(bool firstHalf) {
-  uint8_t s = firstHalf ? 0 : NUM_LED_SOLID/2;
-  uint8_t e = firstHalf ? NUM_LED_SOLID/2 : NUM_LED_SOLID;
-  for (uint8_t i=s;i<e;i++) {
-    bool on = !pin_led_solid_state[i];
-    pin_led_solid_state[i]=on;
-    g->setPoint(PIN_LED_SOLID[i][0], PIN_LED_SOLID[i][1], on);
-  }
+  g_shiftActive = true;
+  uint8_t s = firstHalf ? 0 : NUM_LED_BAR / 2;
+  uint8_t e = firstHalf ? NUM_LED_BAR / 2 : NUM_LED_BAR;
+  for (uint8_t i = s; i < e; ++i)
+    bar_solid_state[i] = !bar_solid_state[i];
+  applyBarSolid();
 }
+
 void toggle_revlim() {
-  for (uint8_t i=1;i<NUM_LED_SOLID-1;i++) {
-    bool on = !pin_led_solid_state[i];
-    pin_led_solid_state[i]=on;
-    g->setPoint(PIN_LED_SOLID[i][0], PIN_LED_SOLID[i][1], on);
-  }
-  if (pin_led_solid_state[1]) {
-    pin_led_solid_state[0]=0; pin_led_solid_state[NUM_LED_SOLID-1]=0;
-    g->setPoint(PIN_LED_SOLID[0][0], PIN_LED_SOLID[0][1], false);
-    g->setPoint(PIN_LED_SOLID[NUM_LED_SOLID-1][0], PIN_LED_SOLID[NUM_LED_SOLID-1][1], false);
+  g_shiftActive = true;
+  for (uint8_t i = 1; i < NUM_LED_BAR - 1; ++i)
+    bar_solid_state[i] = !bar_solid_state[i];
+  if (bar_solid_state[1]) {
+    bar_solid_state[0] = 0;
+    bar_solid_state[NUM_LED_BAR - 1] = 0;
   } else {
-    pin_led_solid_state[0]=1; pin_led_solid_state[NUM_LED_SOLID-1]=1;
-    g->setPoint(PIN_LED_SOLID[0][0], PIN_LED_SOLID[0][1], true);
-    g->setPoint(PIN_LED_SOLID[NUM_LED_SOLID-1][0], PIN_LED_SOLID[NUM_LED_SOLID-1][1], true);
+    bar_solid_state[0] = 1;
+    bar_solid_state[NUM_LED_BAR - 1] = 1;
   }
+  applyBarSolid();
 }
-void set_brightness(uint8_t v) { g->intensity(v); }
+
+void set_brightness(uint8_t v) {
+  if (v > 31) v = 31;
+  if (g_bar)   g_bar->setGlobalBrightness(v);
+  if (g_left)  g_left->setGlobalBrightness(v);
+  if (g_right) g_right->setGlobalBrightness(v);
+}
+
+// --- Safety warnings (left/right chains) ---
 
 void lv(float lv) {
   bool low = (lv < LV_WARNING_THRESHOLD);
-  g_safetyOverride[3] = low;
-  g_safetyR[3] = low ? 1.0f : 0.0f;
-  g_safetyG[3] = 0.0f;
-  g_safetyB[3] = 0.0f;
+  g_leftOverride[0] = low;
+  g_leftR[0] = low ? 1.0f : 0.0f;
+  g_leftG[0] = 0.0f;
+  g_leftB[0] = 0.0f;
 }
 
 void hvtemp(float hvtemp) {
   bool hot = (hvtemp > HVTEMP_LIMIT_C);
-  g_safetyOverride[3] = hot;
-  g_safetyR[3] = hot ? 1.0f : 0.0f;
-  g_safetyG[3] = 0.0f;
-  g_safetyB[3] = 0.0f;
+  g_leftOverride[1] = hot;
+  g_leftR[1] = hot ? 1.0f : 0.0f;
+  g_leftG[1] = 0.0f;
+  g_leftB[1] = 0.0f;
 }
 
 void safety_update_flash(float hvtemp, uint32_t now_ms) {
-  if (hvtemp > HVTEMP_LIMIT_C) { 
+  if (hvtemp > HVTEMP_LIMIT_C) {
     static uint32_t last = 0;
     if (now_ms - last >= HVTEMP_THRESHOLD_FLASH_MS) {
       last = now_ms;
-      toggle_half(false); // second half
+      static bool on = false;
+      on = !on;
+      g_rightOverride[0] = true;
+      g_rightR[0] = on ? 1.0f : 0.0f;
+      g_rightG[0] = 0.0f;
+      g_rightB[0] = 0.0f;
     }
   } else {
-    disable_half_solid(false);
+    g_rightOverride[0] = false;
   }
 }
-void efficiency_on_can_ratio(float ratio);
-void efficiency_on_can_error(float signed_err);
 
-void efficiency_tick(uint32_t now_ms);
 } // namespace leds

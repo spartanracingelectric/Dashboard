@@ -12,7 +12,7 @@
 #include "config.h"
 #include "fdcan_bus.h"
 #include "can_service.h"
-#include "max7219.h"
+#include "apa102.h"
 #include "leds.h"
 #include "lcd.h"
 #include "timebase.h"
@@ -25,25 +25,27 @@ namespace lcd {
 
 //External handles from CubeMX
 extern SPI_HandleTypeDef hspi4;
-//extern SPI_HandleTypeDef hspi1;
 extern FDCAN_HandleTypeDef hfdcan2;
 SPI_HandleTypeDef& hspi_lcd = hspi4;
-SPI_HandleTypeDef& hspi_led = hspi4;
 
 //Board Pins
 LcdPins   LCD_PINS   {GPIOA, GPIO_PIN_4, GPIOA, GPIO_PIN_5, GPIOA, GPIO_PIN_6};
-Max7219Pins MAX_PINS {GPIOB, GPIO_PIN_12};
 
 void app_main()
 {
 
   // Drivers
   FdcanBus bus(&hfdcan2);
-  Max7219 max(&hspi_led, MAX_PINS.cs_port, MAX_PINS.cs_pin);
+  Apa102Chain bar_chain(LT_BAR_DI_GPIO_Port,   LT_BAR_DI_Pin,
+                        LT_BAR_CI_GPIO_Port,   LT_BAR_CI_Pin,   12);
+  Apa102Chain left_chain(LT_LEFT_DI_GPIO_Port, LT_LEFT_DI_Pin,
+                         LT_LEFT_CI_GPIO_Port, LT_LEFT_CI_Pin,  3);
+  Apa102Chain right_chain(LT_RIGHT_DI_GPIO_Port, LT_RIGHT_DI_Pin,
+                          LT_RIGHT_CI_GPIO_Port, LT_RIGHT_CI_Pin, 3);
 
   // Services
-  leds::init(&max);
-  leds::set_brightness(0x0F);
+  leds::init(&bar_chain, &left_chain, &right_chain);
+  leds::set_brightness(31);
   leds::wake();
   leds::efficiency_on_can_ratio(1.0f);
 
@@ -51,7 +53,7 @@ void app_main()
   lcd::print_default_screen_template();
 
   if (!cansvc::init(bus)) {
-    //lcd::show_error(msg); Need to put these 2 definitions in their respective codes 
+    //lcd::show_error(msg); Need to put these 2 definitions in their respective codes
     //leds::show_fault();
   }
 
@@ -79,7 +81,7 @@ void app_main()
       leds::lv(cansvc::lv());
     }
     static uint32_t t_can_test = 0; // to avoid starving other tasks
-    if (every_ms(t_can_test, 100)) { 
+    if (every_ms(t_can_test, 100)) {
       cansvc::send_test(bus); }
 
     //cansvc::send_test(bus);

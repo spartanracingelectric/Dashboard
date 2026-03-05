@@ -1,9 +1,9 @@
 ../Core/Src/main.c:76:5:main	8	static
 ../Core/Src/main.c:131:6:SystemClock_Config	120	static
-../Core/Src/main.c:183:13:MX_FDCAN1_Init	8	static
-../Core/Src/main.c:236:13:MX_FDCAN2_Init	8	static
-../Core/Src/main.c:289:13:MX_SPI4_Init	8	static
-../Core/Src/main.c:337:13:MX_TIM1_Init	96	static
-../Core/Src/main.c:411:13:MX_GPIO_Init	56	static
-../Core/Src/main.c:480:6:MPU_Config	24	static
-../Core/Src/main.c:511:6:Error_Handler	8	static,ignoring_inline_asm
+../Core/Src/main.c:181:13:MX_FDCAN1_Init	8	static
+../Core/Src/main.c:234:13:MX_FDCAN2_Init	8	static
+../Core/Src/main.c:287:13:MX_SPI4_Init	8	static
+../Core/Src/main.c:335:13:MX_TIM1_Init	96	static
+../Core/Src/main.c:409:13:MX_GPIO_Init	56	static
+../Core/Src/main.c:488:6:MPU_Config	24	static
+../Core/Src/main.c:519:6:Error_Handler	8	static,ignoring_inline_asm

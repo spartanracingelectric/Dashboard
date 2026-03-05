@@ -27,15 +27,8 @@ struct LcdPins {
 };
 extern LcdPins LCD_PINS;
 
-// ===== MAX7219 pins (CS only if sharing SPI) =====
-struct Max7219Pins {
-  GPIO_TypeDef* cs_port;  uint16_t cs_pin;
-};
-extern Max7219Pins MAX_PINS;
-
 // ===== SPI handles (provided by CubeMX/MX_SPIx_Init) =====
 extern SPI_HandleTypeDef& hspi_lcd;
-extern SPI_HandleTypeDef& hspi_led;
 
 // ===== FDCAN handle (provided by CubeMX) =====
 extern FDCAN_HandleTypeDef hfdcan1;
