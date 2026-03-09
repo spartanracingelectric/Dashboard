@@ -75,6 +75,10 @@ void Error_Handler(void);
 #define LCD_GPIO1_GPIO_Port GPIOC
 #define LCD_GPIO2_Pin GPIO_PIN_2
 #define LCD_GPIO2_GPIO_Port GPIOC
+#define EVE_PD_NOT_Pin GPIO_PIN_0
+#define EVE_PD_NOT_GPIO_Port GPIOB
+#define EVE_CS_NOT_Pin GPIO_PIN_1
+#define EVE_CS_NOT_GPIO_Port GPIOB
 #define PWM1_Pin GPIO_PIN_9
 #define PWM1_GPIO_Port GPIOE
 #define MAX_CS_Pin GPIO_PIN_12

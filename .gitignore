@@ -36,18 +36,6 @@ __pycache__/
 *.env
 *.pem
 *.key
-Debug/Dashboard.elf
-Debug/Dashboard.list
-Debug/Dashboard.map
-Debug/Drivers/STM32H7xx_HAL_Driver/Src/subdir.mk
-Debug/makefile
-Debug/sources.mk
-Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_fdcan.h
-Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_spi.h
-Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_spi_ex.h
-Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_ll_spi.h
-Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_ll_tim.h
-Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_fdcan.c
-Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_spi.c
-Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_spi_ex.c
-Testing/ledCAN.py
+
+# ===== Windows artifacts =====
+nul

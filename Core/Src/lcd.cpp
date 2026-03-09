@@ -319,9 +319,9 @@ void print_default_screen_template() {
 }
 
 void init() {
-  EVE_Init();
-  EVE_SetBackColor(0, 0, 0);
-  EVE_SetFgColor(255, 255, 255); // MIGHT HAVE TO SET TO BLACK
+	EVE_Initialize();
+	EVE_SetBackColor(0, 0, 0);
+	EVE_SetFgColor(255, 255, 255); // MIGHT HAVE TO SET TO BLACK
 }
 
 void clear() {

@@ -428,7 +428,7 @@ static void MX_GPIO_Init(void)
   HAL_GPIO_WritePin(GPIOC, LCD_GPIO0_Pin|LCD_GPIO1_Pin|LCD_GPIO2_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(MAX_CS_GPIO_Port, MAX_CS_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOB, EVE_PD_NOT_Pin|EVE_CS_NOT_Pin|MAX_CS_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOD, LT_LEFT_DI_Pin|LT_LEFT_CI_Pin, GPIO_PIN_RESET);
@@ -450,12 +450,12 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
-  /*Configure GPIO pin : MAX_CS_Pin */
-  GPIO_InitStruct.Pin = MAX_CS_Pin;
+  /*Configure GPIO pins : EVE_PD_NOT_Pin EVE_CS_NOT_Pin MAX_CS_Pin */
+  GPIO_InitStruct.Pin = EVE_PD_NOT_Pin|EVE_CS_NOT_Pin|MAX_CS_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(MAX_CS_GPIO_Port, &GPIO_InitStruct);
+  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
   /*Configure GPIO pins : LT_LEFT_DI_Pin LT_LEFT_CI_Pin */
   GPIO_InitStruct.Pin = LT_LEFT_DI_Pin|LT_LEFT_CI_Pin;
