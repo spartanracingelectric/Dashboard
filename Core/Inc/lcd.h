@@ -10,7 +10,6 @@ extern "C" {
 #define HOST_COMMAND_LENGTH 3
 #define HOST_MEMORY_READ_COMMAND_LENGTH 4
 
-extern SPI_HandleTypeDef hspi4;
 
 void LCD_init(void);
 void LCD_csLow(void);
@@ -27,6 +26,8 @@ void LCD_writeRegister8(uint32_t address, uint8_t data);
 void LCD_writeRegister16(uint32_t address, uint16_t data);
 void LCD_writeRegister32(uint32_t address, uint32_t data);
 void LCD_showRed();
+void LCD_drawLineOnce(void);
+void LCD_demoCodeTest(void);
 
 // Values from Example code
 #define HPX   (800)    // Horizontal Pixel Width

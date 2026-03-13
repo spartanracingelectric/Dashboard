@@ -1,10 +1,12 @@
 #ifndef __EVE_DEFINES_H__
 #define __EVE_DEFINES_H__
-#include <stdint.h>
+
 // Don't change these
 #define DEBUG_NONE   (0)
 #define DEBUG_STATUS (1)
 #define DEBUG_GEEK   (2)
+
+#include <stdint.h>
 
 /*
  * ============================================================================

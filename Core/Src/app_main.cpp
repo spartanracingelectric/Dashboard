@@ -57,7 +57,8 @@ void app_main()
     //leds::show_fault();
   }
 
-  LCD_init();
+//  LCD_init();
+  LCD_demoCodeTest();
   //leds::led0_on();
 
   uint32_t t_led_safety = 0;

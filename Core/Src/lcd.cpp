@@ -1,6 +1,9 @@
 #include "main.h"
 #include "lcd.h"
 #include "leds.h"
+#include "CFA10100_defines.h"
+#include "EVE_base.h"
+#include "EVE_draw.h"
 
 const uint8_t DLCODE_BOOTUP[12] =
 {
@@ -8,6 +11,41 @@ const uint8_t DLCODE_BOOTUP[12] =
   7,0,0,38,	//GPU instruction CLEAR
   0,0,0,0,	//GPU instruction DISPLAY
 };
+
+void LCD_demoCodeTest(void)
+{
+	EVE_Initialize();
+	LCD_drawLineOnce();
+}
+
+void LCD_drawLineOnce(void)
+{
+    uint16_t FWo;
+
+    FWo = EVE_REG_Read_16(EVE_REG_CMD_WRITE);
+    FWo = Wait_for_EVE_Execution_Complete(FWo);
+
+    // Start display list
+    FWo = EVE_Cmd_Dat_0(FWo, EVE_ENC_CMD_DLSTART);
+
+    // Clear background to black
+    FWo = EVE_Cmd_Dat_0(FWo, EVE_ENC_CLEAR_COLOR_RGB(0, 0, 0));
+    FWo = EVE_Cmd_Dat_0(FWo, EVE_ENC_CLEAR(1, 1, 1));
+
+    // White drawing color
+    FWo = EVE_Cmd_Dat_0(FWo, EVE_ENC_COLOR_RGB(255, 255, 255));
+    FWo = EVE_Cmd_Dat_0(FWo, EVE_ENC_COLOR_A(255));
+
+    // Draw one line
+    FWo = EVE_Line(FWo, 50, 50, 300, 200, 4);
+
+    // Finish and swap
+    FWo = EVE_Cmd_Dat_0(FWo, EVE_ENC_DISPLAY());
+    FWo = EVE_Cmd_Dat_0(FWo, EVE_ENC_CMD_SWAP);
+
+    EVE_REG_Write_16(EVE_REG_CMD_WRITE, FWo);
+    Wait_for_EVE_Execution_Complete(FWo);
+}
 
 
 void LCD_csLow(void)
