@@ -36,7 +36,6 @@ extern "C" {
 
 /* Exported types ------------------------------------------------------------*/
 /* USER CODE BEGIN ET */
-
 /* USER CODE END ET */
 
 /* Exported constants --------------------------------------------------------*/
@@ -73,8 +72,12 @@ void Error_Handler(void);
 #define LCD_GPIO0_GPIO_Port GPIOC
 #define LCD_GPIO1_Pin GPIO_PIN_14
 #define LCD_GPIO1_GPIO_Port GPIOC
+#define LCD_CS_Pin GPIO_PIN_0
+#define LCD_CS_GPIO_Port GPIOC
 #define LCD_GPIO2_Pin GPIO_PIN_2
 #define LCD_GPIO2_GPIO_Port GPIOC
+#define LCD_PD_Pin GPIO_PIN_3
+#define LCD_PD_GPIO_Port GPIOC
 #define EVE_PD_NOT_Pin GPIO_PIN_0
 #define EVE_PD_NOT_GPIO_Port GPIOB
 #define EVE_CS_NOT_Pin GPIO_PIN_1

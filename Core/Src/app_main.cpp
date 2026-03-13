@@ -49,8 +49,8 @@ void app_main()
   leds::wake();
   leds::efficiency_on_can_ratio(1.0f);
 
-  lcd::init();
-  lcd::print_default_screen_template();
+//  lcd::init();
+//  lcd::print_default_screen_template();
 
   if (!cansvc::init(bus)) {
     //lcd::show_error(msg); Need to put these 2 definitions in their respective codes
@@ -64,7 +64,7 @@ void app_main()
     // Option 1 just for demo of stuff on screen to test working screen
     cansvc::poll(bus);
     leds::efficiency_tick(now_ms());
-    lcd::render_energy_bar_demo(now_ms());
+//    lcd::render_energy_bar_demo(now_ms());
 
     /* For option B need to uncomment
     lcd::update_screenE(

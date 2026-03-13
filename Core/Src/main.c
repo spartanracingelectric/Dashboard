@@ -21,7 +21,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "lcd.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -108,10 +108,9 @@ int main(void)
   /* USER CODE BEGIN 2 */
   //static_assert(sizeof(HAL_StatusTypeDef) > 0, "HAL_StatusTypeDef missing");
   extern void app_main();
-  app_main();
-
-  printf("\nCODE EXECUTION DONE!!!\n");
-  /* USER CODE END 2 */
+//  app_main();
+  LCD_init();
+//  /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
@@ -425,7 +424,8 @@ static void MX_GPIO_Init(void)
   HAL_GPIO_WritePin(GPIOE, LT_RIGHT_DI_Pin|LT_RIGHT_CI_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOC, LCD_GPIO0_Pin|LCD_GPIO1_Pin|LCD_GPIO2_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOC, LCD_GPIO0_Pin|LCD_GPIO1_Pin|LCD_CS_Pin|LCD_GPIO2_Pin
+                          |LCD_PD_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOB, EVE_PD_NOT_Pin|EVE_CS_NOT_Pin|MAX_CS_Pin, GPIO_PIN_RESET);
@@ -443,8 +443,10 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : LCD_GPIO0_Pin LCD_GPIO1_Pin LCD_GPIO2_Pin */
-  GPIO_InitStruct.Pin = LCD_GPIO0_Pin|LCD_GPIO1_Pin|LCD_GPIO2_Pin;
+  /*Configure GPIO pins : LCD_GPIO0_Pin LCD_GPIO1_Pin LCD_CS_Pin LCD_GPIO2_Pin
+                           LCD_PD_Pin */
+  GPIO_InitStruct.Pin = LCD_GPIO0_Pin|LCD_GPIO1_Pin|LCD_CS_Pin|LCD_GPIO2_Pin
+                          |LCD_PD_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
@@ -473,6 +475,9 @@ static void MX_GPIO_Init(void)
 
   /*AnalogSwitch Config */
   HAL_SYSCFG_AnalogSwitchConfig(SYSCFG_SWITCH_PC2, SYSCFG_SWITCH_PC2_CLOSE);
+
+  /*AnalogSwitch Config */
+  HAL_SYSCFG_AnalogSwitchConfig(SYSCFG_SWITCH_PC3, SYSCFG_SWITCH_PC3_CLOSE);
 
   /* USER CODE BEGIN MX_GPIO_Init_2 */
 

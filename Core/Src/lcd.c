@@ -1,0 +1,181 @@
+#include "main.h"
+#include "lcd.h"
+
+void LCD_csLow(void)
+{
+    HAL_GPIO_WritePin(LCD_CS_GPIO_Port, LCD_CS_Pin, GPIO_PIN_RESET);
+}
+
+void LCD_csHigh(void)
+{
+    HAL_GPIO_WritePin(LCD_CS_GPIO_Port, LCD_CS_Pin, GPIO_PIN_SET);
+}
+
+void LCD_pdLow(void)
+{
+    HAL_GPIO_WritePin(LCD_PD_GPIO_Port, LCD_PD_Pin, GPIO_PIN_RESET);
+}
+
+void LCD_pdHigh(void)
+{
+    HAL_GPIO_WritePin(LCD_PD_GPIO_Port, LCD_PD_Pin, GPIO_PIN_SET);
+}
+
+void LCD_sendHostCommand(uint8_t command, uint8_t param)
+{
+    uint8_t txBuffer[3];
+
+    txBuffer[0] = command;
+    txBuffer[1] = param;
+    txBuffer[2] = 0x00;
+
+    LCD_csLow();
+    HAL_SPI_Transmit(&hspi4, txBuffer, 3, HAL_MAX_DELAY);
+    LCD_csHigh();
+}
+
+void LCD_writeMemory(uint32_t address, uint8_t *data, uint16_t dataLength)
+{
+    uint8_t txBuffer[3];
+
+    txBuffer[0] = (uint8_t)(0x80 | ((address >> 16) & 0x3F));
+    txBuffer[1] = (uint8_t)(address >> 8);
+    txBuffer[2] = (uint8_t)address;
+
+    LCD_csLow();
+
+    HAL_SPI_Transmit(&hspi4, txBuffer, 3, HAL_MAX_DELAY);
+    HAL_SPI_Transmit(&hspi4, (uint8_t*)data, dataLength, HAL_MAX_DELAY);
+
+    LCD_csHigh();
+}
+
+void LCD_writeRegister8(uint32_t address, uint8_t data)
+{
+   LCD_writeMemory(address, &data, 1);
+}
+
+void LCD_writeRegister16(uint32_t address, uint16_t data)
+{
+    uint8_t txBuffer[2];
+
+    txBuffer[0] = (uint8_t)data;
+    txBuffer[1] = (uint8_t)(data >> 8);
+
+    LCD_writeMemory(address, txBuffer, 2);
+}
+
+void LCD_writeRegister32(uint32_t address, uint32_t data)
+{
+    uint8_t txBuffer[4];
+
+    txBuffer[0] = (uint8_t)data;
+    txBuffer[1] = (uint8_t)(data >> 8);
+    txBuffer[2] = (uint8_t)(data >> 16);
+    txBuffer[3] = (uint8_t)(data >> 24);
+
+    LCD_writeMemory(address, txBuffer, 4);
+}
+
+
+void LCD_readMemory(uint32_t address, uint8_t *rxBuffer, uint16_t registerSize)
+{
+    uint8_t txBuffer[4];
+
+    txBuffer[0] = (uint8_t)((address >> 16) & 0x3F);
+    txBuffer[1] = (uint8_t)(address >> 8);
+    txBuffer[2] = (uint8_t)address;
+    txBuffer[3] = 0x00;
+
+    LCD_csLow();
+    HAL_SPI_Transmit(&hspi4, txBuffer, 4, HAL_MAX_DELAY);
+    HAL_SPI_Receive(&hspi4, rxBuffer, registerSize, HAL_MAX_DELAY);
+    LCD_csHigh();
+}
+
+uint8_t LCD_readRegister8(uint32_t address)
+{
+    uint8_t value;
+    LCD_readMemory(address, &value, 1);
+    return value;
+}
+
+uint16_t LCD_readRegister16(uint32_t address)
+{
+    uint8_t rxBuffer[2];
+    LCD_readMemory(address, rxBuffer, 2);
+
+    return (uint16_t)(rxBuffer[0] | (rxBuffer[1] << 8));
+}
+
+uint32_t LCD_readRegister32(uint32_t address)
+{
+    uint8_t rxBuffer[4];
+    LCD_readMemory(address, rxBuffer, 4);
+
+    return ((uint32_t)rxBuffer[0]) | ((uint32_t)rxBuffer[1] << 8) | ((uint32_t)rxBuffer[2] << 16) | ((uint32_t)rxBuffer[3] << 24);
+}
+
+void LCD_init(void)
+{
+	HAL_Delay(20);
+	LCD_pdLow();
+	HAL_Delay(20);
+	LCD_pdHigh();
+	HAL_Delay(20);
+
+	uint32_t startTick;
+	LCD_sendHostCommand(CLKEXT, 0x00);
+	LCD_sendHostCommand(CLKSEL, EXTERNAL_CLOCK_72MHz);
+	LCD_sendHostCommand(RST_PULSE, 0x00);
+	LCD_sendHostCommand(ACTIVE, 0x00);
+
+	HAL_Delay(300);
+
+	startTick = HAL_GetTick();
+	while (0x7C != LCD_readRegister8(REG_ID_ADDRESS))
+	{
+		if (HAL_GetTick() - startTick > 500)
+		{
+			return;
+		}
+	}
+
+	startTick = HAL_GetTick();
+	while (0x00 != LCD_readRegister8(REG_CPURESET_ADDRESS))
+	{
+		if (HAL_GetTick() - startTick > 500)
+		{
+			return;
+		}
+	}
+
+	LCD_writeRegister32(REG_FREQUENCY_ADDRESS, CLOCK_SPEED);
+
+	LCD_writeRegister16(REG_HCYCLE_ADDRESS, LCD_HCYCLE);
+	LCD_writeRegister16(REG_HOFFSET_ADDRESS, LCD_HOFFSET);
+	LCD_writeRegister16(REG_HSYNC0_ADDRESS, LCD_HSYNC0);
+	LCD_writeRegister16(REG_HSYNC1_ADDRESS, LCD_HSYNC1);
+	LCD_writeRegister16(REG_VCYCLE_ADDRESS, LCD_VCYCLE);
+	LCD_writeRegister16(REG_VOFFSET_ADDRESS, LCD_VOFFSET);
+	LCD_writeRegister16(REG_VSYNC0_ADDRESS, LCD_VSYNC0);
+	LCD_writeRegister16(REG_VSYNC1_ADDRESS, LCD_VSYNC1);
+	LCD_writeRegister8(REG_SWIZZLE_ADDRESS, LCD_SWIZZLE);
+	LCD_writeRegister8(REG_PCLK_POL_ADDRESS, LCD_PCLK_POL);
+	LCD_writeRegister8(REG_CSPREAD_ADDRESS, LCD_CSPREAD);
+	LCD_writeRegister16(REG_HSIZE_ADDRESS, LCD_WIDTH_PX);
+	LCD_writeRegister16(REG_VSIZE_ADDRESS, LCD_HEIGHT_PX);
+
+	LCD_writeRegister32(RAM_DL_START_ADDRESS + 0, EVE_ENC_CLEAR_COLOR_RGB(255, 0, 0));
+	LCD_writeRegister32(RAM_DL_START_ADDRESS + 4, EVE_ENC_CLEAR(1, 1, 1));
+	LCD_writeRegister32(RAM_DL_START_ADDRESS + 8, EVE_ENC_DISPLAY());
+
+	LCD_writeRegister8(REG_DLSWAP_ADDRESS, DLSWAP_FRAME);
+
+	LCD_writeRegister16(REG_GPIOX_DIR_ADDRESS, LCD_readRegister16(REG_GPIOX_DIR_ADDRESS) | 0x800);
+	LCD_writeRegister16(REG_GPIOX_ADDRESS, LCD_readRegister16(REG_GPIOX_ADDRESS) | 0x800);
+
+	LCD_writeRegister8(REG_PCLK_ADDRESS, LCD_PCLK);
+
+
+}
