@@ -1,5 +1,14 @@
 #include "main.h"
 #include "lcd.h"
+#include "leds.h"
+
+const uint8_t DLCODE_BOOTUP[12] =
+{
+  0,0,0,2,	//GPU instruction CLEAR_COLOR_RGB
+  7,0,0,38,	//GPU instruction CLEAR
+  0,0,0,0,	//GPU instruction DISPLAY
+};
+
 
 void LCD_csLow(void)
 {
@@ -81,6 +90,7 @@ void LCD_writeRegister32(uint32_t address, uint32_t data)
 void LCD_readMemory(uint32_t address, uint8_t *rxBuffer, uint16_t registerSize)
 {
     uint8_t txBuffer[4];
+    uint8_t dummyTx[32] = {0};
 
     txBuffer[0] = (uint8_t)((address >> 16) & 0x3F);
     txBuffer[1] = (uint8_t)(address >> 8);
@@ -88,8 +98,10 @@ void LCD_readMemory(uint32_t address, uint8_t *rxBuffer, uint16_t registerSize)
     txBuffer[3] = 0x00;
 
     LCD_csLow();
+//    HAL_SPI_Transmit(&hspi4, txBuffer, 4, HAL_MAX_DELAY);
+//    HAL_SPI_Receive(&hspi4, rxBuffer, registerSize, HAL_MAX_DELAY);
     HAL_SPI_Transmit(&hspi4, txBuffer, 4, HAL_MAX_DELAY);
-    HAL_SPI_Receive(&hspi4, rxBuffer, registerSize, HAL_MAX_DELAY);
+    HAL_SPI_TransmitReceive(&hspi4, dummyTx, rxBuffer, registerSize, HAL_MAX_DELAY);
     LCD_csHigh();
 }
 
@@ -116,8 +128,18 @@ uint32_t LCD_readRegister32(uint32_t address)
     return ((uint32_t)rxBuffer[0]) | ((uint32_t)rxBuffer[1] << 8) | ((uint32_t)rxBuffer[2] << 16) | ((uint32_t)rxBuffer[3] << 24);
 }
 
+void LCD_showRed()
+{
+    LCD_writeRegister32(RAM_DL_START_ADDRESS + 0, EVE_ENC_CLEAR_COLOR_RGB(255, 0, 0));
+    LCD_writeRegister32(RAM_DL_START_ADDRESS + 4, EVE_ENC_CLEAR(1, 1, 1));
+    LCD_writeRegister32(RAM_DL_START_ADDRESS + 8, EVE_ENC_DISPLAY());
+
+    LCD_writeRegister8(REG_DLSWAP_ADDRESS, DLSWAP_FRAME);
+}
+
 void LCD_init(void)
 {
+	leds::led0_on();
 	HAL_Delay(20);
 	LCD_pdLow();
 	HAL_Delay(20);
@@ -127,30 +149,46 @@ void LCD_init(void)
 	uint32_t startTick;
 	LCD_sendHostCommand(CLKEXT, 0x00);
 	LCD_sendHostCommand(CLKSEL, EXTERNAL_CLOCK_72MHz);
+	LCD_writeRegister32(REG_FREQUENCY_ADDRESS, CLOCK_SPEED);
 	LCD_sendHostCommand(RST_PULSE, 0x00);
-	LCD_sendHostCommand(ACTIVE, 0x00);
 
+	HAL_Delay(100);
+	LCD_sendHostCommand(ACTIVE, 0x00);
 	HAL_Delay(300);
 
 	startTick = HAL_GetTick();
 	while (0x7C != LCD_readRegister8(REG_ID_ADDRESS))
 	{
+		//leds::led0_on();
 		if (HAL_GetTick() - startTick > 500)
 		{
 			return;
 		}
 	}
+	leds::led0_off();
 
+	leds::led0_on();
+
+	// SUCCESS
 	startTick = HAL_GetTick();
 	while (0x00 != LCD_readRegister8(REG_CPURESET_ADDRESS))
 	{
 		if (HAL_GetTick() - startTick > 500)
 		{
+
 			return;
 		}
 	}
+	leds::led0_off();
 
-	LCD_writeRegister32(REG_FREQUENCY_ADDRESS, CLOCK_SPEED);
+	// WE ARE SUCCESSFULLY READING THE ABOVE TWO REGISTERS, BUT DISPLAY IS NOT TURNING ON. I HAVE NO IDEA HOW TO DEBUG THE BELOW SETTINGS
+
+
+	LCD_writeRegister16(REG_PWM_HZ_ADDRESS, 4000);
+	LCD_writeRegister8(REG_PWM_DUTY_ADDRESS, 128);
+
+	LCD_writeRegister16(REG_PCLK_FREQ_ADDRESS, DispPLCLKFREQ);
+	LCD_writeRegister8(REG_PCLK_2X_ADDRESS, DispPCLK2x);
 
 	LCD_writeRegister16(REG_HCYCLE_ADDRESS, LCD_HCYCLE);
 	LCD_writeRegister16(REG_HOFFSET_ADDRESS, LCD_HOFFSET);
@@ -162,20 +200,25 @@ void LCD_init(void)
 	LCD_writeRegister16(REG_VSYNC1_ADDRESS, LCD_VSYNC1);
 	LCD_writeRegister8(REG_SWIZZLE_ADDRESS, LCD_SWIZZLE);
 	LCD_writeRegister8(REG_PCLK_POL_ADDRESS, LCD_PCLK_POL);
-	LCD_writeRegister8(REG_CSPREAD_ADDRESS, LCD_CSPREAD);
 	LCD_writeRegister16(REG_HSIZE_ADDRESS, LCD_WIDTH_PX);
 	LCD_writeRegister16(REG_VSIZE_ADDRESS, LCD_HEIGHT_PX);
+	LCD_writeRegister16(REG_CSPREAD_ADDRESS, LCD_CSPREAD);
+	LCD_writeRegister16(REG_DITHER_ADDRESS, LCD_DITHER);
 
-	LCD_writeRegister32(RAM_DL_START_ADDRESS + 0, EVE_ENC_CLEAR_COLOR_RGB(255, 0, 0));
+	LCD_writeRegister16(REG_GPIOX_DIR_ADDRESS, 0xFFFF);
+	LCD_writeRegister16(REG_GPIOX_ADDRESS, 0xFFFF);
+
+	LCD_writeRegister32(RAM_DL_START_ADDRESS + 0, EVE_ENC_CLEAR_COLOR_RGB(0, 0, 0));
 	LCD_writeRegister32(RAM_DL_START_ADDRESS + 4, EVE_ENC_CLEAR(1, 1, 1));
 	LCD_writeRegister32(RAM_DL_START_ADDRESS + 8, EVE_ENC_DISPLAY());
 
+
 	LCD_writeRegister8(REG_DLSWAP_ADDRESS, DLSWAP_FRAME);
 
-	LCD_writeRegister16(REG_GPIOX_DIR_ADDRESS, LCD_readRegister16(REG_GPIOX_DIR_ADDRESS) | 0x800);
-	LCD_writeRegister16(REG_GPIOX_ADDRESS, LCD_readRegister16(REG_GPIOX_ADDRESS) | 0x800);
+
 
 	LCD_writeRegister8(REG_PCLK_ADDRESS, LCD_PCLK);
 
 
+	leds::led0_on();
 }

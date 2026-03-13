@@ -353,4 +353,16 @@ void safety_update_flash(float hvtemp, uint32_t now_ms) {
   }
 }
 
+void led0_on()
+{
+	g_bar->setLed(0, 255, 0, 0, 31); // LED0 = red
+	g_bar->show();
+}
+
+void led0_off()
+{
+	g_bar->setLed(0, 0, 0, 0, 0); // LED0 = red
+	g_bar->show();
+}
+
 } // namespace leds

@@ -32,4 +32,8 @@ void safety_update_flash(float hvtemp, uint32_t now_ms);
 void efficiency_on_can_ratio(float ratio);
 void efficiency_on_can_error(float signed_err);
 void efficiency_tick(uint32_t now_ms);
+
+void led0_on();
+void led0_off();
+
 }

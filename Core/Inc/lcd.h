@@ -3,6 +3,10 @@
 
 #include "main.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define HOST_COMMAND_LENGTH 3
 #define HOST_MEMORY_READ_COMMAND_LENGTH 4
 
@@ -22,6 +26,7 @@ void LCD_writeMemory(uint32_t address, uint8_t *data, uint16_t dataLength);
 void LCD_writeRegister8(uint32_t address, uint8_t data);
 void LCD_writeRegister16(uint32_t address, uint16_t data);
 void LCD_writeRegister32(uint32_t address, uint32_t data);
+void LCD_showRed();
 
 // Values from Example code
 #define HPX   (800)    // Horizontal Pixel Width
@@ -30,11 +35,11 @@ void LCD_writeRegister32(uint32_t address, uint32_t data);
 #define HFP   (8)      // Horizontal Front Porch (16~210~354)
 #define HPP   (178)    // Horizontal Pixel Padding (tot=863: 862~1056~1200)
 
-#define LCD_WIDTH_PX (HPX)
-#define LCD_HCYCLE (HPX + HSW + HBP + HFP + HPP)
-#define LCD_HOFFSET (HFP + HSW + HBP)
-#define LCD_HSYNC0 (HFP)
-#define LCD_HSYNC1 (HFP + HSW)
+#define LCD_WIDTH_PX 800L //(HPX)
+#define LCD_HCYCLE 1056L //(HPX + HSW + HBP + HFP + HPP)
+#define LCD_HOFFSET 46L //(HFP + HSW + HBP)
+#define LCD_HSYNC0 0L //(HFP)
+#define LCD_HSYNC1 10L //(HFP + HSW)
 
 
 // Values from Example code
@@ -44,11 +49,11 @@ void LCD_writeRegister32(uint32_t address, uint32_t data);
 #define VFP   (8)     // Vertical Front Porch (7~22~147)
 #define VLP   (1)     // Vertical Line Padding (tot=511: 510~525~650). EVE needs at least 1 here
 
-#define LCD_HEIGHT_PX (VLH)
-#define LCD_VSYNC0 (VFP)
-#define LCD_VSYNC1 (VFP + VS)
-#define LCD_VOFFSET (VFP + VS + VBP)
-#define LCD_VCYCLE (VLH + VFP + VS + VBP + VLP)
+#define LCD_HEIGHT_PX 480L //(VLH)
+#define LCD_VSYNC0 0L //(VFP)
+#define LCD_VSYNC1 10L //(VFP + VS)
+#define LCD_VOFFSET 23L //(VFP + VS + VBP)
+#define LCD_VCYCLE 525L //(VLH + VFP + VS + VBP + VLP)
 
 #define CLKEXT 0x44
 #define RST_PULSE 0x68
@@ -75,27 +80,39 @@ void LCD_writeRegister32(uint32_t address, uint32_t data);
 #define REG_VSYNC1_ADDRESS 0x302050
 
 #define REG_SWIZZLE_ADDRESS 0x302064
-#define LCD_SWIZZLE 0x0 // Defines RGB output pins order, determined by PCB layout
+#define LCD_SWIZZLE 0 // Defines RGB output pins order, determined by PCB layout
 
 #define REG_PCLK_POL_ADDRESS 0x30206C
-#define LCD_PCLK_POL (1) // Define active edge of PCLK. 0 is falling edge, 1 is rising edge
+#define LCD_PCLK_POL 0 // Define active edge of PCLK. 0 is falling edge, 1 is rising edge
 
 #define REG_CSPREAD_ADDRESS 0x302068
-#define LCD_CSPREAD (0)
+#define LCD_CSPREAD 0
 
 #define RAM_DL_START_ADDRESS 0x300000
 
 #define REG_DLSWAP_ADDRESS 0x302054
 #define DLSWAP_FRAME 0x02
 
-#define REG_GPIOX_DIR_ADDRESS 0x302094
-#define REG_GPIOX_ADDRESS 0x30209C
+#define REG_GPIOX_DIR_ADDRESS 0x302098
+#define REG_GPIOX_ADDRESS 0x302090
 
 #define REG_PCLK_ADDRESS 0x302070
 #define LCD_PCLK (2)
 
 #define REG_FREQUENCY_ADDRESS 0x30200C
 #define CLOCK_SPEED ((uint32_t)(EXTERNAL_CLOCK_72MHz & 0x1F) * (uint32_t)12000000)
+
+#define REG_PWM_HZ_ADDRESS 0x3020D0
+#define REG_PWM_DUTY_ADDRESS 0x3020D4
+
+#define REG_PCLK_FREQ_ADDRESS 0x302614
+#define DispPLCLKFREQ  0x232
+
+#define REG_PCLK_2X_ADDRESS 0x302618
+#define DispPCLK2x	 0
+
+#define REG_DITHER_ADDRESS 0x302060
+#define LCD_DITHER 1
 
 #define EVE_ENC_ALPHA_FUNC(func,ref)                         ((0x9UL << 24)|(((func) & 0x7UL) << 8)|(((ref) & 0xffUL) << 0))
 #define EVE_ENC_BEGIN(prim)                                  ((0x1fUL << 24)|(((prim)&15UL) << 0))
@@ -150,6 +167,9 @@ void LCD_writeRegister32(uint32_t address, uint32_t data);
 
 
 
+#ifdef __cplusplus
+}
+#endif
 
 
 #endif

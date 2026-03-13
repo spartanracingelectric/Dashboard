@@ -108,8 +108,8 @@ int main(void)
   /* USER CODE BEGIN 2 */
   //static_assert(sizeof(HAL_StatusTypeDef) > 0, "HAL_StatusTypeDef missing");
   extern void app_main();
-//  app_main();
-  LCD_init();
+  app_main();
+  //LCD_init();
 //  /* USER CODE END 2 */
 
   /* Infinite loop */
