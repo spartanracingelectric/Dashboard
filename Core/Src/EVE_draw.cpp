@@ -45,6 +45,7 @@
 #include "EVE_defines.h"
 #include "EVE_base.h"
 #include "EVE_draw.h"
+#include "lcd.h"
 //===========================================================================
 uint16_t EVE_Point(uint16_t FWol,
                    uint16_t point_x,

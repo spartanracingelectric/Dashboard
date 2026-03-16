@@ -57,7 +57,7 @@ void app_main()
     //leds::show_fault();
   }
 
-//  LCD_init();
+  //LCD_init();
   LCD_demoCodeTest();
   //leds::led0_on();
 
@@ -65,7 +65,7 @@ void app_main()
 
   while (1) {
 
-	  LCD_showRed();
+	  //LCD_showRed();
     // CAN state polling instead of if else nesting
     // Option 1 just for demo of stuff on screen to test working screen
 //    cansvc::poll(bus);

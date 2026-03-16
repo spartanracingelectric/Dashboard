@@ -14,13 +14,18 @@ const uint8_t DLCODE_BOOTUP[12] =
 
 void LCD_demoCodeTest(void)
 {
-	EVE_Initialize();
+	leds::led0_off();
+	//EVE_Initialize();
+	LCD_init();
+	//leds::led0_on();
 	LCD_drawLineOnce();
 }
+
 
 void LCD_drawLineOnce(void)
 {
     uint16_t FWo;
+
 
     FWo = EVE_REG_Read_16(EVE_REG_CMD_WRITE);
     FWo = Wait_for_EVE_Execution_Complete(FWo);
@@ -29,15 +34,17 @@ void LCD_drawLineOnce(void)
     FWo = EVE_Cmd_Dat_0(FWo, EVE_ENC_CMD_DLSTART);
 
     // Clear background to black
-    FWo = EVE_Cmd_Dat_0(FWo, EVE_ENC_CLEAR_COLOR_RGB(0, 0, 0));
+    FWo = EVE_Cmd_Dat_0(FWo, EVE_ENC_CLEAR_COLOR_RGB(0, 255, 0));
     FWo = EVE_Cmd_Dat_0(FWo, EVE_ENC_CLEAR(1, 1, 1));
 
     // White drawing color
     FWo = EVE_Cmd_Dat_0(FWo, EVE_ENC_COLOR_RGB(255, 255, 255));
+
+    // Sets opacity to 1
     FWo = EVE_Cmd_Dat_0(FWo, EVE_ENC_COLOR_A(255));
 
-    // Draw one line
-    FWo = EVE_Line(FWo, 50, 50, 300, 200, 4);
+    FWo = EVE_Cmd_Dat_0(FWo, EVE_ENC_COLOR_RGB(255, 255, 255));
+    FWo = EVE_Text(FWo, 250, 190, 31, 0, "HIREN WAS HERE");
 
     // Finish and swap
     FWo = EVE_Cmd_Dat_0(FWo, EVE_ENC_DISPLAY());
@@ -136,8 +143,6 @@ void LCD_readMemory(uint32_t address, uint8_t *rxBuffer, uint16_t registerSize)
     txBuffer[3] = 0x00;
 
     LCD_csLow();
-//    HAL_SPI_Transmit(&hspi4, txBuffer, 4, HAL_MAX_DELAY);
-//    HAL_SPI_Receive(&hspi4, rxBuffer, registerSize, HAL_MAX_DELAY);
     HAL_SPI_Transmit(&hspi4, txBuffer, 4, HAL_MAX_DELAY);
     HAL_SPI_TransmitReceive(&hspi4, dummyTx, rxBuffer, registerSize, HAL_MAX_DELAY);
     LCD_csHigh();
@@ -177,22 +182,22 @@ void LCD_showRed()
 
 void LCD_init(void)
 {
-	leds::led0_on();
 	HAL_Delay(20);
 	LCD_pdLow();
-	HAL_Delay(20);
+	HAL_Delay(6);
 	LCD_pdHigh();
-	HAL_Delay(20);
+	HAL_Delay(21);
 
 	uint32_t startTick;
 	LCD_sendHostCommand(CLKEXT, 0x00);
 	LCD_sendHostCommand(CLKSEL, EXTERNAL_CLOCK_72MHz);
-	LCD_writeRegister32(REG_FREQUENCY_ADDRESS, CLOCK_SPEED);
-	LCD_sendHostCommand(RST_PULSE, 0x00);
 
-	HAL_Delay(100);
 	LCD_sendHostCommand(ACTIVE, 0x00);
-	HAL_Delay(300);
+	HAL_Delay(40);
+
+	//LCD_sendHostCommand(RST_PULSE, 0x00);
+
+
 
 	startTick = HAL_GetTick();
 	while (0x7C != LCD_readRegister8(REG_ID_ADDRESS))
@@ -202,10 +207,9 @@ void LCD_init(void)
 		{
 			return;
 		}
+		HAL_Delay(1);
 	}
-	leds::led0_off();
 
-	leds::led0_on();
 
 	// SUCCESS
 	startTick = HAL_GetTick();
@@ -216,35 +220,37 @@ void LCD_init(void)
 
 			return;
 		}
+		HAL_Delay(1);
 	}
-	leds::led0_off();
 
-	// WE ARE SUCCESSFULLY READING THE ABOVE TWO REGISTERS, BUT DISPLAY IS NOT TURNING ON. I HAVE NO IDEA HOW TO DEBUG THE BELOW SETTINGS
+	LCD_writeRegister32(REG_FREQUENCY_ADDRESS, CLOCK_SPEED);
 
 
-	LCD_writeRegister16(REG_PWM_HZ_ADDRESS, 4000);
-	LCD_writeRegister8(REG_PWM_DUTY_ADDRESS, 128);
+	//LCD_writeRegister16(REG_PWM_HZ_ADDRESS, 4000);
+	LCD_writeRegister8(REG_PCLK_ADDRESS, 0);
 
-	LCD_writeRegister16(REG_PCLK_FREQ_ADDRESS, DispPLCLKFREQ);
-	LCD_writeRegister8(REG_PCLK_2X_ADDRESS, DispPCLK2x);
+	LCD_writeRegister8(REG_PWM_DUTY_ADDRESS, 0);
 
-	LCD_writeRegister16(REG_HCYCLE_ADDRESS, LCD_HCYCLE);
-	LCD_writeRegister16(REG_HOFFSET_ADDRESS, LCD_HOFFSET);
-	LCD_writeRegister16(REG_HSYNC0_ADDRESS, LCD_HSYNC0);
-	LCD_writeRegister16(REG_HSYNC1_ADDRESS, LCD_HSYNC1);
-	LCD_writeRegister16(REG_VCYCLE_ADDRESS, LCD_VCYCLE);
-	LCD_writeRegister16(REG_VOFFSET_ADDRESS, LCD_VOFFSET);
-	LCD_writeRegister16(REG_VSYNC0_ADDRESS, LCD_VSYNC0);
-	LCD_writeRegister16(REG_VSYNC1_ADDRESS, LCD_VSYNC1);
-	LCD_writeRegister8(REG_SWIZZLE_ADDRESS, LCD_SWIZZLE);
-	LCD_writeRegister8(REG_PCLK_POL_ADDRESS, LCD_PCLK_POL);
+//	LCD_writeRegister16(REG_PCLK_FREQ_ADDRESS, DispPLCLKFREQ);
+//	LCD_writeRegister8(REG_PCLK_2X_ADDRESS, DispPCLK2x);
+
 	LCD_writeRegister16(REG_HSIZE_ADDRESS, LCD_WIDTH_PX);
+	LCD_writeRegister16(REG_HCYCLE_ADDRESS, LCD_HCYCLE_VALUE);
+	LCD_writeRegister16(REG_HOFFSET_ADDRESS, LCD_HOFFSET_VALUE);
+	LCD_writeRegister16(REG_HSYNC0_ADDRESS, LCD_HSYNC0_VALUE);
+	LCD_writeRegister16(REG_HSYNC1_ADDRESS, LCD_HSYNC1_VALUE);
 	LCD_writeRegister16(REG_VSIZE_ADDRESS, LCD_HEIGHT_PX);
-	LCD_writeRegister16(REG_CSPREAD_ADDRESS, LCD_CSPREAD);
-	LCD_writeRegister16(REG_DITHER_ADDRESS, LCD_DITHER);
+	LCD_writeRegister16(REG_VCYCLE_ADDRESS, LCD_VCYCLE_VALUE);
+	LCD_writeRegister16(REG_VOFFSET_ADDRESS, LCD_VOFFSET_VALUE);
+	LCD_writeRegister16(REG_VSYNC0_ADDRESS, LCD_VSYNC0_VALUE);
+	LCD_writeRegister16(REG_VSYNC1_ADDRESS, LCD_VSYNC1_VALUE);
+	LCD_writeRegister8(REG_SWIZZLE_ADDRESS, LCD_SWIZZLE_VALUE);
+	LCD_writeRegister8(REG_PCLK_POL_ADDRESS, LCD_PCLK_POL);
 
-	LCD_writeRegister16(REG_GPIOX_DIR_ADDRESS, 0xFFFF);
-	LCD_writeRegister16(REG_GPIOX_ADDRESS, 0xFFFF);
+	LCD_writeRegister16(REG_CSPREAD_ADDRESS, LCD_CSPREAD);
+	LCD_writeRegister16(REG_DITHER_ADDRESS, LCD_DITHER_VALUE);
+
+
 
 	LCD_writeRegister32(RAM_DL_START_ADDRESS + 0, EVE_ENC_CLEAR_COLOR_RGB(0, 0, 0));
 	LCD_writeRegister32(RAM_DL_START_ADDRESS + 4, EVE_ENC_CLEAR(1, 1, 1));
@@ -253,10 +259,16 @@ void LCD_init(void)
 
 	LCD_writeRegister8(REG_DLSWAP_ADDRESS, DLSWAP_FRAME);
 
+	LCD_writeRegister16(REG_GPIOX_DIR_ADDRESS, 0xFFFF);
+	LCD_writeRegister16(REG_GPIOX_ADDRESS, LCD_readRegister16(REG_GPIOX_ADDRESS) | 0x8000);
+
 
 
 	LCD_writeRegister8(REG_PCLK_ADDRESS, LCD_PCLK);
-
+	LCD_writeRegister16(REG_PWM_HZ_ADDRESS, 250);
+	LCD_writeRegister8(REG_PWM_DUTY_ADDRESS, 128);
 
 	leds::led0_on();
+
+
 }

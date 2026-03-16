@@ -82,8 +82,8 @@
 #define MARBLE_DEMO          (0)  //Marble must already be programmed into
                                   //flash by using PROGRAM_FLASH_FROM_USD
                                   //(bluemarb.a8z)
-#define TOUCH_DEMO           (1)
-#define VIDEO_DEMO           (1)  //Video must already be programmed into
+#define TOUCH_DEMO           (0)
+#define VIDEO_DEMO           (0)  //Video must already be programmed into
                                   //flash by using PROGRAM_FLASH_FROM_USD
                                   //(Ice_400.avi)
 #define   VIDEO_BOUNCE       (1)  //Bounce the video around the screen
@@ -189,7 +189,7 @@
 #define EVE_CLOCK_SOURCE     (EVE_CLOCK_SOURCE_EXTERNAL)
 #define EVE_CLOCK_MUL        (EVE_EXTERNAL_CLOCK_MUL_x6_72MHz)
 #define EVE_CLOCK_SPEED      ((uint32_t)(EVE_CLOCK_MUL&0x1F)*(uint32_t)12000000)
-#define EVE_TOUCH_TYPE       (EVE_TOUCH_CAPACITIVE)
+#define EVE_TOUCH_TYPE       (EVE_TOUCH_NONE)
 #define EVE_TOUCH_CAP_DEVICE (EVE_CAP_DEV_FT5316)
 #define EVE_PEN_UP_BUG_FIX   (0)
 //Set this to force a calibration. Then you can copy that matrix from the

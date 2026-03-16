@@ -35,10 +35,6 @@
 
 #include <stdint.h>
 
-void LCD_csLow(void);
-void LCD_csHigh(void);
-void LCD_pdLow(void);
-void LCD_pdHigh(void);
 void _EVE_Select_and_Address(uint32_t Address, uint8_t Operation);
 void _EVE_send_32(uint32_t Data);
 void EVE_REG_Write_8(uint32_t REG_Address, uint8_t ftData8);

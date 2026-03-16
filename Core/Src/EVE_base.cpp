@@ -90,6 +90,7 @@
 // The very simple EVE library files
 #include "EVE_base.h"
 #include "EVE_draw.h"
+#include "leds.h"
 //============================================================================
 // Don't call SerPrintFF() directly, use DBG_STAT() or DBG_GEEK() macros.
 //
@@ -1442,7 +1443,7 @@ uint8_t EVE_Initialize(void)
       }
 
   EVE_REG_Write_16(EVE_REG_ADAPTIVE_FRAMERATE, 0);
-//  EVE_REG_Write_16(EVE_REG_AH_HCYCLE_MAX, 0);
+  EVE_REG_Write_16(EVE_REG_AH_HCYCLE_MAX, 0);
       
 #else
   //FT8xx series
@@ -1518,20 +1519,20 @@ uint8_t EVE_Initialize(void)
 #endif // (EVE_TOUCH_TYPE==EVE_TOUCH_CAPACITIVE)
 
   // Turn recorded audio volume down & stop
-  EVE_REG_Write_8(EVE_REG_VOL_PB, 0);
-  EVE_REG_Write_32(EVE_REG_PLAYBACK_PLAY,0);
-  // Turn synthesizer volume down
-  EVE_REG_Write_8(EVE_REG_VOL_SOUND, 0);
-  // Set synthesizer to mute
-  EVE_REG_Write_16(EVE_REG_SOUND, 0x0060);
-  EVE_REG_Write_8(EVE_REG_PLAY,1);
+//  EVE_REG_Write_8(EVE_REG_VOL_PB, 0);
+//  EVE_REG_Write_32(EVE_REG_PLAYBACK_PLAY,0);
+//  // Turn synthesizer volume down
+//  EVE_REG_Write_8(EVE_REG_VOL_SOUND, 0);
+//  // Set synthesizer to mute
+//  EVE_REG_Write_16(EVE_REG_SOUND, 0x0060);
+//  EVE_REG_Write_8(EVE_REG_PLAY,1);
 
   // Write the initial display list directly to EVE_RAM_DL (the
   // display list RAM), bypassing the normal path through the
   // coprocessor - which apparently is not always available
   // at this early stage of the game.
   // This stub list just shows a black screen.
-  EVE_REG_Write_32(EVE_RAM_DL + 0, EVE_ENC_CLEAR_COLOR_RGB(0x00,0x00,0x00));
+  EVE_REG_Write_32(EVE_RAM_DL + 0, EVE_ENC_CLEAR_COLOR_RGB(0x00,0xFF,0x00));
   EVE_REG_Write_32(EVE_RAM_DL + 4, EVE_ENC_CLEAR(1/*color*/,1/*stencil*/,1/*tags*/));
   EVE_REG_Write_32(EVE_RAM_DL + 8, EVE_ENC_DISPLAY());
 
@@ -1582,7 +1583,7 @@ uint8_t EVE_Initialize(void)
   // |||------------------ GPIO drive:  00=5mA, 01=10mA, 10=15mA, 11=20mA
   // |-------------------- DISP PIN
   EVE_REG_Write_16(EVE_REG_GPIOX,EVE_REG_Read_16(EVE_REG_GPIOX) | 0x8000);
-
+  //EVE_REG_Write_16(EVE_REG_GPIOX, EVE_REG_Read_16(0xFF));
   // Now start clocking data to the LCD panel, enabling the display
   EVE_REG_Write_8(EVE_REG_PCLK, LCD_PCLK);
 
