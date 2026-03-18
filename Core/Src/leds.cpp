@@ -169,6 +169,27 @@ void wake() {
   g_right->show();
 }
 
+void enable_all()
+{
+	g_bar->clear();
+	g_left->clear();
+	g_right->clear();
+
+	for (int i = 0; i < NUM_LED_BAR; ++i) {
+	    g_bar->setLed(i, 255, 0, 0, 2);
+	}
+	for (int i = 0; i < NUM_LED_LEFT; ++i) {
+	    g_left->setLed(i, 0, 255, 0, 2);
+	}
+	for (int i = 0; i < NUM_LED_RIGHT; ++i) {
+		g_right->setLed(i, 0, 255, 0, 2);
+	}
+
+	g_bar->show();
+	g_left->show();
+	g_right->show();
+}
+
 void efficiency_on_can_ratio(float ratio) {
   ratio = std::clamp(ratio, 0.0f, 4.0f);
   g_rawErr = ratio - 1.0f;

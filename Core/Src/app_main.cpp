@@ -48,7 +48,7 @@ void app_main()
   leds::set_brightness(31);
   leds::wake();
 //  leds::efficiency_on_can_ratio(1.0f);
-
+  leds::enable_all();
 //  lcd::init();
 //  lcd::print_default_screen_template();
 

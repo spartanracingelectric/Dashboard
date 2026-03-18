@@ -36,4 +36,7 @@ void efficiency_tick(uint32_t now_ms);
 void led0_on();
 void led0_off();
 
+void enable_all();
+
+
 }

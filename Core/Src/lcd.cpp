@@ -14,7 +14,7 @@ const uint8_t DLCODE_BOOTUP[12] =
 
 void LCD_demoCodeTest(void)
 {
-	leds::led0_off();
+	//leds::led0_off();
 	//EVE_Initialize();
 	LCD_init();
 	//leds::led0_on();
@@ -268,7 +268,7 @@ void LCD_init(void)
 	LCD_writeRegister16(REG_PWM_HZ_ADDRESS, 250);
 	LCD_writeRegister8(REG_PWM_DUTY_ADDRESS, 128);
 
-	leds::led0_on();
+	//leds::led0_on();
 
 
 }
