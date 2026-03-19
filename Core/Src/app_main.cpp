@@ -48,7 +48,7 @@ void app_main()
   leds::set_brightness(31);
   leds::wake();
 //  leds::efficiency_on_can_ratio(1.0f);
-  leds::enable_all();
+//  leds::enable_all();
 //  lcd::init();
 //  lcd::print_default_screen_template();
 
@@ -68,9 +68,9 @@ void app_main()
 	  //LCD_showRed();
     // CAN state polling instead of if else nesting
     // Option 1 just for demo of stuff on screen to test working screen
-//    cansvc::poll(bus);
-//    leds::efficiency_tick(now_ms());
-////    lcd::render_energy_bar_demo(now_ms());
+    cansvc::poll(bus);
+    leds::efficiency_tick(now_ms());
+//    lcd::render_energy_bar_demo(now_ms());
 //
 //    /* For option B need to uncomment
 //    lcd::update_screenE(
@@ -82,10 +82,10 @@ void app_main()
 //    );
 //    */
 //
-//    if (every_ms(t_led_safety, 50)) {
-//      leds::safety_update_flash(cansvc::hv_temp(), now_ms());
-//      leds::lv(cansvc::lv());
-//    }
+    if (every_ms(t_led_safety, 50)) {
+      leds::safety_update_flash(cansvc::hv_temp(), now_ms());
+      leds::lv(cansvc::lv());
+    }
 //    static uint32_t t_can_test = 0; // to avoid starving other tasks
 //    if (every_ms(t_can_test, 100)) {
 //      cansvc::send_test(bus); }
