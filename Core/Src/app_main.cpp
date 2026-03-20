@@ -43,42 +43,16 @@ void app_main()
   Apa102Chain right_chain(LT_RIGHT_DI_GPIO_Port, LT_RIGHT_DI_Pin,
                           LT_RIGHT_CI_GPIO_Port, LT_RIGHT_CI_Pin, 3);
 
-  // Services
   leds::init(&bar_chain, &left_chain, &right_chain);
   leds::set_brightness(31);
   leds::wake();
-//  leds::efficiency_on_can_ratio(1.0f);
-//  leds::enable_all();
-//  lcd::init();
-//  lcd::print_default_screen_template();
 
-  if (!cansvc::init(bus)) {
-    //lcd::show_error(msg); Need to put these 2 definitions in their respective codes
-    //leds::show_fault();
-  }
-
-  //LCD_init();
-  LCD_demoCodeTest();
-  //leds::led0_on();
-
-  uint32_t t_led_safety = 0;
+  cansvc::init(bus);
 
   while (1) {
-
-    // Quick CAN test - bypass every_ms to isolate heartbeat issue
-    {
-      CanFrame f{};
-      f.id = 0x7EE; f.len = 8; f.data[0] = 0x53;
-      bus.send(f);
-    }
+    CanFrame f{};
+    f.id = 0x7EE; f.len = 8; f.data[0] = 0x53;
+    bus.send(f);
     HAL_Delay(200);
-
-    cansvc::poll(bus);
-    leds::efficiency_tick(now_ms());
-
-    if (every_ms(t_led_safety, 50)) {
-      leds::safety_update_flash(cansvc::hv_temp(), now_ms());
-      leds::lv(cansvc::lv());
-    }
   }
 }
