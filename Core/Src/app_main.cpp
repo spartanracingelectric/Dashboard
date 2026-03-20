@@ -86,9 +86,9 @@ void app_main()
       leds::safety_update_flash(cansvc::hv_temp(), now_ms());
       leds::lv(cansvc::lv());
     }
-//    static uint32_t t_can_test = 0; // to avoid starving other tasks
-//    if (every_ms(t_can_test, 100)) {
-//      cansvc::send_test(bus); }
+    static uint32_t t_can_test = 0; // to avoid starving other tasks
+    if (every_ms(t_can_test, 100)) {
+      cansvc::send_test(bus); }
 
     //cansvc::send_test(bus);
   }

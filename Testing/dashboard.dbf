@@ -1,0 +1,130 @@
+//******************************BUSMASTER Messages and signals Database ******************************//
+
+[DATABASE_VERSION] 1.3
+
+[PROTOCOL] CAN
+
+[BUSMASTER_VERSION] [3.2.2]
+[NUMBER_OF_MESSAGES] 11
+
+[START_MSG] TPS0,1280,8,2,1,S,Simulator
+[START_SIGNALS] TPS0_Percent,8,1,0,U,255,0,1,0,0.392157,%,,Dashboard
+[START_SIGNALS] TPS0_Voltage,16,3,0,U,65535,0,1,0,0.001,V,,Dashboard
+[END_MSG]
+
+[START_MSG] TPS1,1281,8,2,1,S,Simulator
+[START_SIGNALS] TPS1_Percent,8,1,0,U,255,0,1,0,0.392157,%,,Dashboard
+[START_SIGNALS] TPS1_Voltage,16,3,0,U,65535,0,1,0,0.001,V,,Dashboard
+[END_MSG]
+
+[START_MSG] LV_EffScore,1287,8,2,1,S,Simulator
+[START_SIGNALS] LV_Voltage,16,1,0,U,65535,0,1,0,0.001,V,,Dashboard
+[START_SIGNALS] Eff_Score,16,7,0,I,20000,-20000,1,0,0.0001,,,Dashboard
+[END_MSG]
+
+[START_MSG] HV,1568,8,2,1,S,Simulator
+[START_SIGNALS] HV_Current,32,1,0,U,4294967091,0,1,0,0.001,A,,Dashboard
+[START_SIGNALS] HV_Voltage,32,5,0,U,4294967091,0,1,0,0.001,V,,Dashboard
+[END_MSG]
+
+[START_MSG] BAT_TEMP,1571,8,1,1,S,Simulator
+[START_SIGNALS] HV_Temp,16,7,0,U,65535,0,1,0,0.1,degC,,Dashboard
+[END_MSG]
+
+[START_MSG] SOC,0,8,1,1,S,Simulator
+[START_SIGNALS] SOC,16,7,0,U,65535,0,1,0,0.1,%,,Dashboard
+[END_MSG]
+
+[START_MSG] BMS_FAULT,1,8,1,1,S,Simulator
+[START_SIGNALS] BMS_Fault,8,2,0,U,255,0,1,0,1,,,Dashboard
+[END_MSG]
+
+[START_MSG] BMS_WARN,2,8,1,1,S,Simulator
+[START_SIGNALS] BMS_Warn,8,2,0,U,255,0,1,0,1,,,Dashboard
+[END_MSG]
+
+[START_MSG] BMS_STAT,3,8,1,1,S,Simulator
+[START_SIGNALS] BMS_Stat,8,7,0,U,255,0,1,0,1,,,Dashboard
+[END_MSG]
+
+[START_MSG] RPM,165,8,1,1,S,Simulator
+[START_SIGNALS] RPM,16,2,0,U,65535,0,1,0,1,rpm,,Dashboard
+[END_MSG]
+
+[START_MSG] ENERGY_USED,1697,8,1,1,S,Simulator
+[START_SIGNALS] Energy_Used,32,1,0,U,4294967091,0,1,0,0.001,kWh,,Dashboard
+[END_MSG]
+
+[START_VALUE_TABLE]
+[END_VALUE_TABLE]
+
+[NODE] Dashboard,Simulator
+
+[START_DESC]
+[START_DESC_NET]
+[END_DESC_NET]
+
+[START_DESC_NODE]
+[END_DESC_NODE]
+
+[START_DESC_MSG]
+1280 S "Throttle Position Sensor 0 - percent and raw voltage";
+1281 S "Throttle Position Sensor 1 - percent and raw voltage";
+1287 S "LV battery voltage (bytes 0-1) and efficiency score (bytes 6-7)";
+1568 S "HV current (bytes 0-3) and HV voltage (bytes 4-7)";
+1571 S "Battery temperature pack (bytes 6-7)";
+0 S "State of charge (bytes 6-7)";
+1 S "BMS fault code (byte 1)";
+2 S "BMS warning code (byte 1)";
+3 S "BMS status (byte 6)";
+165 S "Motor RPM (bytes 1-2, little-endian u16(d,2,1))";
+1697 S "Cumulative energy used in Wh, displayed as kWh";
+[END_DESC_MSG]
+
+[START_DESC_SIG]
+[END_DESC_SIG]
+[END_DESC]
+
+[START_PARAM]
+[START_PARAM_NET]
+[END_PARAM_NET]
+
+[START_PARAM_NODE]
+[END_PARAM_NODE]
+
+[START_PARAM_MSG]
+[END_PARAM_MSG]
+
+[START_PARAM_SIG]
+[END_PARAM_SIG]
+
+[START_PARAM_NODE_RX_SIG]
+[END_PARAM_NODE_RX_SIG]
+
+[START_PARAM_NODE_TX_MSG]
+[END_PARAM_NODE_TX_MSG]
+[END_PARAM]
+
+[START_PARAM_VAL]
+[START_PARAM_NET_VAL]
+[END_PARAM_NET_VAL]
+
+[START_PARAM_NODE_VAL]
+[END_PARAM_NODE_VAL]
+
+[START_PARAM_MSG_VAL]
+[END_PARAM_MSG_VAL]
+
+[START_PARAM_SIG_VAL]
+[END_PARAM_SIG_VAL]
+
+[END_PARAM_VAL]
+
+
+[START_NOT_SUPPORTED]
+[END_NOT_SUPPORTED]
+
+[START_NOT_PROCESSED]
+OF_:
+
+[END_NOT_PROCESSED]
