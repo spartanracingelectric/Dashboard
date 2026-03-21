@@ -92,8 +92,8 @@ namespace {
     const float fullB = cfg.baseBright;
     const float fracB = cfg.fracBright;
 
-    auto setGreen  = [&](int idx, float b){ setRGBDesired(idx, 0.0f, b, 0.0f); };
-    auto setYellow = [&](int idx, float b){ setRGBDesired(idx, b,    b, 0.0f); };
+    auto setYellow  = [&](int idx, float b){ setRGBDesired(idx, 0.0f, b, 0.0f); };
+    auto setGreen = [&](int idx, float b){ setRGBDesired(idx, b,    b, 0.0f); };
 
     // Faint center anchor
     setRGBDesired(EffCfg::CENTER_L, 0.06f, 0.06f, 0.06f);
