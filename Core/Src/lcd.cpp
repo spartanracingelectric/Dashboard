@@ -21,6 +21,63 @@ void LCD_demoCodeTest(void)
 	LCD_drawLineOnce();
 }
 
+void renderDash(uint32_t voltage, uint32_t BPS, uint32_t SOC, uint32_t cell_temp, uint32_t PL, uint32_t TPS, uint32_t energy){
+    uint16_t FWo;
+
+    /* Values for the rectangles */
+    uint32_t upper_rect[3] = {voltage, BPS, SOC};
+    uint32_t low_rect[3] = {cell_temp, PL, TPS};
+
+    FWo = EVE_REG_Read_16(EVE_REG_CMD_WRITE);
+    FWo = Wait_for_EVE_Execution_Complete(FWo);
+
+    // Start display list
+    FWo = EVE_Cmd_Dat_0(FWo, EVE_ENC_CMD_DLSTART);
+
+    // Clear background to black
+    FWo = EVE_Cmd_Dat_0(FWo, EVE_ENC_CLEAR_COLOR_RGB(0, 0, 0));
+    FWo = EVE_Cmd_Dat_0(FWo, EVE_ENC_CLEAR(1, 1, 1));
+
+    // White drawing color
+    FWo = EVE_Cmd_Dat_0(FWo, EVE_ENC_COLOR_RGB(255, 255, 255));
+
+    /* Display resolution is 800 x 480 */
+
+    /* Draw upper 3 rectangles */
+    int xOff = 40, yOff = 30;
+    int rectWidth = 180, rectHeight = 90;
+    int gap = 50;
+
+    for (int i = 0; i < 3; i++) {
+        int x0 = xOff + i * (rectWidth + gap);
+        int y0 = yOff;
+        int x1 = x0 + rectWidth;
+        int y1 = y0 + rectHeight;
+
+        int cx = (x0 + x1) / 2;
+        int cy = (y0 + y1) / 2;
+
+        FWo = EVE_Open_Rectangle(FWo, x0, y0, x1, y1, 2);
+        FWo = EVE_PrintF(FWo, cx, cy, 31, EVE_OPT_CENTER, "%lu", (unsigned long)upper_rect[i]);
+    }
+
+    /* Draw lower 3 rectangles */
+    yOff = 360;
+    for (int i = 0; i < 3; i++) {
+        int x0 = xOff + i * (rectWidth + gap);
+        int y0 = yOff;
+        int x1 = x0 + rectWidth;
+        int y1 = y0 + rectHeight;
+
+        int cx = (x0 + x1) / 2;
+        int cy = (y0 + y1) / 2;
+
+        FWo = EVE_Open_Rectangle(FWo, x0, y0, x1, y1, 2);
+        FWo = EVE_PrintF(FWo, cx, cy, 31, EVE_OPT_CENTER, "%lu", (unsigned long)low_rect[i]);
+    }
+
+}
+
 
 void LCD_drawLineOnce(void)
 {
