@@ -4,6 +4,7 @@
 #include "CFA10100_defines.h"
 #include "EVE_base.h"
 #include "EVE_draw.h"
+#include "can_service.h"
 
 const uint8_t DLCODE_BOOTUP[12] =
 {
@@ -16,17 +17,20 @@ void LCD_demoCodeTest(void)
 {
 	//leds::led0_off();
 	//EVE_Initialize();
-	LCD_init();
+
 	//leds::led0_on();
-	LCD_drawLineOnce();
+	float tps = (cansvc::tps0_percent()+cansvc::tps1_percent())/2.0f;
+	float bps = (cansvc::bps0_percent()+cansvc::bps1_percent())/2.0f;
+	renderDash(15.0f, bps, 70.0f, 40.0f, 30.0f, tps, 30.0f);
+//	LCD_drawLineOnce();
 }
 
-void renderDash(uint32_t voltage, uint32_t BPS, uint32_t SOC, uint32_t cell_temp, uint32_t PL, uint32_t TPS, uint32_t energy){
+void renderDash(float voltage, float BPS, float SOC, float cell_temp, float PL, float TPS, float energy){
     uint16_t FWo;
 
     /* Values for the rectangles */
-    uint32_t upper_rect[3] = {voltage, BPS, SOC};
-    uint32_t low_rect[3] = {cell_temp, PL, TPS};
+    float upper_rect[3] = {voltage, BPS, SOC};
+    float low_rect[3] = {cell_temp, PL, TPS};
 
     FWo = EVE_REG_Read_16(EVE_REG_CMD_WRITE);
     FWo = Wait_for_EVE_Execution_Complete(FWo);
@@ -44,7 +48,7 @@ void renderDash(uint32_t voltage, uint32_t BPS, uint32_t SOC, uint32_t cell_temp
     /* Display resolution is 800 x 480 */
 
     /* Draw upper 3 rectangles */
-    int xOff = 40, yOff = 30;
+    int xOff = 60, yOff = 30;
     int rectWidth = 180, rectHeight = 90;
     int gap = 50;
 
@@ -57,10 +61,13 @@ void renderDash(uint32_t voltage, uint32_t BPS, uint32_t SOC, uint32_t cell_temp
         int cx = (x0 + x1) / 2;
         int cy = (y0 + y1) / 2;
 
-        FWo = EVE_Open_Rectangle(FWo, x0, y0, x1, y1, 2);
-        FWo = EVE_PrintF(FWo, cx, cy, 31, EVE_OPT_CENTER, "%lu", (unsigned long)upper_rect[i]);
-    }
+        int32_t val_int = (int32_t)upper_rect[i];
+        int32_t val_dec = (int32_t)((upper_rect[i] - (float)val_int) * 100);
+        if (val_dec < 0) val_dec = -val_dec;
 
+        FWo = EVE_Open_Rectangle(FWo, x0, y0, x1, y1, 2);
+        FWo = EVE_PrintF(FWo, cx, cy, 31, EVE_OPT_CENTER, "%ld.%02ld", (long)val_int, (long)val_dec);
+    }
     /* Draw lower 3 rectangles */
     yOff = 360;
     for (int i = 0; i < 3; i++) {
@@ -72,9 +79,20 @@ void renderDash(uint32_t voltage, uint32_t BPS, uint32_t SOC, uint32_t cell_temp
         int cx = (x0 + x1) / 2;
         int cy = (y0 + y1) / 2;
 
+        int32_t val_int = (int32_t)low_rect[i];
+        int32_t val_dec = (int32_t)((low_rect[i] - (float)val_int) * 100);
+        if (val_dec < 0) val_dec = -val_dec;
+
         FWo = EVE_Open_Rectangle(FWo, x0, y0, x1, y1, 2);
-        FWo = EVE_PrintF(FWo, cx, cy, 31, EVE_OPT_CENTER, "%lu", (unsigned long)low_rect[i]);
+        FWo = EVE_PrintF(FWo, cx, cy, 31, EVE_OPT_CENTER, "%ld.%02ld", (long)val_int, (long)val_dec);
     }
+    // Finish and swap
+    FWo = EVE_Cmd_Dat_0(FWo, EVE_ENC_DISPLAY());
+    FWo = EVE_Cmd_Dat_0(FWo, EVE_ENC_CMD_SWAP);
+
+    EVE_REG_Write_16(EVE_REG_CMD_WRITE, FWo);
+    Wait_for_EVE_Execution_Complete(FWo);
+
 
 }
 
@@ -90,7 +108,7 @@ void LCD_drawLineOnce(void)
     // Start display list
     FWo = EVE_Cmd_Dat_0(FWo, EVE_ENC_CMD_DLSTART);
 
-    // Clear background to black
+    // Clear background to green
     FWo = EVE_Cmd_Dat_0(FWo, EVE_ENC_CLEAR_COLOR_RGB(0, 255, 0));
     FWo = EVE_Cmd_Dat_0(FWo, EVE_ENC_CLEAR(1, 1, 1));
 

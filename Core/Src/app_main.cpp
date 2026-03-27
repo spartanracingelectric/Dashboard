@@ -46,6 +46,8 @@ void app_main()
   leds::init(&bar_chain, &left_chain, &right_chain);
   leds::set_brightness(31);
   leds::wake();
+  LCD_init();
+
 
   cansvc::init(bus);
 
@@ -58,6 +60,7 @@ void app_main()
 
     // Update LED bar from efficiency data
     leds::efficiency_tick(now_ms());
+    LCD_demoCodeTest();
 
     // Safety LED updates
     if (every_ms(t_led_safety, 50)) {

@@ -32,6 +32,11 @@ float tps0_percent(){ return s_curr_tps0p; }
 float tps0_voltage(){ return s_curr_tps0v; }
 float tps1_percent(){ return s_curr_tps1p; }
 float tps1_voltage(){ return s_curr_tps1v; }
+
+float bps0_percent(){ return s_curr_bps0p; }
+float bps0_voltage(){ return s_curr_bps0v; }
+float bps1_percent(){ return s_curr_bps1p; }
+float bps1_voltage(){ return s_curr_bps1v; }
 float rpm()         { return s_curr_rpm; }
 float bms_fault()   { return s_curr_bms_fault; }
 float bms_warn()    { return s_curr_bms_warn; }

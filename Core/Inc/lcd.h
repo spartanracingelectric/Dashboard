@@ -28,6 +28,7 @@ void LCD_writeRegister32(uint32_t address, uint32_t data);
 void LCD_showRed();
 void LCD_drawLineOnce(void);
 void LCD_demoCodeTest(void);
+void renderDash(float voltage, float BPS, float SOC, float cell_temp, float PL, float TPS, float energy);
 
 // Values from Example code
 #define HPX   (800)    // Horizontal Pixel Width
@@ -35,6 +36,11 @@ void LCD_demoCodeTest(void);
 #define HBP   (8)      // Horizontal Back Porch (must be 46, includes HSW)
 #define HFP   (8)      // Horizontal Front Porch (16~210~354)
 #define HPP   (178)    // Horizontal Pixel Padding (tot=863: 862~1056~1200)
+
+
+// lcd values from can
+extern float tps;
+
 
 #define LCD_WIDTH_PX (HPX)
 #define LCD_HCYCLE_VALUE (HPX + HSW + HBP + HFP + HPP)

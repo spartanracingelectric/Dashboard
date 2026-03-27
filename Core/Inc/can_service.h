@@ -16,6 +16,10 @@ float tps0_percent();
 float tps0_voltage();
 float tps1_percent();
 float tps1_voltage();
+float bps0_percent();
+float bps0_voltage();
+float bps1_percent();
+float bps1_voltage();
 
 float rpm();
 float bms_fault();
