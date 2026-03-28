@@ -7,10 +7,10 @@
 #include <cstring>
 
 //Internal state
-static float s_curr_hv=0, s_curr_soc=0, s_curr_lv=0, s_curr_hvlow=0, s_curr_hvtemp=0;
-static float s_curr_hv_current=0, s_curr_tps0v=0, s_curr_tps0p=0, s_curr_tps1v=0, s_curr_tps1p=0;
-static float s_curr_rpm=0, s_curr_bms_fault=0, s_curr_bms_warn=0, s_curr_bms_stat=0;
-static float    s_energy_used_kWh = 0.0f;   
+static float s_curr_hv=0, s_curr_soc=0, s_curr_lv=0, s_curr_hvlow=0, s_curr_celltemp=0;
+static float s_curr_hv_current=0, s_curr_pl=0, s_curr_bps=0, s_curr_tps0p=0, s_curr_tps1p=0;
+static float s_curr_rpm=0, s_curr_bms_fault=0,  s_curr_bms_warn=0, s_curr_bms_stat=0;
+static float s_energy_used_kWh = 0.0f;
 static uint32_t s_energy_ts_ms    = 0;
 // static float s_energy_used_kWh = 3.0f; // Half full sample start for energy bar
 
@@ -24,19 +24,15 @@ namespace cansvc {
 namespace cansvc {
 float hv()          { return s_curr_hv; }
 float hv_current()  { return s_curr_hv_current; }
-float hv_temp()     { return s_curr_hvtemp; }
 float hv_low()      { return s_curr_hvlow; }
 float lv()          { return s_curr_lv; }
 float soc()         { return s_curr_soc; }
 float tps0_percent(){ return s_curr_tps0p; }
-float tps0_voltage(){ return s_curr_tps0v; }
 float tps1_percent(){ return s_curr_tps1p; }
-float tps1_voltage(){ return s_curr_tps1v; }
+float pl()           { return s_curr_pl; }
+float celltemp()     { return s_curr_celltemp; }
 
-float bps0_percent(){ return s_curr_bps0p; }
-float bps0_voltage(){ return s_curr_bps0v; }
-float bps1_percent(){ return s_curr_bps1p; }
-float bps1_voltage(){ return s_curr_bps1v; }
+float bps_percent(){ return s_curr_bps; }
 float rpm()         { return s_curr_rpm; }
 float bms_fault()   { return s_curr_bms_fault; }
 float bms_warn()    { return s_curr_bms_warn; }
@@ -47,8 +43,8 @@ bool init(FdcanBus& bus) {
   if (!bus.initClassic500k()) return false;
 
   const uint16_t ids[] = {
-    CAN_TPS0, CAN_TPS1, CAN_HV_ADDR, CAN_BAT_TEMP_ADDR,
-    CAN_LV_ADDR, CAN_RPM_ADDR, CAN_SOC_ADDR,CAN_BMS_FAULT_ADDR,
+    CAN_TPS0, CAN_TPS1, CAN_BPS, CAN_HV_ADDR, CAN_BAT_TEMP_ADDR, CAN_SOC, CAN_PL,
+    CAN_BMS_FAULT_ADDR,
     CAN_BMS_WARN_ADDR,CAN_BMS_STAT_ADDR
   };
   for (uint16_t id : ids) bus.addStdFilter(id);
@@ -71,33 +67,28 @@ void poll(FdcanBus& bus) {
     const uint8_t* d = f.data;
 
     switch (f.id) {
-      case CAN_LV_ADDR:           // 0x507: LV (bytes 0-1), eff score (bytes 6-7)
-        s_curr_lv = u16(d,0,1) * 0.001f;
-        { int16_t cp = (int16_t)u16(d, 6, 7);
-          leds::efficiency_on_can_error(float(cp) / 10000.0f); }
-        break;
       case CAN_HV_ADDR:           // curr_hv = (b4..b7) * 0.001f
         s_curr_hv = u32(d,4,5,6,7) * 0.001f;                                          
         s_curr_hvlow = u16(d,4,5) * 0.001f;     
         s_curr_hv_current = u32(d,0,1,2,3) * 0.001f; // if same frame is used       
         break;
       case CAN_TPS0:
-        s_curr_tps0p = d[0] * 0.392156862746f; // 100/255  kB to Percent conversion                            
-        s_curr_tps0v = u16(d,2,3) * 0.001f;                                       
+        s_curr_tps0p = d[0];                                                        
         break;
       case CAN_TPS1:
-        s_curr_tps1p = d[0] * 0.392156862746f;                                       
-        s_curr_tps1v = u16(d,2,3) * 0.001f;                                        
+        s_curr_tps1p = d[0];                                                                           
         break;
-      case CAN_BAT_TEMP_ADDR:
-        s_curr_hvtemp = ( (uint16_t)d[7] << 8 | d[6] ) * 0.1f;                       
+      case CAN_BPS:
+        s_curr_bps = d[0];
         break;
-      case CAN_RPM_ADDR:
-        s_curr_rpm = u16(d,2,1);                                                     
+      case CAN_SOC:
+        s_curr_soc = d[2];
         break;
-      case CAN_SOC_ADDR:
-        //curr_soc = ((d[6]) | (d[7] << 8)) * 0.1f;
-        s_curr_soc = ((uint16_t)d[6] | ((uint16_t)d[7] << 8)) * 0.1f;
+      case CAN_PL:
+        s_curr_pl = d[4];
+        break;
+      case CAN_BAT_TEMP_ADDR:        // VCU 0x50E: [0]=faultF0 [1]=faultF1 [2]=relay [3:4]=cellTemp
+        s_curr_celltemp = u16(d, 3, 4) * 0.1f;
         break;
       case CAN_BMS_FAULT_ADDR:
         s_curr_bms_fault = d[1];

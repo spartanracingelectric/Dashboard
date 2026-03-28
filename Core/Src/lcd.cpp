@@ -15,22 +15,29 @@ const uint8_t DLCODE_BOOTUP[12] =
 
 void LCD_demoCodeTest(void)
 {
-	//leds::led0_off();
-	//EVE_Initialize();
-
-	//leds::led0_on();
-	float tps = (cansvc::tps0_percent()+cansvc::tps1_percent())/2.0f;
-	float bps = (cansvc::bps0_percent()+cansvc::bps1_percent())/2.0f;
-	renderDash(15.0f, bps, 70.0f, 40.0f, 30.0f, tps, 30.0f);
-//	LCD_drawLineOnce();
+	float tps_avg = (cansvc::tps0_percent() + cansvc::tps1_percent()) / 2.0f;
+	float bps_avg = cansvc::bps_percent();
+	float pl      = cansvc::pl();
+	float celltemp = cansvc::celltemp();
+	float soc     = cansvc::soc();
+	float hv_vol  = cansvc::hv();
+	renderDash(hv_vol, bps_avg, soc, celltemp, pl, tps_avg, 0.0f);
 }
 
 void renderDash(float voltage, float BPS, float SOC, float cell_temp, float PL, float TPS, float energy){
     uint16_t FWo;
 
-    /* Values for the rectangles */
-    float upper_rect[3] = {voltage, BPS, SOC};
-    float low_rect[3] = {cell_temp, PL, TPS};
+    /* Layout matches sketch:
+     *   Top row:    HV Vol  |  SoC   |  Cell
+     *   Bottom row: TPS avg |  PL    |  BPS avg
+     */
+    float upper_rect[3] = {voltage, SOC, cell_temp};
+    float low_rect[3]   = {TPS, PL, BPS};
+
+    const char* upper_labels[3] = {"HV Vol", "SoC", "Cell"};
+    const char* lower_labels[3] = {"TPS avg", "PL", "BPS avg"};
+    const char* upper_units[3]  = {"V", "%", "C"};
+    const char* lower_units[3]  = {"%", "kW", "%"};
 
     FWo = EVE_REG_Read_16(EVE_REG_CMD_WRITE);
     FWo = Wait_for_EVE_Execution_Complete(FWo);
@@ -42,16 +49,13 @@ void renderDash(float voltage, float BPS, float SOC, float cell_temp, float PL, 
     FWo = EVE_Cmd_Dat_0(FWo, EVE_ENC_CLEAR_COLOR_RGB(0, 0, 0));
     FWo = EVE_Cmd_Dat_0(FWo, EVE_ENC_CLEAR(1, 1, 1));
 
-    // White drawing color
-    FWo = EVE_Cmd_Dat_0(FWo, EVE_ENC_COLOR_RGB(255, 255, 255));
-
     /* Display resolution is 800 x 480 */
-
-    /* Draw upper 3 rectangles */
-    int xOff = 60, yOff = 30;
-    int rectWidth = 180, rectHeight = 90;
+    int xOff = 60;
+    int rectWidth = 180, rectHeight = 120;
     int gap = 50;
 
+    /* Draw upper 3 rectangles — top row starts at y=30 */
+    int yOff = 30;
     for (int i = 0; i < 3; i++) {
         int x0 = xOff + i * (rectWidth + gap);
         int y0 = yOff;
@@ -59,17 +63,30 @@ void renderDash(float voltage, float BPS, float SOC, float cell_temp, float PL, 
         int y1 = y0 + rectHeight;
 
         int cx = (x0 + x1) / 2;
-        int cy = (y0 + y1) / 2;
 
         int32_t val_int = (int32_t)upper_rect[i];
-        int32_t val_dec = (int32_t)((upper_rect[i] - (float)val_int) * 100);
+        int32_t val_dec = (int32_t)((upper_rect[i] - (float)val_int) * 10);
         if (val_dec < 0) val_dec = -val_dec;
 
+        // Box outline
+        FWo = EVE_Cmd_Dat_0(FWo, EVE_ENC_COLOR_RGB(255, 255, 255));
         FWo = EVE_Open_Rectangle(FWo, x0, y0, x1, y1, 2);
-        FWo = EVE_PrintF(FWo, cx, cy, 31, EVE_OPT_CENTER, "%ld.%02ld", (long)val_int, (long)val_dec);
+
+        // Label at top of box
+        FWo = EVE_Cmd_Dat_0(FWo, EVE_ENC_COLOR_RGB(180, 180, 180));
+        FWo = EVE_PrintF(FWo, cx, y0 + 20, 27, EVE_OPT_CENTER, "%s", upper_labels[i]);
+
+        // Value centered in box
+        FWo = EVE_Cmd_Dat_0(FWo, EVE_ENC_COLOR_RGB(255, 255, 255));
+        FWo = EVE_PrintF(FWo, cx, y0 + 65, 31, EVE_OPT_CENTER, "%ld.%01ld", (long)val_int, (long)val_dec);
+
+        // Unit below value
+        FWo = EVE_Cmd_Dat_0(FWo, EVE_ENC_COLOR_RGB(140, 140, 140));
+        FWo = EVE_PrintF(FWo, cx, y0 + 100, 26, EVE_OPT_CENTER, "%s", upper_units[i]);
     }
-    /* Draw lower 3 rectangles */
-    yOff = 360;
+
+    /* Draw lower 3 rectangles — bottom row */
+    yOff = 330;
     for (int i = 0; i < 3; i++) {
         int x0 = xOff + i * (rectWidth + gap);
         int y0 = yOff;
@@ -77,23 +94,34 @@ void renderDash(float voltage, float BPS, float SOC, float cell_temp, float PL, 
         int y1 = y0 + rectHeight;
 
         int cx = (x0 + x1) / 2;
-        int cy = (y0 + y1) / 2;
 
         int32_t val_int = (int32_t)low_rect[i];
-        int32_t val_dec = (int32_t)((low_rect[i] - (float)val_int) * 100);
+        int32_t val_dec = (int32_t)((low_rect[i] - (float)val_int) * 10);
         if (val_dec < 0) val_dec = -val_dec;
 
+        // Box outline
+        FWo = EVE_Cmd_Dat_0(FWo, EVE_ENC_COLOR_RGB(255, 255, 255));
         FWo = EVE_Open_Rectangle(FWo, x0, y0, x1, y1, 2);
-        FWo = EVE_PrintF(FWo, cx, cy, 31, EVE_OPT_CENTER, "%ld.%02ld", (long)val_int, (long)val_dec);
+
+        // Label at top of box
+        FWo = EVE_Cmd_Dat_0(FWo, EVE_ENC_COLOR_RGB(180, 180, 180));
+        FWo = EVE_PrintF(FWo, cx, y0 + 20, 27, EVE_OPT_CENTER, "%s", lower_labels[i]);
+
+        // Value centered in box
+        FWo = EVE_Cmd_Dat_0(FWo, EVE_ENC_COLOR_RGB(255, 255, 255));
+        FWo = EVE_PrintF(FWo, cx, y0 + 65, 31, EVE_OPT_CENTER, "%ld.%01ld", (long)val_int, (long)val_dec);
+
+        // Unit below value
+        FWo = EVE_Cmd_Dat_0(FWo, EVE_ENC_COLOR_RGB(140, 140, 140));
+        FWo = EVE_PrintF(FWo, cx, y0 + 100, 26, EVE_OPT_CENTER, "%s", lower_units[i]);
     }
+
     // Finish and swap
     FWo = EVE_Cmd_Dat_0(FWo, EVE_ENC_DISPLAY());
     FWo = EVE_Cmd_Dat_0(FWo, EVE_ENC_CMD_SWAP);
 
     EVE_REG_Write_16(EVE_REG_CMD_WRITE, FWo);
     Wait_for_EVE_Execution_Complete(FWo);
-
-
 }
 
 

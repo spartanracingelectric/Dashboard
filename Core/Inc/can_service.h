@@ -9,19 +9,16 @@ namespace cansvc {
 float hv();          // pack voltage
 float hv_current();  // pack current
 float hv_temp();     // pack temp (°C)
-float hv_low();      // "No load" / LV as in original naming
 float lv();          // low voltage battery
 float soc();         // state of charge %
 float tps0_percent();
 float tps0_voltage();
 float tps1_percent();
 float tps1_voltage();
-float bps0_percent();
-float bps0_voltage();
-float bps1_percent();
-float bps1_voltage();
-
+float bps_percent();
+float pl();           // power limit
 float rpm();
+float celltemp();    // highest cell temp (°C)
 float bms_fault();
 float bms_warn();
 float bms_stat();
