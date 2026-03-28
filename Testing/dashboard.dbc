@@ -7,26 +7,47 @@ BS_:
 BU_: Dashboard Simulator
 
 BO_ 1280 TPS0: 8 Simulator
- SG_ TPS0_Percent : 0|8@1+ (0.392157,0) [0|100] "%" Dashboard
- SG_ TPS0_Voltage : 16|16@1+ (0.001,0) [0|65.535] "V" Dashboard
+ SG_ ThrottlePercent : 0|8@1+ (0.392157,0) [0|100] "%" Dashboard
+ SG_ TPS0_Percent : 8|8@1+ (0.392157,0) [0|100] "%" Dashboard
+ SG_ TPS0_RawValue : 16|16@1+ (1,0) [0|65535] "" Dashboard
+ SG_ TPS0_CalibMin : 32|16@1+ (1,0) [0|65535] "" Dashboard
+ SG_ TPS0_CalibMax : 48|16@1+ (1,0) [0|65535] "" Dashboard
 
 BO_ 1281 TPS1: 8 Simulator
- SG_ TPS1_Percent : 0|8@1+ (0.392157,0) [0|100] "%" Dashboard
- SG_ TPS1_Voltage : 16|16@1+ (0.001,0) [0|65.535] "V" Dashboard
+ SG_ ThrottlePercent1 : 0|8@1+ (0.392157,0) [0|100] "%" Dashboard
+ SG_ TPS1_Percent : 8|8@1+ (0.392157,0) [0|100] "%" Dashboard
+ SG_ TPS1_RawValue : 16|16@1+ (1,0) [0|65535] "" Dashboard
+ SG_ TPS1_CalibMin : 32|16@1+ (1,0) [0|65535] "" Dashboard
+ SG_ TPS1_CalibMax : 48|16@1+ (1,0) [0|65535] "" Dashboard
 
-BO_ 1287 LV_EffScore: 8 Simulator
- SG_ LV_Voltage : 0|16@1+ (0.001,0) [0|65.535] "V" Dashboard
- SG_ Eff_Score : 48|16@1- (0.0001,0) [-2|2] "" Dashboard
+BO_ 1282 BPS: 8 Simulator
+ SG_ BrakePercent : 0|8@1+ (0.392157,0) [0|100] "%" Dashboard
+ SG_ BPS0_RawValue : 16|16@1+ (1,0) [0|65535] "" Dashboard
+ SG_ BPS0_CalibMin : 32|16@1+ (1,0) [0|65535] "" Dashboard
+ SG_ BPS0_CalibMax : 48|16@1+ (1,0) [0|65535] "" Dashboard
 
-BO_ 1568 HV: 8 Simulator
+BO_ 1287 LV_SOC_Eff: 8 Simulator
+ SG_ LV_Voltage : 0|16@1+ (1,0) [0|65535] "mV" Dashboard
+ SG_ LV_SOC : 16|8@1+ (1,0) [0|100] "%" Dashboard
+ SG_ Regen_Torque : 24|16@1- (1,0) [-32768|32767] "Nm" Dashboard
+ SG_ Eff_Score : 40|16@1- (0.0001,0) [-3.2768|3.2767] "" Dashboard
+
+BO_ 1298 PowerLimit_B: 8 Simulator
+ SG_ PID_Integral : 0|16@1- (1,0) [-32768|32767] "" Dashboard
+ SG_ PL_TorqueCmd : 16|16@1- (1,0) [-32768|32767] "Nm" Dashboard
+ SG_ PL_TargetPower : 32|8@1+ (1,0) [0|255] "kW" Dashboard
+ SG_ PID_Output : 40|16@1- (1,0) [-32768|32767] "" Dashboard
+ SG_ PL_ClampMethod : 56|8@1+ (1,0) [0|255] "" Dashboard
+
+BO_ 1577 HV: 8 Simulator
  SG_ HV_Current : 0|32@1+ (0.001,0) [0|4294967.295] "A" Dashboard
  SG_ HV_Voltage : 32|32@1+ (0.001,0) [0|4294967.295] "V" Dashboard
 
-BO_ 1571 BAT_TEMP: 8 Simulator
- SG_ HV_Temp : 48|16@1+ (0.1,0) [0|6553.5] "degC" Dashboard
-
-BO_ 0 SOC: 8 Simulator
- SG_ SOC : 48|16@1+ (0.1,0) [0|6553.5] "%" Dashboard
+BO_ 1294 BAT_TEMP: 8 Simulator
+ SG_ BMS_FaultFlags0 : 0|8@1+ (1,0) [0|255] "" Dashboard
+ SG_ BMS_FaultFlags1 : 8|8@1+ (1,0) [0|255] "" Dashboard
+ SG_ BMS_RelayState : 16|8@1+ (1,0) [0|255] "" Dashboard
+ SG_ HighestCellTemp : 24|16@1+ (0.1,0) [0|6553.5] "degC" Dashboard
 
 BO_ 1 BMS_FAULT: 8 Simulator
  SG_ BMS_Fault : 8|8@1+ (1,0) [0|255] "" Dashboard
@@ -43,15 +64,16 @@ BO_ 165 RPM: 8 Simulator
 BO_ 1697 ENERGY_USED: 8 Simulator
  SG_ Energy_Used : 0|32@1+ (0.001,0) [0|4294967.295] "kWh" Dashboard
 
-CM_ BO_ 1280 "Throttle Position Sensor 0 - percent and raw voltage";
-CM_ BO_ 1281 "Throttle Position Sensor 1 - percent and raw voltage";
-CM_ BO_ 1287 "LV battery voltage (bytes 0-1) and efficiency score (bytes 6-7)";
-CM_ BO_ 1568 "HV current (bytes 0-3) and HV voltage (bytes 4-7)";
-CM_ BO_ 1571 "Battery temperature pack (bytes 6-7)";
-CM_ BO_ 0 "State of charge (bytes 6-7)";
+CM_ BO_ 1280 "VCU 0x500 - TPS0: throttle%, tps0%, raw value, calib min/max";
+CM_ BO_ 1281 "VCU 0x501 - TPS1: throttle%, tps1%, raw value, calib min/max";
+CM_ BO_ 1282 "VCU 0x502 - BPS0: brake%, raw voltage, calib min/max";
+CM_ BO_ 1287 "VCU 0x507 - LV battery voltage, LV SOC, regen torque, efficiency score";
+CM_ BO_ 1298 "VCU 0x512 - Power Limit Status B: PID integral, PL torque, target power, PID output, clamp method";
+CM_ BO_ 1577 "BMS 0x629 - HV pack current (bytes 0-3) and voltage (bytes 4-7)";
+CM_ BO_ 1294 "VCU 0x50E - BMS loopback: fault flags, relay state, highest cell temp";
 CM_ BO_ 1 "BMS fault code (byte 1)";
 CM_ BO_ 2 "BMS warning code (byte 1)";
 CM_ BO_ 3 "BMS status (byte 6)";
-CM_ BO_ 165 "Motor RPM (bytes 1-2, little-endian u16(d,2,1))";
+CM_ BO_ 165 "Motor RPM (bytes 1-2)";
 CM_ BO_ 1697 "Cumulative energy used in Wh, displayed as kWh";
 
