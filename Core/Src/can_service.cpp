@@ -24,11 +24,14 @@ namespace cansvc {
 namespace cansvc {
 float hv()          { return s_curr_hv; }
 float hv_current()  { return s_curr_hv_current; }
+float hv_temp()     { return s_curr_celltemp; }
 float hv_low()      { return s_curr_hvlow; }
 float lv()          { return s_curr_lv; }
 float soc()         { return s_curr_soc; }
 float tps0_percent(){ return s_curr_tps0p; }
+float tps0_voltage(){ return 0.0f; }
 float tps1_percent(){ return s_curr_tps1p; }
+float tps1_voltage(){ return 0.0f; }
 float pl()           { return s_curr_pl; }
 float celltemp()     { return s_curr_celltemp; }
 
@@ -37,6 +40,7 @@ float rpm()         { return s_curr_rpm; }
 float bms_fault()   { return s_curr_bms_fault; }
 float bms_warn()    { return s_curr_bms_warn; }
 float bms_stat()    { return s_curr_bms_stat; }
+float can_service_get_energy_used_kWh() { return s_energy_used_kWh; }
 
 //Filters & init
 bool init(FdcanBus& bus) {
