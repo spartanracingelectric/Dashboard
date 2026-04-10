@@ -22,6 +22,7 @@ float celltemp();    // highest cell temp (°C)
 float bms_fault();
 float bms_warn();
 float bms_stat();
+float energy_pct();  // energy percentage from VCU
 float can_service_get_energy_used_kWh();
 
 // Service

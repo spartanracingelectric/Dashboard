@@ -10,6 +10,7 @@
 static float s_curr_hv=0, s_curr_soc=0, s_curr_lv=0, s_curr_hvlow=0, s_curr_celltemp=0;
 static float s_curr_hv_current=0, s_curr_pl=0, s_curr_bps=0, s_curr_tps0p=0, s_curr_tps1p=0;
 static float s_curr_rpm=0, s_curr_bms_fault=0,  s_curr_bms_warn=0, s_curr_bms_stat=0;
+static float s_curr_energy_pct=0;
 static float s_energy_used_kWh = 0.0f;
 static uint32_t s_energy_ts_ms    = 0;
 // static float s_energy_used_kWh = 3.0f; // Half full sample start for energy bar
@@ -40,6 +41,7 @@ float rpm()         { return s_curr_rpm; }
 float bms_fault()   { return s_curr_bms_fault; }
 float bms_warn()    { return s_curr_bms_warn; }
 float bms_stat()    { return s_curr_bms_stat; }
+float energy_pct()  { return s_curr_energy_pct; }
 float can_service_get_energy_used_kWh() { return s_energy_used_kWh; }
 
 //Filters & init
@@ -87,6 +89,7 @@ void poll(FdcanBus& bus) {
         break;
       case CAN_SOC:
         s_curr_soc = d[2];
+        s_curr_energy_pct = (int16_t)u16(d, 4, 5);
         break;
       case CAN_PL:
         s_curr_pl = d[4];
