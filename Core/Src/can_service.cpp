@@ -79,15 +79,16 @@ void poll(FdcanBus& bus) {
         s_curr_hv_current = u32(d,0,1,2,3) * 0.001f; // if same frame is used       
         break;
       case CAN_TPS0:
-        s_curr_tps0p = d[0];                                                        
+        s_curr_tps0p = d[0] * 0.392157f;
         break;
       case CAN_TPS1:
-        s_curr_tps1p = d[0];                                                                           
+        s_curr_tps1p = d[0] * 0.392157f;
         break;
       case CAN_BPS:
-        s_curr_bps = d[0];
+        s_curr_bps = d[0] * 0.392157f;
         break;
       case CAN_SOC:
+        s_curr_lv  = u16(d, 0, 1) * 0.001f;  // LV_Voltage mV → V
         s_curr_soc = d[2];
         s_curr_energy_pct = (int16_t)u16(d, 4, 5);
         break;
