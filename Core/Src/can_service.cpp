@@ -7,7 +7,7 @@
 #include <cstring>
 
 //Internal state
-static float s_curr_hv=0, s_curr_soc=0, s_curr_lv=0, s_curr_hvlow=0, s_curr_celltemp=0;
+static float s_curr_hv=0, s_curr_soc=0, s_curr_lv=0, s_curr_hvlow=0, s_curr_celltemp=0, s_curr_celltemp_low=0;
 static float s_curr_hv_current=0, s_curr_pl=0, s_curr_bps=0, s_curr_tps0p=0, s_curr_tps1p=0;
 static float s_curr_rpm=0, s_curr_bms_fault=0,  s_curr_bms_warn=0, s_curr_bms_stat=0;
 static float s_curr_energy_pct=0;
@@ -35,6 +35,7 @@ float tps1_percent(){ return s_curr_tps1p; }
 float tps1_voltage(){ return 0.0f; }
 float pl()           { return s_curr_pl; }
 float celltemp()     { return s_curr_celltemp; }
+float celltemp_low() { return s_curr_celltemp_low; }
 
 float bps_percent(){ return s_curr_bps; }
 float rpm()         { return s_curr_rpm; }
@@ -49,12 +50,11 @@ bool init(FdcanBus& bus) {
   if (!bus.initClassic500k()) return false;
 
   const uint16_t ids[] = {
-    CAN_TPS0, CAN_TPS1, CAN_BPS, CAN_HV_ADDR, CAN_BAT_TEMP_ADDR, CAN_SOC, CAN_PL,
-    CAN_BMS_FAULT_ADDR,
-    CAN_BMS_WARN_ADDR,CAN_BMS_STAT_ADDR
+    CAN_TPS0, CAN_TPS1, CAN_BPS, CAN_LV_ADDR, CAN_PL,
+    CAN_BMS_SAFETY_CHECKER_ADDR, CAN_HV_ADDR, CAN_BMS_SUMMARY_2_ADDR,
+    CAN_ENERGY_USED_ADDR,
   };
   for (uint16_t id : ids) bus.addStdFilter(id);
-  bus.addStdFilter(CAN_ENERGY_USED_ADDR);
   return true;
 }
 
@@ -73,10 +73,18 @@ void poll(FdcanBus& bus) {
     const uint8_t* d = f.data;
 
     switch (f.id) {
-      case CAN_HV_ADDR:           // curr_hv = (b4..b7) * 0.001f
-        s_curr_hv = u32(d,4,5,6,7) * 0.001f;                                          
-        s_curr_hvlow = u16(d,4,5) * 0.001f;     
-        s_curr_hv_current = u32(d,0,1,2,3) * 0.001f; // if same frame is used       
+      case CAN_BMS_SAFETY_CHECKER_ADDR:                 // Custom_BMS Safety_Checker (0x600)
+        s_curr_hv = u16(d, 6, 7) * 0.01f;               // Sum_Pack_Voltage: bytes 6-7, u16 × 0.01 V
+        break;
+      case CAN_HV_ADDR:                                 // Custom_BMS Pack_Summary_1 (0x622)
+        s_curr_hvlow        = (int16_t)u16(d,0,1) * 0.0001f; // Highest_Cell_Voltage: bytes 0-1, s16 × 0.0001 V
+        s_curr_celltemp     = (int8_t)d[4];                  // Highest_Cell_Temperature: byte 4, s8 × 1 °C
+        s_curr_celltemp_low = (int8_t)d[5];                  // Lowest_Cell_Temperature:  byte 5, s8 × 1 °C
+        break;
+      case CAN_BMS_SUMMARY_2_ADDR: // Custom_BMS Pack_Summary_2 (0x623)
+        s_curr_bms_fault = d[0];                        // bits 0-7: 8× fault flags
+        s_curr_bms_warn  = d[1];                        // bits 8-15: warning flags
+        s_curr_soc       = u16(d, 6, 7) * 0.01f;        // State_of_Charge: bytes 6-7, u16 × 0.01 (for future use)
         break;
       case CAN_TPS0:
         s_curr_tps0p = d[0] * 0.392157f;
@@ -87,29 +95,15 @@ void poll(FdcanBus& bus) {
       case CAN_BPS:
         s_curr_bps = d[0] * 0.392157f;
         break;
-      case CAN_SOC:
-        s_curr_lv  = u16(d, 0, 1) * 0.001f;  // LV_Voltage mV → V
-        s_curr_soc = d[2];
-        s_curr_energy_pct = (int16_t)u16(d, 4, 5);
+      case CAN_LV_ADDR:
+        s_curr_lv  = u16(d, 0, 1) * 0.001f;  // bytes 0-1: LV voltage mV → V
+        s_curr_energy_pct = d[7];            // byte 7: energy % (0-100)
+        // bytes 5-6: Eff Score, s16 × 0.0001
+        leds::efficiency_on_can_error((int16_t)u16(d, 5, 6) * 0.0001f);
         break;
       case CAN_PL:
         s_curr_pl = d[4];
         break;
-      case CAN_BAT_TEMP_ADDR:        // VCU 0x50E: [0]=faultF0 [1]=faultF1 [2]=relay [3:4]=cellTemp
-        s_curr_celltemp = u16(d, 3, 4) * 0.1f;
-        break;
-      case CAN_BMS_FAULT_ADDR:
-        s_curr_bms_fault = d[1];
-        break;
-      case CAN_BMS_WARN_ADDR:
-        s_curr_bms_warn = d[1];
-        break;
-      case CAN_BMS_STAT_ADDR:
-        s_curr_bms_stat = d[6];
-        break;
-    //case CAN_HV_CURRENT_ADDR:
-    //  s_curr_hv_current = u32(d,0,1,2,3) * 0.001f;
-    //  break;
       case CAN_ENERGY_USED_ADDR: {
         
         const uint32_t wh  = u32(d, 0, 1, 2, 3);

@@ -18,7 +18,8 @@ float tps1_voltage();
 float bps_percent();
 float pl();           // power limit
 float rpm();
-float celltemp();    // highest cell temp (°C)
+float celltemp();      // highest cell temp (°C)
+float celltemp_low();  // lowest cell temp (°C)
 float bms_fault();
 float bms_warn();
 float bms_stat();

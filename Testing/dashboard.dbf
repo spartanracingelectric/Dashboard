@@ -7,44 +7,94 @@
 [BUSMASTER_VERSION] [3.2.2]
 [NUMBER_OF_MESSAGES] 11
 
-[START_MSG] TPS0,1280,8,2,1,S,Simulator
-[START_SIGNALS] TPS0_Percent,8,1,0,U,255,0,1,0,0.392157,%,,Dashboard
-[START_SIGNALS] TPS0_Voltage,16,3,0,U,65535,0,1,0,0.001,V,,Dashboard
+[START_MSG] TPS0,1280,8,5,1,S,Simulator
+[START_SIGNALS] ThrottlePercent,8,1,0,U,255,0,1,0,0.392157,%,,Dashboard
+[START_SIGNALS] TPS0_Percent,8,2,0,U,255,0,1,0,0.392157,%,,Dashboard
+[START_SIGNALS] TPS0_RawValue,16,3,0,U,65535,0,1,0,1,,,Dashboard
+[START_SIGNALS] TPS0_CalibMin,16,5,0,U,65535,0,1,0,1,,,Dashboard
+[START_SIGNALS] TPS0_CalibMax,16,7,0,U,65535,0,1,0,1,,,Dashboard
 [END_MSG]
 
-[START_MSG] TPS1,1281,8,2,1,S,Simulator
-[START_SIGNALS] TPS1_Percent,8,1,0,U,255,0,1,0,0.392157,%,,Dashboard
-[START_SIGNALS] TPS1_Voltage,16,3,0,U,65535,0,1,0,0.001,V,,Dashboard
+[START_MSG] TPS1,1281,8,5,1,S,Simulator
+[START_SIGNALS] ThrottlePercent1,8,1,0,U,255,0,1,0,0.392157,%,,Dashboard
+[START_SIGNALS] TPS1_Percent,8,2,0,U,255,0,1,0,0.392157,%,,Dashboard
+[START_SIGNALS] TPS1_RawValue,16,3,0,U,65535,0,1,0,1,,,Dashboard
+[START_SIGNALS] TPS1_CalibMin,16,5,0,U,65535,0,1,0,1,,,Dashboard
+[START_SIGNALS] TPS1_CalibMax,16,7,0,U,65535,0,1,0,1,,,Dashboard
 [END_MSG]
 
-[START_MSG] LV_EffScore,1287,8,2,1,S,Simulator
-[START_SIGNALS] LV_Voltage,16,1,0,U,65535,0,1,0,0.001,V,,Dashboard
-[START_SIGNALS] Eff_Score,16,7,0,I,20000,-20000,1,0,0.0001,,,Dashboard
+[START_MSG] BPS,1282,8,4,1,S,Simulator
+[START_SIGNALS] BrakePercent,8,1,0,U,255,0,1,0,0.392157,%,,Dashboard
+[START_SIGNALS] BPS0_RawValue,16,3,0,U,65535,0,1,0,1,,,Dashboard
+[START_SIGNALS] BPS0_CalibMin,16,5,0,U,65535,0,1,0,1,,,Dashboard
+[START_SIGNALS] BPS0_CalibMax,16,7,0,U,65535,0,1,0,1,,,Dashboard
 [END_MSG]
 
-[START_MSG] HV,1568,8,2,1,S,Simulator
-[START_SIGNALS] HV_Current,32,1,0,U,4294967091,0,1,0,0.001,A,,Dashboard
-[START_SIGNALS] HV_Voltage,32,5,0,U,4294967091,0,1,0,0.001,V,,Dashboard
+[START_MSG] LV_SOC_Eff,1287,8,5,1,S,Simulator
+[START_SIGNALS] LV_Voltage,16,1,0,U,65535,0,1,0,1,mV,,Dashboard
+[START_SIGNALS] LV_SOC,8,3,0,U,100,0,1,0,1,%,,Dashboard
+[START_SIGNALS] Regen_Torque,16,4,0,I,32767,-32768,1,0,1,Nm,,Dashboard
+[START_SIGNALS] Eff_Score,16,6,0,I,32767,-32768,1,0,0.0001,,,Dashboard
+[START_SIGNALS] Energy_Pct,8,8,0,U,100,0,1,0,1,%,,Dashboard
 [END_MSG]
 
-[START_MSG] BAT_TEMP,1571,8,1,1,S,Simulator
-[START_SIGNALS] HV_Temp,16,7,0,U,65535,0,1,0,0.1,degC,,Dashboard
+[START_MSG] PowerLimit_B,1298,8,5,1,S,Simulator
+[START_SIGNALS] PID_Integral,16,1,0,I,32767,-32768,1,0,1,,,Dashboard
+[START_SIGNALS] PL_TorqueCmd,16,3,0,I,32767,-32768,1,0,1,Nm,,Dashboard
+[START_SIGNALS] PL_TargetPower,8,5,0,U,255,0,1,0,1,kW,,Dashboard
+[START_SIGNALS] PID_Output,16,6,0,I,32767,-32768,1,0,1,,,Dashboard
+[START_SIGNALS] PL_ClampMethod,8,8,0,U,255,0,1,0,1,,,Dashboard
 [END_MSG]
 
-[START_MSG] SOC,0,8,1,1,S,Simulator
-[START_SIGNALS] SOC,16,7,0,U,65535,0,1,0,0.1,%,,Dashboard
+[START_MSG] BMS_Safety_Checker,1536,8,15,1,S,Custom_BMS
+[START_SIGNALS] BMS_Cell_High_Temp_Warning,1,1,2,B,1,0,1,0,1,,,Dashboard
+[START_SIGNALS] BMS_Cell_Volt_Imbalance_Warning,1,1,3,B,1,0,1,0,1,,,Dashboard
+[START_SIGNALS] BMS_Cell_Low_Volt_Warning,1,1,4,B,1,0,1,0,1,,,Dashboard
+[START_SIGNALS] BMS_Cell_High_Volt_Warning,1,1,5,B,1,0,1,0,1,,,Dashboard
+[START_SIGNALS] BMS_Pack_Low_Volt_Warning,1,1,6,B,1,0,1,0,1,,,Dashboard
+[START_SIGNALS] BMS_Pack_High_Volt_Warning,1,1,7,B,1,0,1,0,1,,,Dashboard
+[START_SIGNALS] BMS_Cell_High_Temp_Fault,1,2,2,B,1,0,1,0,1,,,Dashboard
+[START_SIGNALS] BMS_Cell_Volt_Imbalance_Fault,1,2,3,B,1,0,1,0,1,,,Dashboard
+[START_SIGNALS] BMS_Cell_Low_Volt_Fault,1,2,4,B,1,0,1,0,1,,,Dashboard
+[START_SIGNALS] BMS_Cell_High_Volt_Fault,1,2,5,B,1,0,1,0,1,,,Dashboard
+[START_SIGNALS] BMS_Pack_Low_Volt_Fault,1,2,6,B,1,0,1,0,1,,,Dashboard
+[START_SIGNALS] BMS_Pack_High_Volt_Fault,1,2,7,B,1,0,1,0,1,,,Dashboard
+[START_SIGNALS] BMS_Cell_Max_Min_Difference,16,3,0,U,65535,0,1,0,0.0001,V,,Dashboard
+[START_SIGNALS] BMS_HVsens_Pack_Voltage,16,5,0,U,65535,0,1,0,0.01,V,,Dashboard
+[START_SIGNALS] BMS_Sum_Pack_Voltage,16,7,0,U,65535,0,1,0,0.01,V,,Dashboard
 [END_MSG]
 
-[START_MSG] BMS_FAULT,1,8,1,1,S,Simulator
-[START_SIGNALS] BMS_Fault,8,2,0,U,255,0,1,0,1,,,Dashboard
+[START_MSG] BMS_State_of_Charge,1569,7,3,1,S,Custom_BMS
+[START_SIGNALS] BMS_Capacity,16,1,0,U,65535,0,1,0,1,mAh,,Dashboard
+[START_SIGNALS] BMS_HV_Sense_Pack_Voltage,16,3,0,U,65535,0,1,0,0.01,V,,Dashboard
+[START_SIGNALS] BMS_Current,32,5,0,U,4294967295,0,1,0,1,mA,,Dashboard
 [END_MSG]
 
-[START_MSG] BMS_WARN,2,8,1,1,S,Simulator
-[START_SIGNALS] BMS_Warn,8,2,0,U,255,0,1,0,1,,,Dashboard
+[START_MSG] BMS_Pack_Summary_1,1570,8,5,1,S,Custom_BMS
+[START_SIGNALS] BMS_Highest_Cell_Voltage,16,1,0,I,32767,-32768,1,0,0.0001,V,,Dashboard
+[START_SIGNALS] BMS_Lowest_Cell_Voltage,16,3,0,I,32767,-32768,1,0,0.0001,V,,Dashboard
+[START_SIGNALS] BMS_Higest_Cell_Temperature,8,5,0,I,127,-128,1,0,1,C,,Dashboard
+[START_SIGNALS] BMS_Lowest_Cell_Temperature,8,6,0,I,127,-128,1,0,1,C,,Dashboard
+[START_SIGNALS] BMS_Total_Pack_Voltage,16,7,0,U,65535,0,1,0,0.01,V,,Dashboard
 [END_MSG]
 
-[START_MSG] BMS_STAT,3,8,1,1,S,Simulator
-[START_SIGNALS] BMS_Stat,8,7,0,U,255,0,1,0,1,,,Dashboard
+[START_MSG] BMS_Pack_Summary_2,1571,8,16,1,S,Custom_BMS
+[START_SIGNALS] BMS_Cell_Overvolt_Fault,1,1,0,B,1,0,1,0,1,,,Dashboard
+[START_SIGNALS] BMS_Cell_Undervolt_Fault,1,1,1,B,1,0,1,0,1,,,Dashboard
+[START_SIGNALS] BMS_Cell_High_Temp_Fault,1,1,2,B,1,0,1,0,1,,,Dashboard
+[START_SIGNALS] BMS_Cell_Low_Temp_Fault,1,1,3,B,1,0,1,0,1,,,Dashboard
+[START_SIGNALS] BMS_Redundant_Voltage_Fault,1,1,4,B,1,0,1,0,1,,,Dashboard
+[START_SIGNALS] BMS_Redundant_Temp_Fault,1,1,5,B,1,0,1,0,1,,,Dashboard
+[START_SIGNALS] BMS_Invalid_Data_Fault,1,1,6,B,1,0,1,0,1,,,Dashboard
+[START_SIGNALS] BMS_Open_Wire_Detection_Fault,1,1,7,B,1,0,1,0,1,,,Dashboard
+[START_SIGNALS] BMS_Cell_Overvolt_Warning,1,2,0,B,1,0,1,0,1,,,Dashboard
+[START_SIGNALS] BMS_Cell_Undervolt_Warning,1,2,1,B,1,0,1,0,1,,,Dashboard
+[START_SIGNALS] BMS_Cell_High_Temp_Warning,1,2,2,B,1,0,1,0,1,,,Dashboard
+[START_SIGNALS] BMS_Cell_Low_Temp_Warning,1,2,3,B,1,0,1,0,1,,,Dashboard
+[START_SIGNALS] BMS_Cell_Imbalance_Warning,1,2,4,B,1,0,1,0,1,,,Dashboard
+[START_SIGNALS] BMS_Pack_Imbalance,16,3,0,I,32767,-32768,1,0,0.001,mV,,Dashboard
+[START_SIGNALS] BMS_HV_Sense_Pack_Voltage,16,5,0,U,65535,0,1,0,0.01,V,,Dashboard
+[START_SIGNALS] BMS_State_of_Charge,16,7,0,U,65535,0,1,0,0.01,%,,Dashboard
 [END_MSG]
 
 [START_MSG] RPM,165,8,1,1,S,Simulator
@@ -68,16 +118,16 @@
 [END_DESC_NODE]
 
 [START_DESC_MSG]
-1280 S "Throttle Position Sensor 0 - percent and raw voltage";
-1281 S "Throttle Position Sensor 1 - percent and raw voltage";
-1287 S "LV battery voltage (bytes 0-1) and efficiency score (bytes 6-7)";
-1568 S "HV current (bytes 0-3) and HV voltage (bytes 4-7)";
-1571 S "Battery temperature pack (bytes 6-7)";
-0 S "State of charge (bytes 6-7)";
-1 S "BMS fault code (byte 1)";
-2 S "BMS warning code (byte 1)";
-3 S "BMS status (byte 6)";
-165 S "Motor RPM (bytes 1-2, little-endian u16(d,2,1))";
+1280 S "VCU 0x500 - TPS0: throttle%, tps0%, raw value, calib min/max";
+1281 S "VCU 0x501 - TPS1: throttle%, tps1%, raw value, calib min/max";
+1282 S "VCU 0x502 - BPS0: brake%, raw voltage, calib min/max";
+1287 S "VCU 0x507 - LV battery voltage, regen torque, efficiency score, energy percentage (LV SOC byte unused — VCU bug)";
+1298 S "VCU 0x512 - Power Limit Status B: PID integral, PL torque, target power, PID output, clamp method";
+1536 S "Custom_BMS 0x600 - Safety Checker: fault/warning flags, cell imbalance, HV sense, and pack V (Sum + HVsens). Dashboard reads pack V from bytes 6-7.";
+1569 S "Custom_BMS 0x621 - State of Charge: capacity (mAh), HV sense pack V, pack current (mA)";
+1570 S "Custom_BMS 0x622 - Pack Summary 1: highest/lowest cell voltage (scale 0.0001 V), highest/lowest cell temp, total pack voltage. Dashboard reads cell temps from bytes 4-5.";
+1571 S "Custom_BMS 0x623 - Pack Summary 2: fault/warning flags, pack imbalance, HV sense, pack SOC (future: drive left LEDs from bytes 6-7)";
+165 S "Motor RPM (bytes 1-2)";
 1697 S "Cumulative energy used in Wh, displayed as kWh";
 [END_DESC_MSG]
 

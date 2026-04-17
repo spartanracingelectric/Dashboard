@@ -23,10 +23,9 @@ void toggle_half(bool firstHalf);
 void toggle_revlim();
 void set_brightness(uint8_t value);
 
-// safety warnings (left/right chains)
-void lv(float lv);
-void hvtemp(float hvtemp);
-void safety_update_flash(float hvtemp, uint32_t now_ms);
+// left chain = highest cell temp, right chain = SoC (both red-free)
+void celltemp(float temp_c);
+void soc(float soc_pct);
 
 // efficiency bar (bar chain)
 void efficiency_on_can_ratio(float ratio);

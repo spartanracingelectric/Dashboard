@@ -52,7 +52,6 @@ void app_main()
   cansvc::init(bus);
 
   uint32_t t_heartbeat = 0;
-  uint32_t t_led_safety = 0;
 
   while (1) {
     // Process incoming CAN (this is what handles 0x507 -> LED updates)
@@ -61,12 +60,6 @@ void app_main()
     // Update LED bar from efficiency data
     leds::efficiency_tick(now_ms());
     LCD_demoCodeTest();
-
-    // Safety LED updates
-    if (every_ms(t_led_safety, 50)) {
-      leds::safety_update_flash(cansvc::hv_temp(), now_ms());
-      leds::lv(cansvc::lv());
-    }
 
     // Heartbeat
     if (every_ms(t_heartbeat, 200)) {

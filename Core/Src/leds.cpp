@@ -25,8 +25,6 @@ namespace std {
 namespace {
   struct EffCfg {
     static constexpr int N = NUM_LED_BAR;          // 12 LEDs
-    static constexpr int CENTER_L = (N/2) - 1;     // index 5
-    static constexpr int CENTER_R = (N/2);          // index 6
     float deadband       = 0.02f;
     float displayRange   = 0.15f;
     float alphaLPF       = 0.85f;
@@ -39,6 +37,7 @@ namespace {
   static float g_rawErr = 0.0f;
   static float g_err    = 0.0f;
   static bool  g_hasNew = false;
+  static bool  g_everReceived = false;
 
   // Per-bar-LED desired brightness (0.0–1.0)
   static float desR[NUM_LED_BAR]{};
@@ -68,55 +67,43 @@ namespace {
     desB[idx] = std::clamp(b, 0.0f, 1.0f);
   }
 
+  // On budget: gentle white pulse on first LED so driver knows system is alive
   inline void renderOnTarget(float dt_s) {
     clearDesired();
     g_pulsePhase += cfg.pulseHz * dt_s;
     const float s = 0.5f + 0.5f * std::sin(2.0f * 3.14159265f * g_pulsePhase);
-    const float bright = 0.30f + 0.40f * s;
-    setRGBDesired(EffCfg::CENTER_L, 0.85f*bright, 0.92f*bright, 1.00f*bright);
-    setRGBDesired(EffCfg::CENTER_R, 0.85f*bright, 0.92f*bright, 1.00f*bright);
+    const float bright = 0.20f + 0.30f * s;
+    setRGBDesired(0, bright, bright, bright);  // white pulse on LED 0
   }
 
+  // Fill left-to-right based on magnitude of error:
+  //   Green  = under budget (negative error, saving energy)
+  //   Yellow = over budget  (positive error, using too much)
   inline void renderBar(float err) {
     clearDesired();
     const float abserr = std::fabs(err);
-    if (abserr <= cfg.deadband) return;
 
-    const int L = NUM_LED_BAR / 2;  // 6 LEDs per side
+    // Map error magnitude to number of LEDs (0 → 0, displayRange → all 12)
     float mag01 = std::clamp(abserr / cfg.displayRange, 0.0f, 1.0f);
-    const float pos = mag01 * float(L);
-    const int   k   = std::min(int(std::floor(pos)), L);
-    const float f   = std::clamp(pos - float(k), 0.0f, 1.0f);
+    const float pos = mag01 * (float)NUM_LED_BAR;
+    const int   k   = std::min((int)std::floor(pos), (int)NUM_LED_BAR);
+    const float f   = std::clamp(pos - (float)k, 0.0f, 1.0f);
 
-    const bool overshoot = (err > 0.0f);
     const float fullB = cfg.baseBright;
     const float fracB = cfg.fracBright;
 
-    auto setYellow = [&](int idx, float b){ setRGBDesired(idx, b,    b, 0.0f); };
-    auto setGreen  = [&](int idx, float b){ setRGBDesired(idx, 0.0f, b, 0.0f); };
-
-    // Faint center anchor
-    setRGBDesired(EffCfg::CENTER_L, 0.06f, 0.06f, 0.06f);
-    setRGBDesired(EffCfg::CENTER_R, 0.06f, 0.06f, 0.06f);
-
-    if (!overshoot) {
-      for (int i = 0; i < k; ++i) {
-        int idx = EffCfg::CENTER_R + i;
-        if (idx >= 0 && idx < NUM_LED_BAR) setGreen(idx, fullB);
-      }
-      if (k < L && f > 1e-3f) {
-        int idxF = EffCfg::CENTER_R + k;
-        if (idxF >= 0 && idxF < NUM_LED_BAR) setGreen(idxF, fracB * f);
-      }
-    } else {
-      for (int i = 0; i < k; ++i) {
-        int idx = EffCfg::CENTER_L - i;
-        if (idx >= 0 && idx < NUM_LED_BAR) setYellow(idx, fullB);
-      }
-      if (k < L && f > 1e-3f) {
-        int idxF = EffCfg::CENTER_L - k;
-        if (idxF >= 0 && idxF < NUM_LED_BAR) setYellow(idxF, fracB * f);
-      }
+    for (int i = 0; i < k; ++i) {
+      if (err > 0.0f)
+        setRGBDesired(i, fullB, fullB, 0.0f);   // yellow = over budget
+      else
+        setRGBDesired(i, 0.0f, fullB, 0.0f);    // green  = under budget
+    }
+    // Fractional LED at the tip
+    if (k < NUM_LED_BAR && f > 1e-3f) {
+      if (err > 0.0f)
+        setRGBDesired(k, fracB * f, fracB * f, 0.0f);
+      else
+        setRGBDesired(k, 0.0f, fracB * f, 0.0f);
     }
   }
 
@@ -194,12 +181,14 @@ void efficiency_on_can_ratio(float ratio) {
   ratio = std::clamp(ratio, 0.0f, 4.0f);
   g_rawErr = ratio - 1.0f;
   g_hasNew = true;
+  g_everReceived = true;
 }
 
 void efficiency_on_can_error(float signed_err) {
   signed_err = std::clamp(signed_err, -2.0f, 2.0f);
   g_rawErr = signed_err;
   g_hasNew = true;
+  g_everReceived = true;
 }
 
 void efficiency_tick(uint32_t now_ms) {
@@ -219,7 +208,9 @@ void efficiency_tick(uint32_t now_ms) {
 
   // Render efficiency bar (skip if shift indicator is active)
   if (!g_shiftActive) {
-    if (std::fabs(g_err) <= cfg.deadband) {
+    if (!g_everReceived) {
+      clearDesired();
+    } else if (std::fabs(g_err) <= cfg.deadband) {
       renderOnTarget(dt_s);
     } else {
       renderBar(g_err);
@@ -339,38 +330,46 @@ void set_brightness(uint8_t v) {
   if (g_right) g_right->setGlobalBrightness(v);
 }
 
-// --- Safety warnings (left/right chains) ---
+// --- Left chain: highest cell temperature bar (no red) ---
+// Progressive fill: 0 LEDs below CELLTEMP_LO, all 3 LEDs at/above CELLTEMP_HI.
+// LED 0 green, LED 1 green-yellow, LED 2 yellow — warmer hues as more LEDs light.
+void celltemp(float temp_c) {
+  const float lo = 25.0f, hi = 55.0f;
+  float n = (temp_c - lo) / (hi - lo);
+  if (n < 0.0f) n = 0.0f;
+  if (n > 1.0f) n = 1.0f;
+  int lit = (int)(n * (float)NUM_LED_LEFT + 0.5f);
+  if (lit > NUM_LED_LEFT) lit = NUM_LED_LEFT;
 
-void lv(float lv) {
-  bool low = (lv < LV_WARNING_THRESHOLD);
-  g_leftOverride[0] = low;
-  g_leftR[0] = low ? 1.0f : 0.0f;
-  g_leftG[0] = 0.0f;
-  g_leftB[0] = 0.0f;
-}
-
-void hvtemp(float hvtemp) {
-  bool hot = (hvtemp > HVTEMP_LIMIT_C);
-  g_leftOverride[1] = hot;
-  g_leftR[1] = hot ? 1.0f : 0.0f;
-  g_leftG[1] = 0.0f;
-  g_leftB[1] = 0.0f;
-}
-
-void safety_update_flash(float hvtemp, uint32_t now_ms) {
-  if (hvtemp > HVTEMP_LIMIT_C) {
-    static uint32_t last = 0;
-    if (now_ms - last >= HVTEMP_THRESHOLD_FLASH_MS) {
-      last = now_ms;
-      static bool on = false;
-      on = !on;
-      g_rightOverride[0] = true;
-      g_rightR[0] = on ? 1.0f : 0.0f;
-      g_rightG[0] = 0.0f;
-      g_rightB[0] = 0.0f;
+  for (int i = 0; i < NUM_LED_LEFT; i++) {
+    if (i < lit) {
+      g_leftOverride[i] = true;
+      if (i == 0)      { g_leftR[i] = 0.0f; g_leftG[i] = 1.0f; g_leftB[i] = 0.0f; }
+      else if (i == 1) { g_leftR[i] = 0.8f; g_leftG[i] = 1.0f; g_leftB[i] = 0.0f; }
+      else             { g_leftR[i] = 1.0f; g_leftG[i] = 1.0f; g_leftB[i] = 0.0f; }
+    } else {
+      g_leftOverride[i] = false;
     }
-  } else {
-    g_rightOverride[0] = false;
+  }
+}
+
+// --- Right chain: state-of-charge bar (no red) ---
+// Progressive fill in green; number lit scales with SoC percentage.
+void soc(float soc_pct) {
+  if (soc_pct < 0.0f) soc_pct = 0.0f;
+  if (soc_pct > 100.0f) soc_pct = 100.0f;
+  int lit = (int)((soc_pct / 100.0f) * (float)NUM_LED_RIGHT + 0.5f);
+  if (lit > NUM_LED_RIGHT) lit = NUM_LED_RIGHT;
+
+  for (int i = 0; i < NUM_LED_RIGHT; i++) {
+    if (i < lit) {
+      g_rightOverride[i] = true;
+      g_rightR[i] = 0.0f;
+      g_rightG[i] = 1.0f;
+      g_rightB[i] = 0.0f;
+    } else {
+      g_rightOverride[i] = false;
+    }
   }
 }
 

@@ -28,7 +28,7 @@ void LCD_writeRegister32(uint32_t address, uint32_t data);
 void LCD_showRed();
 void LCD_drawLineOnce(void);
 void LCD_demoCodeTest(void);
-void renderDash(float voltage, float BPS, float SOC, float cell_temp, float PL, float TPS, float energy);
+void renderDash(float voltage, float BPS, float cell_high, float cell_low, float PL, float TPS, float energy);
 
 // Values from Example code
 #define HPX   (800)    // Horizontal Pixel Width
