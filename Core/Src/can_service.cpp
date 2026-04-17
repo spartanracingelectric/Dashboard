@@ -46,13 +46,19 @@ float energy_pct()  { return s_curr_energy_pct; }
 float can_service_get_energy_used_kWh() { return s_energy_used_kWh; }
 
 //Filters & init
-bool init(FdcanBus& bus) {
+bool init_vcu(FdcanBus& bus) {
   if (!bus.initClassic500k()) return false;
-
   const uint16_t ids[] = {
-    CAN_TPS0, CAN_TPS1, CAN_BPS, CAN_LV_ADDR, CAN_PL,
+    CAN_TPS0, CAN_TPS1, CAN_BPS, CAN_LV_ADDR, CAN_PL, CAN_ENERGY_USED_ADDR,
+  };
+  for (uint16_t id : ids) bus.addStdFilter(id);
+  return true;
+}
+
+bool init_bms(FdcanBus& bus) {
+  if (!bus.initClassic500k()) return false;
+  const uint16_t ids[] = {
     CAN_BMS_SAFETY_CHECKER_ADDR, CAN_HV_ADDR, CAN_BMS_SUMMARY_2_ADDR,
-    CAN_ENERGY_USED_ADDR,
   };
   for (uint16_t id : ids) bus.addStdFilter(id);
   return true;
@@ -77,7 +83,7 @@ void poll(FdcanBus& bus) {
         s_curr_hv = u16(d, 6, 7) * 0.01f;               // Sum_Pack_Voltage: bytes 6-7, u16 × 0.01 V
         break;
       case CAN_HV_ADDR:                                 // Custom_BMS Pack_Summary_1 (0x622)
-        s_curr_hvlow        = (int16_t)u16(d,0,1) * 0.0001f; // Highest_Cell_Voltage: bytes 0-1, s16 × 0.0001 V
+        s_curr_hvlow        = (int16_t)u16(d,2,3) * 0.0001f; // Lowest_Cell_Voltage: bytes 2-3, s16 × 0.0001 V
         s_curr_celltemp     = (int8_t)d[4];                  // Highest_Cell_Temperature: byte 4, s8 × 1 °C
         s_curr_celltemp_low = (int8_t)d[5];                  // Lowest_Cell_Temperature:  byte 5, s8 × 1 °C
         break;

@@ -9,6 +9,7 @@ namespace cansvc {
 float hv();          // pack voltage
 float hv_current();  // pack current
 float hv_temp();     // pack temp (°C)
+float hv_low();      // lowest cell voltage (V)
 float lv();          // low voltage battery
 float soc();         // state of charge %
 float tps0_percent();
@@ -27,8 +28,9 @@ float energy_pct();  // energy percentage from VCU
 float can_service_get_energy_used_kWh();
 
 // Service
-bool  init(FdcanBus& bus);
-void  poll(FdcanBus& bus);   
+bool  init_vcu(FdcanBus& bus);   // FDCAN2: TPS/BPS/LV/PL/Energy
+bool  init_bms(FdcanBus& bus);   // FDCAN1: Safety_Checker/Pack_Summary_1/2
+void  poll(FdcanBus& bus);       // call on each bus
 void  send_test(FdcanBus& bus);
 
 } // namespace

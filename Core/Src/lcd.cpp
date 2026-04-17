@@ -20,20 +20,20 @@ void LCD_demoCodeTest(void)
     float pl      = cansvc::pl();
     float hv_vol  = cansvc::hv();
     float t_high  = cansvc::celltemp();
-    float t_low   = cansvc::celltemp_low();
-    renderDash(hv_vol, bps_avg, t_high, t_low, pl, tps_avg, cansvc::energy_pct());
+    float v_low   = cansvc::hv_low();
+    renderDash(hv_vol, bps_avg, t_high, v_low, pl, tps_avg, cansvc::energy_pct());
 }
 
 void renderDash(float voltage, float BPS, float cell_high, float cell_low, float PL, float TPS, float energy){
     uint16_t FWo;
 
-    /* Top row: Pack V | Highest Cell Temp | Lowest Cell Temp
+    /* Top row: Pack V | Highest Cell Temp | Lowest Cell Voltage
      * Bottom row: TPS | PL | BPS
      * Middle: energy-used bar
      */
     float top_rect[3]    = {voltage, cell_high, cell_low};
-    const char* top_labels[3] = {"Pack V", "High Temp", "Low Temp"};
-    const char* top_units[3]  = {"V", "C", "C"};
+    const char* top_labels[3] = {"Pack V", "High Temp", "Low Cell V"};
+    const char* top_units[3]  = {"V", "C", "V"};
 
     float bot_rect[3]    = {TPS, PL, BPS};
     const char* bot_labels[3] = {"TPS", "PL", "BPS"};
@@ -166,7 +166,7 @@ void LCD_drawLineOnce(void)
     FWo = EVE_Cmd_Dat_0(FWo, EVE_ENC_COLOR_A(255));
 
     FWo = EVE_Cmd_Dat_0(FWo, EVE_ENC_COLOR_RGB(255, 255, 255));
-    FWo = EVE_Text(FWo, 250, 190, 31, 0, "HIREN WAS HERE");
+    FWo = EVE_Text(FWo, 250, 190, 31, 0, (char*)"HIREN WAS HERE");
 
     // Finish and swap
     FWo = EVE_Cmd_Dat_0(FWo, EVE_ENC_DISPLAY());

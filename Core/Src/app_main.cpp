@@ -25,7 +25,8 @@ namespace lcd {
 
 //External handles from CubeMX
 extern SPI_HandleTypeDef hspi4;
-extern FDCAN_HandleTypeDef hfdcan2;
+extern FDCAN_HandleTypeDef hfdcan1;   // VCU bus (connector pins 2/3)
+extern FDCAN_HandleTypeDef hfdcan2;   // BMS bus (connector pins 4/5)
 SPI_HandleTypeDef& hspi_lcd = hspi4;
 
 //Board Pins
@@ -35,7 +36,8 @@ void app_main()
 {
 
   // Drivers
-  FdcanBus bus(&hfdcan2);
+  FdcanBus bus_vcu(&hfdcan1);
+  FdcanBus bus_bms(&hfdcan2);
   Apa102Chain bar_chain(LT_BAR_DI_GPIO_Port,   LT_BAR_DI_Pin,
                         LT_BAR_CI_GPIO_Port,   LT_BAR_CI_Pin,   12);
   Apa102Chain left_chain(LT_LEFT_DI_GPIO_Port, LT_LEFT_DI_Pin,
@@ -49,13 +51,15 @@ void app_main()
   LCD_init();
 
 
-  cansvc::init(bus);
+  cansvc::init_vcu(bus_vcu);
+  cansvc::init_bms(bus_bms);
 
   uint32_t t_heartbeat = 0;
 
   while (1) {
-    // Process incoming CAN (this is what handles 0x507 -> LED updates)
-    cansvc::poll(bus);
+    // Process incoming CAN from both buses
+    cansvc::poll(bus_vcu);
+    cansvc::poll(bus_bms);
 
     // Update LED bar from efficiency data
     leds::efficiency_tick(now_ms());
@@ -63,7 +67,7 @@ void app_main()
 
     // Heartbeat
     if (every_ms(t_heartbeat, 200)) {
-      cansvc::send_test(bus);
+      cansvc::send_test(bus_vcu);
     }
   }
 }
