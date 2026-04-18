@@ -86,6 +86,7 @@ void renderDash(float voltage, float BPS, float cell_high, float cell_low, float
         int barY1 = barY0 + barH;
 
         float pct = energy;
+        pct = 100-pct;
         if (pct < 0.0f) pct = 0.0f;
         if (pct > 100.0f) pct = 100.0f;
 
@@ -94,7 +95,7 @@ void renderDash(float voltage, float BPS, float cell_high, float cell_low, float
         uint8_t r = (uint8_t)(pct * 255.0f / 100.0f);
         uint8_t g = (uint8_t)((100.0f - pct) * 255.0f / 100.0f);
         if (fillX1 > barX0) {
-            FWo = EVE_Cmd_Dat_0(FWo, EVE_ENC_COLOR_RGB(r, g, 0));
+            FWo = EVE_Cmd_Dat_0(FWo, EVE_ENC_COLOR_RGB(g, r, 0));
             FWo = EVE_Filled_Rectangle(FWo, barX0, barY0, fillX1, barY1);
         }
 
@@ -107,7 +108,7 @@ void renderDash(float voltage, float BPS, float cell_high, float cell_low, float
         FWo = EVE_PrintF(FWo, barCx, barCy, 28, EVE_OPT_CENTER, "Energy  %ld%%", (long)(int32_t)pct);
 
         FWo = EVE_Cmd_Dat_0(FWo, EVE_ENC_COLOR_RGB(80, 80, 80));
-        FWo = EVE_PrintF(FWo, barCx, barY0 - 15, 27, EVE_OPT_CENTER, "Energy Used");
+        FWo = EVE_PrintF(FWo, barCx, barY0 - 15, 27, EVE_OPT_CENTER, "Energy Left");
     }
 
     /* Bottom row */

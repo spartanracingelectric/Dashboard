@@ -83,7 +83,7 @@ void poll(FdcanBus& bus) {
         s_curr_hv = u16(d, 6, 7) * 0.01f;               // Sum_Pack_Voltage: bytes 6-7, u16 × 0.01 V
         break;
       case CAN_HV_ADDR:                                 // Custom_BMS Pack_Summary_1 (0x622)
-        s_curr_hvlow        = (int16_t)u16(d,2,3) * 0.0001f; // Lowest_Cell_Voltage: bytes 2-3, s16 × 0.0001 V
+        s_curr_hvlow        = u16(d,2,3) * 0.0001f;          // Lowest_Cell_Voltage: bytes 2-3, u16 × 0.0001 V
         s_curr_celltemp     = (int8_t)d[4];                  // Highest_Cell_Temperature: byte 4, s8 × 1 °C
         s_curr_celltemp_low = (int8_t)d[5];                  // Lowest_Cell_Temperature:  byte 5, s8 × 1 °C
         break;

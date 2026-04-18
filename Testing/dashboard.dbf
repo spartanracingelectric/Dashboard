@@ -71,8 +71,8 @@
 [END_MSG]
 
 [START_MSG] BMS_Pack_Summary_1,1570,8,5,1,S,Custom_BMS
-[START_SIGNALS] BMS_Highest_Cell_Voltage,16,1,0,I,32767,-32768,1,0,0.0001,V,,Dashboard
-[START_SIGNALS] BMS_Lowest_Cell_Voltage,16,3,0,I,32767,-32768,1,0,0.0001,V,,Dashboard
+[START_SIGNALS] BMS_Highest_Cell_Voltage,16,1,0,U,65535,0,1,0,0.0001,V,,Dashboard
+[START_SIGNALS] BMS_Lowest_Cell_Voltage,16,3,0,U,65535,0,1,0,0.0001,V,,Dashboard
 [START_SIGNALS] BMS_Higest_Cell_Temperature,8,5,0,I,127,-128,1,0,1,C,,Dashboard
 [START_SIGNALS] BMS_Lowest_Cell_Temperature,8,6,0,I,127,-128,1,0,1,C,,Dashboard
 [START_SIGNALS] BMS_Total_Pack_Voltage,16,7,0,U,65535,0,1,0,0.01,V,,Dashboard

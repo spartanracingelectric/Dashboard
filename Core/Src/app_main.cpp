@@ -25,8 +25,8 @@ namespace lcd {
 
 //External handles from CubeMX
 extern SPI_HandleTypeDef hspi4;
-extern FDCAN_HandleTypeDef hfdcan1;   // VCU bus (connector pins 2/3)
-extern FDCAN_HandleTypeDef hfdcan2;   // BMS bus (connector pins 4/5)
+extern FDCAN_HandleTypeDef hfdcan1;
+extern FDCAN_HandleTypeDef hfdcan2;
 SPI_HandleTypeDef& hspi_lcd = hspi4;
 
 //Board Pins
@@ -36,8 +36,8 @@ void app_main()
 {
 
   // Drivers
-  FdcanBus bus_vcu(&hfdcan1);
-  FdcanBus bus_bms(&hfdcan2);
+  FdcanBus bus_vcu(&hfdcan1);   // pins 2/3 → VCU @ 500 kbit/s
+  FdcanBus bus_bms(&hfdcan2);   // pins 4/5 → BMS @ 1 Mbit/s
   Apa102Chain bar_chain(LT_BAR_DI_GPIO_Port,   LT_BAR_DI_Pin,
                         LT_BAR_CI_GPIO_Port,   LT_BAR_CI_Pin,   12);
   Apa102Chain left_chain(LT_LEFT_DI_GPIO_Port, LT_LEFT_DI_Pin,
