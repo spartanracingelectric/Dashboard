@@ -63,8 +63,8 @@ BO_ 1569 BMS_State_of_Charge: 7 Custom_BMS
  SG_ BMS_Current              : 32|32@1+ (1,0)    [0|4294967295] "mA"  Dashboard
 
 BO_ 1570 BMS_Pack_Summary_1: 8 Custom_BMS
- SG_ BMS_Highest_Cell_Voltage : 0|16@1- (0.0001,0) [-3.2768|3.2767] "V" Dashboard
- SG_ BMS_Lowest_Cell_Voltage : 16|16@1- (0.0001,0) [-3.2768|3.2767] "V" Dashboard
+ SG_ BMS_Highest_Cell_Voltage : 0|16@1+ (0.0001,0) [0|6.5535] "V" Dashboard
+ SG_ BMS_Lowest_Cell_Voltage : 16|16@1+ (0.0001,0) [0|6.5535] "V" Dashboard
  SG_ BMS_Higest_Cell_Temperature : 32|8@1- (1,0) [-128|127] "C" Dashboard
  SG_ BMS_Lowest_Cell_Temperature : 40|8@1- (1,0) [-128|127] "C" Dashboard
  SG_ BMS_Total_Pack_Voltage : 48|16@1+ (0.01,0) [0|655.35] "V" Dashboard

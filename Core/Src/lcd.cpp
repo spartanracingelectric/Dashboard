@@ -20,14 +20,18 @@ void LCD_demoCodeTest(void)
     float pl      = cansvc::pl();
     float hv_vol  = cansvc::hv();
     float t_high  = cansvc::celltemp();
-    float t_low   = cansvc::celltemp_low();
-    renderDash(hv_vol, bps_avg, t_high, t_low, pl, tps_avg, cansvc::energy_pct());
+    float v_low   = cansvc::hv_low();
+    renderDash(hv_vol, bps_avg, t_high, v_low, pl, tps_avg, cansvc::energy_pct());
 }
 
 
+<<<<<<< HEAD
 void renderDash(float voltage, float BPS, float cell_high, float cell_low, float PL, float TPS, float energy){
     /*
      * Top row: Pack V | Highest Cell Temp | Lowest Cell Temp
+=======
+    /* Top row: Pack V | Highest Cell Temp | Lowest Cell Voltage
+>>>>>>> d420441650972795485bfde3ed4479bd9be8b09b
      * Bottom row: TPS | PL | BPS
      * Middle: energy-used bar
      */
@@ -35,8 +39,8 @@ void renderDash(float voltage, float BPS, float cell_high, float cell_low, float
 	/* initializing dash parameters */
     uint16_t FWo;
     float top_rect[3]    = {voltage, cell_high, cell_low};
-    const char* top_labels[3] = {"Pack V", "High Temp", "Low Temp"};
-    const char* top_units[3]  = {"V", "C", "C"};
+    const char* top_labels[3] = {"Pack V", "High Temp", "Low Cell V"};
+    const char* top_units[3]  = {"V", "C", "V"};
 
     float bot_rect[3]    = {TPS, PL, BPS};
     const char* bot_labels[3] = {"TPS", "PL", "BPS"};
@@ -81,15 +85,31 @@ void renderDash(float voltage, float BPS, float cell_high, float cell_low, float
 			FWo = EVE_Cmd_Dat_0(FWo, EVE_ENC_COLOR_RGB(0, 0, 0));
 			FWo = EVE_Open_Rectangle(FWo, x0, y0, x1, y1, 2);
 
+<<<<<<< HEAD
 			FWo = EVE_Cmd_Dat_0(FWo, EVE_ENC_COLOR_RGB(80, 80, 80));
 			FWo = EVE_PrintF(FWo, cx, y0 + 20, 27, EVE_OPT_CENTER, "%s", top_labels[i]);
+=======
+        float pct = energy;
+        pct = 100-pct;
+        if (pct < 0.0f) pct = 0.0f;
+        if (pct > 100.0f) pct = 100.0f;
+>>>>>>> d420441650972795485bfde3ed4479bd9be8b09b
 
 			FWo = EVE_Cmd_Dat_0(FWo, EVE_ENC_COLOR_RGB(0, 0, 0));
 			FWo = EVE_PrintF(FWo, cx, y0 + 65, 31, EVE_OPT_CENTER, "%ld.%01ld", (long)val_int, (long)val_dec);
 
+<<<<<<< HEAD
 			FWo = EVE_Cmd_Dat_0(FWo, EVE_ENC_COLOR_RGB(120, 120, 120));
 			FWo = EVE_PrintF(FWo, cx, y0 + 100, 26, EVE_OPT_CENTER, "%s", top_units[i]);
 		}
+=======
+        uint8_t r = (uint8_t)(pct * 255.0f / 100.0f);
+        uint8_t g = (uint8_t)((100.0f - pct) * 255.0f / 100.0f);
+        if (fillX1 > barX0) {
+            FWo = EVE_Cmd_Dat_0(FWo, EVE_ENC_COLOR_RGB(g, r, 0));
+            FWo = EVE_Filled_Rectangle(FWo, barX0, barY0, fillX1, barY1);
+        }
+>>>>>>> d420441650972795485bfde3ed4479bd9be8b09b
 
 		/* Energy bar spans full width of the three boxes */
 		{
@@ -103,7 +123,13 @@ void renderDash(float voltage, float BPS, float cell_high, float cell_low, float
 			if (pct < 0.0f) pct = 0.0f;
 			if (pct > 100.0f) pct = 100.0f;
 
+<<<<<<< HEAD
 			int fillX1 = barX0 + (int)((float)(barX1 - barX0) * pct / 100.0f);
+=======
+        FWo = EVE_Cmd_Dat_0(FWo, EVE_ENC_COLOR_RGB(80, 80, 80));
+        FWo = EVE_PrintF(FWo, barCx, barY0 - 15, 27, EVE_OPT_CENTER, "Energy Left");
+    }
+>>>>>>> d420441650972795485bfde3ed4479bd9be8b09b
 
 			uint8_t r = (uint8_t)(pct * 255.0f / 100.0f);
 			uint8_t g = (uint8_t)((100.0f - pct) * 255.0f / 100.0f);
@@ -182,7 +208,7 @@ void LCD_drawLineOnce(void)
     FWo = EVE_Cmd_Dat_0(FWo, EVE_ENC_COLOR_A(255));
 
     FWo = EVE_Cmd_Dat_0(FWo, EVE_ENC_COLOR_RGB(255, 255, 255));
-    FWo = EVE_Text(FWo, 250, 190, 31, 0, "HIREN WAS HERE");
+    FWo = EVE_Text(FWo, 250, 190, 31, 0, (char*)"HIREN WAS HERE");
 
     // Finish and swap
     FWo = EVE_Cmd_Dat_0(FWo, EVE_ENC_DISPLAY());

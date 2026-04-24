@@ -24,4 +24,5 @@ public:
 
 private:
   FDCAN_HandleTypeDef* h_;
+  uint8_t filter_idx_ = 0;
 };

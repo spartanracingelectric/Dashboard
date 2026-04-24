@@ -22,10 +22,9 @@ bool FdcanBus::initClassic500k() {
 }
 
 bool FdcanBus::addStdFilter(uint16_t id) {
-  static uint8_t idx = 0;
   FDCAN_FilterTypeDef f{};
   f.IdType = FDCAN_STANDARD_ID;
-  f.FilterIndex = idx++;
+  f.FilterIndex = filter_idx_++;
   f.FilterType = FDCAN_FILTER_MASK;
   f.FilterConfig = FDCAN_FILTER_TO_RXFIFO0;
   f.FilterID1 = id;     // exact id
