@@ -123,9 +123,9 @@ void poll(FdcanBus& bus) {
           break;
       }
       case CAN_DASH_FAULT:
-        fault_code = d[0];
-        source = d[1];
-        context = d[2];
+        s_fault_code = d[0];
+        s_source = d[1];
+        s_context = d[2];
         break;
       default:
         break;
