@@ -13,6 +13,10 @@ static float s_curr_rpm=0, s_curr_bms_fault=0,  s_curr_bms_warn=0, s_curr_bms_st
 static float s_curr_energy_pct=0;
 static float s_energy_used_kWh = 0.0f;
 static uint32_t s_energy_ts_ms    = 0;
+
+/* Parameters for Dash Fault */
+static float s_fault_code = 0, s_source = 0, s_context = 0;
+
 // static float s_energy_used_kWh = 3.0f; // Half full sample start for energy bar
 
 //Getters
@@ -36,6 +40,9 @@ float tps1_voltage(){ return 0.0f; }
 float pl()           { return s_curr_pl; }
 float celltemp()     { return s_curr_celltemp; }
 float celltemp_low() { return s_curr_celltemp_low; }
+float dash_fault_code() { return s_fault_code; }
+float dash_fault_source() { return s_source; }
+float dash_fault_context() { return s_context; }
 
 float bps_percent(){ return s_curr_bps; }
 float rpm()         { return s_curr_rpm; }
@@ -105,17 +112,15 @@ void poll(FdcanBus& bus) {
         s_curr_pl = d[4];
         break;
       case CAN_ENERGY_USED_ADDR: {
-        
-        const uint32_t wh  = u32(d, 0, 1, 2, 3);
-        const float    kWh = wh * 0.001f;   // Wh to kWh
-
-        if (kWh >= s_energy_used_kWh - 0.1f) {
-          s_energy_used_kWh = kWh;
-        }
-        s_energy_ts_ms = now_ms();
-        break;
+          s_curr_energy_pct = d[0]; // 6 sent = 6% directly
+          s_energy_ts_ms = now_ms();
+          break;
       }
-
+      case CAN_DASH_FAULT:
+        fault_code = d[0];
+        source = d[1];
+        context = d[2];
+        break;
       default:
         break;
     }

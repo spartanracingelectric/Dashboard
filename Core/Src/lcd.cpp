@@ -24,13 +24,16 @@ void LCD_demoCodeTest(void)
     renderDash(hv_vol, bps_avg, t_high, t_low, pl, tps_avg, cansvc::energy_pct());
 }
 
-void renderDash(float voltage, float BPS, float cell_high, float cell_low, float PL, float TPS, float energy){
-    uint16_t FWo;
 
-    /* Top row: Pack V | Highest Cell Temp | Lowest Cell Temp
+void renderDash(float voltage, float BPS, float cell_high, float cell_low, float PL, float TPS, float energy){
+    /*
+     * Top row: Pack V | Highest Cell Temp | Lowest Cell Temp
      * Bottom row: TPS | PL | BPS
      * Middle: energy-used bar
      */
+
+	/* initializing dash parameters */
+    uint16_t FWo;
     float top_rect[3]    = {voltage, cell_high, cell_low};
     const char* top_labels[3] = {"Pack V", "High Temp", "Low Temp"};
     const char* top_units[3]  = {"V", "C", "C"};
@@ -47,94 +50,107 @@ void renderDash(float voltage, float BPS, float cell_high, float cell_low, float
     FWo = EVE_Cmd_Dat_0(FWo, EVE_ENC_CLEAR(1, 1, 1));
 
     /* Display resolution is 800 x 480 */
-    const int rectWidth = 200, rectHeight = 120;
     const int gap = 40;
+    const int rectWidth = 200, rectHeight = 120;
     const int xOff = (800 - (3 * rectWidth + 2 * gap)) / 2;
 
-    /* Top row */
-    int yOff = 30;
-    for (int i = 0; i < 3; i++) {
-        int x0 = xOff + i * (rectWidth + gap);
-        int y0 = yOff;
-        int x1 = x0 + rectWidth;
-        int y1 = y0 + rectHeight;
-        int cx = (x0 + x1) / 2;
-
-        int32_t val_int = (int32_t)top_rect[i];
-        int32_t val_dec = (int32_t)((top_rect[i] - (float)val_int) * 10);
-        if (val_dec < 0) val_dec = -val_dec;
-
+	/* checking for dash fault */
+	if(cansvc::dash_fault_code() == 0){
+		// override dash with details
         FWo = EVE_Cmd_Dat_0(FWo, EVE_ENC_COLOR_RGB(0, 0, 0));
-        FWo = EVE_Open_Rectangle(FWo, x0, y0, x1, y1, 2);
+        FWo = EVE_Open_Rectangle(FWo, 400, 200, 500, 300, 2);
 
         FWo = EVE_Cmd_Dat_0(FWo, EVE_ENC_COLOR_RGB(80, 80, 80));
-        FWo = EVE_PrintF(FWo, cx, y0 + 20, 27, EVE_OPT_CENTER, "%s", top_labels[i]);
+        FWo = EVE_PrintF(FWo, cx, 220, 27, EVE_OPT_CENTER, "Dash Fault Triggered");
 
-        FWo = EVE_Cmd_Dat_0(FWo, EVE_ENC_COLOR_RGB(0, 0, 0));
-        FWo = EVE_PrintF(FWo, cx, y0 + 65, 31, EVE_OPT_CENTER, "%ld.%01ld", (long)val_int, (long)val_dec);
+	}
+	else{
+		/* Top row */
+		int yOff = 30;
+		for (int i = 0; i < 3; i++) {
+			int x0 = xOff + i * (rectWidth + gap);
+			int y0 = yOff;
+			int x1 = x0 + rectWidth;
+			int y1 = y0 + rectHeight;
+			int cx = (x0 + x1) / 2;
 
-        FWo = EVE_Cmd_Dat_0(FWo, EVE_ENC_COLOR_RGB(120, 120, 120));
-        FWo = EVE_PrintF(FWo, cx, y0 + 100, 26, EVE_OPT_CENTER, "%s", top_units[i]);
-    }
+			int32_t val_int = (int32_t)top_rect[i];
+			int32_t val_dec = (int32_t)((top_rect[i] - (float)val_int) * 10);
+			if (val_dec < 0) val_dec = -val_dec;
 
-    /* Energy bar spans full width of the three boxes */
-    {
-        int barX0 = xOff;
-        int barX1 = xOff + 3 * rectWidth + 2 * gap;
-        int barY0 = 200;
-        int barH  = 40;
-        int barY1 = barY0 + barH;
+			FWo = EVE_Cmd_Dat_0(FWo, EVE_ENC_COLOR_RGB(0, 0, 0));
+			FWo = EVE_Open_Rectangle(FWo, x0, y0, x1, y1, 2);
 
-        float pct = energy;
-        if (pct < 0.0f) pct = 0.0f;
-        if (pct > 100.0f) pct = 100.0f;
+			FWo = EVE_Cmd_Dat_0(FWo, EVE_ENC_COLOR_RGB(80, 80, 80));
+			FWo = EVE_PrintF(FWo, cx, y0 + 20, 27, EVE_OPT_CENTER, "%s", top_labels[i]);
 
-        int fillX1 = barX0 + (int)((float)(barX1 - barX0) * pct / 100.0f);
+			FWo = EVE_Cmd_Dat_0(FWo, EVE_ENC_COLOR_RGB(0, 0, 0));
+			FWo = EVE_PrintF(FWo, cx, y0 + 65, 31, EVE_OPT_CENTER, "%ld.%01ld", (long)val_int, (long)val_dec);
 
-        uint8_t r = (uint8_t)(pct * 255.0f / 100.0f);
-        uint8_t g = (uint8_t)((100.0f - pct) * 255.0f / 100.0f);
-        if (fillX1 > barX0) {
-            FWo = EVE_Cmd_Dat_0(FWo, EVE_ENC_COLOR_RGB(r, g, 0));
-            FWo = EVE_Filled_Rectangle(FWo, barX0, barY0, fillX1, barY1);
-        }
+			FWo = EVE_Cmd_Dat_0(FWo, EVE_ENC_COLOR_RGB(120, 120, 120));
+			FWo = EVE_PrintF(FWo, cx, y0 + 100, 26, EVE_OPT_CENTER, "%s", top_units[i]);
+		}
 
-        FWo = EVE_Cmd_Dat_0(FWo, EVE_ENC_COLOR_RGB(0, 0, 0));
-        FWo = EVE_Open_Rectangle(FWo, barX0, barY0, barX1, barY1, 2);
+		/* Energy bar spans full width of the three boxes */
+		{
+			int barX0 = xOff;
+			int barX1 = xOff + 3 * rectWidth + 2 * gap;
+			int barY0 = 200;
+			int barH  = 40;
+			int barY1 = barY0 + barH;
 
-        int barCx = (barX0 + barX1) / 2;
-        int barCy = barY0 + barH / 2;
-        FWo = EVE_Cmd_Dat_0(FWo, EVE_ENC_COLOR_RGB(0, 0, 0));
-        FWo = EVE_PrintF(FWo, barCx, barCy, 28, EVE_OPT_CENTER, "Energy  %ld%%", (long)(int32_t)pct);
+			float pct = energy;
+			if (pct < 0.0f) pct = 0.0f;
+			if (pct > 100.0f) pct = 100.0f;
 
-        FWo = EVE_Cmd_Dat_0(FWo, EVE_ENC_COLOR_RGB(80, 80, 80));
-        FWo = EVE_PrintF(FWo, barCx, barY0 - 15, 27, EVE_OPT_CENTER, "Energy Used");
-    }
+			int fillX1 = barX0 + (int)((float)(barX1 - barX0) * pct / 100.0f);
 
-    /* Bottom row */
-    yOff = 330;
-    for (int i = 0; i < 3; i++) {
-        int x0 = xOff + i * (rectWidth + gap);
-        int y0 = yOff;
-        int x1 = x0 + rectWidth;
-        int y1 = y0 + rectHeight;
-        int cx = (x0 + x1) / 2;
+			uint8_t r = (uint8_t)(pct * 255.0f / 100.0f);
+			uint8_t g = (uint8_t)((100.0f - pct) * 255.0f / 100.0f);
+			if (fillX1 > barX0) {
+				FWo = EVE_Cmd_Dat_0(FWo, EVE_ENC_COLOR_RGB(r, g, 0));
+				FWo = EVE_Filled_Rectangle(FWo, barX0, barY0, fillX1, barY1);
+			}
 
-        int32_t val_int = (int32_t)bot_rect[i];
-        int32_t val_dec = (int32_t)((bot_rect[i] - (float)val_int) * 10);
-        if (val_dec < 0) val_dec = -val_dec;
+			FWo = EVE_Cmd_Dat_0(FWo, EVE_ENC_COLOR_RGB(0, 0, 0));
+			FWo = EVE_Open_Rectangle(FWo, barX0, barY0, barX1, barY1, 2);
 
-        FWo = EVE_Cmd_Dat_0(FWo, EVE_ENC_COLOR_RGB(0, 0, 0));
-        FWo = EVE_Open_Rectangle(FWo, x0, y0, x1, y1, 2);
+			int barCx = (barX0 + barX1) / 2;
+			int barCy = barY0 + barH / 2;
+			FWo = EVE_Cmd_Dat_0(FWo, EVE_ENC_COLOR_RGB(0, 0, 0));
+			FWo = EVE_PrintF(FWo, barCx, barCy, 28, EVE_OPT_CENTER, "Energy  %ld%%", (long)(int32_t)pct);
 
-        FWo = EVE_Cmd_Dat_0(FWo, EVE_ENC_COLOR_RGB(80, 80, 80));
-        FWo = EVE_PrintF(FWo, cx, y0 + 20, 27, EVE_OPT_CENTER, "%s", bot_labels[i]);
+			FWo = EVE_Cmd_Dat_0(FWo, EVE_ENC_COLOR_RGB(80, 80, 80));
+			FWo = EVE_PrintF(FWo, barCx, barY0 - 15, 27, EVE_OPT_CENTER, "Energy Used");
+		}
 
-        FWo = EVE_Cmd_Dat_0(FWo, EVE_ENC_COLOR_RGB(0, 0, 0));
-        FWo = EVE_PrintF(FWo, cx, y0 + 65, 31, EVE_OPT_CENTER, "%ld.%01ld", (long)val_int, (long)val_dec);
+		/* Bottom row */
+		yOff = 330;
+		for (int i = 0; i < 3; i++) {
+			int x0 = xOff + i * (rectWidth + gap);
+			int y0 = yOff;
+			int x1 = x0 + rectWidth;
+			int y1 = y0 + rectHeight;
+			int cx = (x0 + x1) / 2;
 
-        FWo = EVE_Cmd_Dat_0(FWo, EVE_ENC_COLOR_RGB(120, 120, 120));
-        FWo = EVE_PrintF(FWo, cx, y0 + 100, 26, EVE_OPT_CENTER, "%s", bot_units[i]);
-    }
+			int32_t val_int = (int32_t)bot_rect[i];
+			int32_t val_dec = (int32_t)((bot_rect[i] - (float)val_int) * 10);
+			if (val_dec < 0) val_dec = -val_dec;
+
+			FWo = EVE_Cmd_Dat_0(FWo, EVE_ENC_COLOR_RGB(0, 0, 0));
+			FWo = EVE_Open_Rectangle(FWo, x0, y0, x1, y1, 2);
+
+			FWo = EVE_Cmd_Dat_0(FWo, EVE_ENC_COLOR_RGB(80, 80, 80));
+			FWo = EVE_PrintF(FWo, cx, y0 + 20, 27, EVE_OPT_CENTER, "%s", bot_labels[i]);
+
+			FWo = EVE_Cmd_Dat_0(FWo, EVE_ENC_COLOR_RGB(0, 0, 0));
+			FWo = EVE_PrintF(FWo, cx, y0 + 65, 31, EVE_OPT_CENTER, "%ld.%01ld", (long)val_int, (long)val_dec);
+
+			FWo = EVE_Cmd_Dat_0(FWo, EVE_ENC_COLOR_RGB(120, 120, 120));
+			FWo = EVE_PrintF(FWo, cx, y0 + 100, 26, EVE_OPT_CENTER, "%s", bot_units[i]);
+		}
+	}
+
 
     FWo = EVE_Cmd_Dat_0(FWo, EVE_ENC_DISPLAY());
     FWo = EVE_Cmd_Dat_0(FWo, EVE_ENC_CMD_SWAP);
