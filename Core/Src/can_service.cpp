@@ -11,6 +11,7 @@ static float s_curr_hv=0, s_curr_soc=0, s_curr_lv=0, s_curr_hvlow=0, s_curr_cell
 static float s_curr_hv_current=0, s_curr_pl=0, s_curr_bps=0, s_curr_tps0p=0, s_curr_tps1p=0;
 static float s_curr_rpm=0, s_curr_bms_fault=0,  s_curr_bms_warn=0, s_curr_bms_stat=0;
 static float s_curr_energy_pct=0;
+static float s_curr_pl_tq=0;
 static float s_energy_used_kWh = 0.0f;
 static uint32_t s_energy_ts_ms    = 0;
 
@@ -43,6 +44,7 @@ float celltemp_low() { return s_curr_celltemp_low; }
 float dash_fault_code() { return s_fault_code; }
 float dash_fault_source() { return s_source; }
 float dash_fault_context() { return s_context; }
+float pl_tq() 		 {return s_curr_pl_tq;}
 
 float bps_percent(){ return s_curr_bps; }
 float rpm()         { return s_curr_rpm; }
@@ -116,6 +118,7 @@ void poll(FdcanBus& bus) {
         break;
       case CAN_PL:
         s_curr_pl = d[4];
+        s_curr_pl_tq = (int16_t)u16(d, 2, 3);  // sbyte2 Nm
         break;
       case CAN_ENERGY_USED_ADDR: {
           s_curr_energy_pct = d[0]; // 6 sent = 6% directly

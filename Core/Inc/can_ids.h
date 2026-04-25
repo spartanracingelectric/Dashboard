@@ -13,6 +13,7 @@ constexpr uint16_t CAN_PL            = 0x512; // byte[4] target power
 constexpr uint16_t CAN_ENERGY_USED_ADDR = 0x6A1;
 constexpr uint16_t CAN_RPM_ADDR      = 0x0A5;
 
+
 // Custom_BMS
 constexpr uint16_t CAN_BMS_SAFETY_CHECKER_ADDR = 0x600; // Safety_Checker: bytes[4:5] HVsens pack V × 0.01, bytes[6:7] Sum pack V × 0.01
 constexpr uint16_t CAN_HV_ADDR                 = 0x622; // Pack_Summary_1: highest/lowest cell V (bytes 0-3), highest/lowest cell temp (bytes 4-5)

@@ -16,18 +16,17 @@ const uint8_t DLCODE_BOOTUP[12] =
 void LCD_demoCodeTest(void)
 {
     float tps_avg = (cansvc::tps0_percent() + cansvc::tps1_percent()) / 2.0f;
-    float bps_avg = cansvc::bps_percent();
+    float pl_tq   = cansvc::pl_tq();
     float pl      = cansvc::pl();
     float hv_vol  = cansvc::hv();
     float t_high  = cansvc::celltemp();
     float v_low   = cansvc::hv_low();
-    renderDash(hv_vol, bps_avg, t_high, v_low, pl, tps_avg, cansvc::energy_pct());
+    renderDash(hv_vol, pl_tq, t_high, v_low, pl, tps_avg, cansvc::energy_pct());
 }
 
-void renderDash(float voltage, float BPS, float cell_high, float cell_low, float PL, float TPS, float energy){
-    /*
-     * Top row: Pack V | Highest Cell Temp | Lowest Cell Voltage
-     * Bottom row: TPS | PL | BPS
+void renderDash(float voltage, float PLTq, float cell_high, float cell_low, float PL, float TPS, float energy){
+    /* Top row: Pack V | Highest Cell Temp | Lowest Cell Voltage
+     * Bottom row: TPS | PL | PLTq
      * Middle: energy-used bar
      */
 
@@ -37,9 +36,9 @@ void renderDash(float voltage, float BPS, float cell_high, float cell_low, float
     const char* top_labels[3] = {"Pack V", "High Temp", "Low Cell V"};
     const char* top_units[3]  = {"V", "C", "V"};
 
-    float bot_rect[3]    = {TPS, PL, BPS};
-    const char* bot_labels[3] = {"TPS", "PL", "BPS"};
-    const char* bot_units[3]  = {"%", "kW", "%"};
+    float bot_rect[3]    = {TPS, PL, PLTq};
+    const char* bot_labels[3] = {"TPS", "PL", "PLTq"};
+    const char* bot_units[3]  = {"%", "kW", "Nm"};
 
     FWo = EVE_REG_Read_16(EVE_REG_CMD_WRITE);
     FWo = Wait_for_EVE_Execution_Complete(FWo);
