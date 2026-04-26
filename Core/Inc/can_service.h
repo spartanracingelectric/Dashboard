@@ -17,7 +17,8 @@ float tps0_voltage();
 float tps1_percent();
 float tps1_voltage();
 float bps_percent();
-float pl_tq();
+float shunt_current();
+float shunt_voltage();
 float pl();           // power limit
 float rpm();
 float celltemp();      // highest cell temp (°C)

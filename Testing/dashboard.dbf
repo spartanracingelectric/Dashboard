@@ -5,7 +5,7 @@
 [PROTOCOL] CAN
 
 [BUSMASTER_VERSION] [3.2.2]
-[NUMBER_OF_MESSAGES] 11
+[NUMBER_OF_MESSAGES] 13
 
 [START_MSG] TPS0,1280,8,5,1,S,Simulator
 [START_SIGNALS] ThrottlePercent,8,1,0,U,255,0,1,0,0.392157,%,,Dashboard
@@ -105,6 +105,14 @@
 [START_SIGNALS] Energy_Used,32,1,0,U,4294967091,0,1,0,0.001,kWh,,Dashboard
 [END_MSG]
 
+[START_MSG] SHUNT_Current,1009,4,1,1,S,Simulator
+[START_SIGNALS] SHUNT_Current_mA,32,1,0,I,2147483647,-2147483648,1,0,1,mA,,Dashboard
+[END_MSG]
+
+[START_MSG] SHUNT_Vbus,1011,4,1,1,S,Simulator
+[START_SIGNALS] SHUNT_Vbus_mV,32,1,0,I,1200000,-1200000,1,0,1,mV,,Dashboard
+[END_MSG]
+
 [START_VALUE_TABLE]
 [END_VALUE_TABLE]
 
@@ -129,6 +137,8 @@
 1571 S "Custom_BMS 0x623 - Pack Summary 2: fault/warning flags, pack imbalance, HV sense, pack SOC (future: drive left LEDs from bytes 6-7)";
 165 S "Motor RPM (bytes 1-2)";
 1697 S "Cumulative energy used in Wh, displayed as kWh";
+1009 S "SHUNT 0x3F1 - pack current (s32 LE, mA). Dashboard scales to A.";
+1011 S "SHUNT 0x3F3 - pack bus voltage (s32 LE, mV). Dashboard scales to V.";
 [END_DESC_MSG]
 
 [START_DESC_SIG]

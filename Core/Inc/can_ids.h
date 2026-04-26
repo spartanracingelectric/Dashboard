@@ -12,6 +12,8 @@ constexpr uint16_t CAN_EFF_SCORE_ADDR = CAN_LV_ADDR;
 constexpr uint16_t CAN_PL            = 0x512; // byte[4] target power
 constexpr uint16_t CAN_ENERGY_USED_ADDR = 0x6A1;
 constexpr uint16_t CAN_RPM_ADDR      = 0x0A5;
+constexpr uint16_t CAN_SHUNT_CURRENT      = 0x3F1; // bytes[0:3] s32 LE, mA
+constexpr uint16_t CAN_SHUNT_VOLTAGE      = 0x3F3; // bytes[0:3] s32 LE, mV
 
 
 // Custom_BMS

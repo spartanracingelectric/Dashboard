@@ -13,18 +13,23 @@ const uint8_t DLCODE_BOOTUP[12] =
   0,0,0,0,	//GPU instruction DISPLAY
 };
 
+float max_power = 0.0f;
+
 void LCD_demoCodeTest(void)
 {
     float tps_avg = (cansvc::tps0_percent() + cansvc::tps1_percent()) / 2.0f;
-    float pl_tq   = cansvc::pl_tq();
+    float inst_power = cansvc::shunt_voltage() * cansvc::shunt_current(); // V * A -> W
+
+    if (inst_power > max_power) max_power = inst_power;
+
     float pl      = cansvc::pl();
     float hv_vol  = cansvc::hv();
     float t_high  = cansvc::celltemp();
     float v_low   = cansvc::hv_low();
-    renderDash(hv_vol, pl_tq, t_high, v_low, pl, tps_avg, cansvc::energy_pct());
+    renderDash(hv_vol, max_power, t_high, v_low, pl, tps_avg, cansvc::energy_pct());
 }
 
-void renderDash(float voltage, float PLTq, float cell_high, float cell_low, float PL, float TPS, float energy){
+void renderDash(float voltage, float max_power, float cell_high, float cell_low, float PL, float TPS, float energy){
     /* Top row: Pack V | Highest Cell Temp | Lowest Cell Voltage
      * Bottom row: TPS | PL | PLTq
      * Middle: energy-used bar
@@ -36,9 +41,9 @@ void renderDash(float voltage, float PLTq, float cell_high, float cell_low, floa
     const char* top_labels[3] = {"Pack V", "High Temp", "Low Cell V"};
     const char* top_units[3]  = {"V", "C", "V"};
 
-    float bot_rect[3]    = {TPS, PL, PLTq};
-    const char* bot_labels[3] = {"TPS", "PL", "PLTq"};
-    const char* bot_units[3]  = {"%", "kW", "Nm"};
+    float bot_rect[3]    = {TPS, PL, max_power};
+    const char* bot_labels[3] = {"TPS", "PL", "Power"};
+    const char* bot_units[3]  = {"%", "kW", "W"};
 
     FWo = EVE_REG_Read_16(EVE_REG_CMD_WRITE);
     FWo = Wait_for_EVE_Execution_Complete(FWo);
@@ -52,17 +57,17 @@ void renderDash(float voltage, float PLTq, float cell_high, float cell_low, floa
     const int rectWidth = 200, rectHeight = 120;
     const int xOff = (800 - (3 * rectWidth + 2 * gap)) / 2;
 
-    /* checking for dash fault */
-    if(cansvc::dash_fault_code() == 0){
-        int cx = 450;
-
-        FWo = EVE_Cmd_Dat_0(FWo, EVE_ENC_COLOR_RGB(0, 0, 0));
-        FWo = EVE_Open_Rectangle(FWo, 400, 200, 500, 300, 2);
-
-        FWo = EVE_Cmd_Dat_0(FWo, EVE_ENC_COLOR_RGB(80, 80, 80));
-        FWo = EVE_PrintF(FWo, cx, 220, 27, EVE_OPT_CENTER, "Dash Fault Triggered");
-    }
-    else{
+//    /* checking for dash fault */
+//    if(cansvc::dash_fault_code() == 0){
+//        int cx = 450;
+//
+//        FWo = EVE_Cmd_Dat_0(FWo, EVE_ENC_COLOR_RGB(0, 0, 0));
+//        FWo = EVE_Open_Rectangle(FWo, 400, 200, 500, 300, 2);
+//
+//        FWo = EVE_Cmd_Dat_0(FWo, EVE_ENC_COLOR_RGB(80, 80, 80));
+//        FWo = EVE_PrintF(FWo, cx, 220, 27, EVE_OPT_CENTER, "Dash Fault Triggered");
+//    }
+//    else{
         /* Top row */
         int yOff = 30;
         for (int i = 0; i < 3; i++) {
@@ -73,7 +78,7 @@ void renderDash(float voltage, float PLTq, float cell_high, float cell_low, floa
             int cx = (x0 + x1) / 2;
 
             int32_t val_int = (int32_t)top_rect[i];
-            int32_t val_dec = (int32_t)((top_rect[i] - (float)val_int) * 10);
+            int32_t val_dec = (int32_t)((top_rect[i] - (float)val_int) * 100);
             if (val_dec < 0) val_dec = -val_dec;
 
             FWo = EVE_Cmd_Dat_0(FWo, EVE_ENC_COLOR_RGB(0, 0, 0));
@@ -83,7 +88,7 @@ void renderDash(float voltage, float PLTq, float cell_high, float cell_low, floa
             FWo = EVE_PrintF(FWo, cx, y0 + 20, 27, EVE_OPT_CENTER, "%s", top_labels[i]);
 
             FWo = EVE_Cmd_Dat_0(FWo, EVE_ENC_COLOR_RGB(0, 0, 0));
-            FWo = EVE_PrintF(FWo, cx, y0 + 65, 31, EVE_OPT_CENTER, "%ld.%01ld", (long)val_int, (long)val_dec);
+            FWo = EVE_PrintF(FWo, cx, y0 + 65, 31, EVE_OPT_CENTER, "%ld.%02ld", (long)val_int, (long)val_dec);
 
             FWo = EVE_Cmd_Dat_0(FWo, EVE_ENC_COLOR_RGB(120, 120, 120));
             FWo = EVE_PrintF(FWo, cx, y0 + 100, 26, EVE_OPT_CENTER, "%s", top_units[i]);
@@ -132,8 +137,6 @@ void renderDash(float voltage, float PLTq, float cell_high, float cell_low, floa
             int cx = (x0 + x1) / 2;
 
             int32_t val_int = (int32_t)bot_rect[i];
-            int32_t val_dec = (int32_t)((bot_rect[i] - (float)val_int) * 10);
-            if (val_dec < 0) val_dec = -val_dec;
 
             FWo = EVE_Cmd_Dat_0(FWo, EVE_ENC_COLOR_RGB(0, 0, 0));
             FWo = EVE_Open_Rectangle(FWo, x0, y0, x1, y1, 2);
@@ -142,12 +145,12 @@ void renderDash(float voltage, float PLTq, float cell_high, float cell_low, floa
             FWo = EVE_PrintF(FWo, cx, y0 + 20, 27, EVE_OPT_CENTER, "%s", bot_labels[i]);
 
             FWo = EVE_Cmd_Dat_0(FWo, EVE_ENC_COLOR_RGB(0, 0, 0));
-            FWo = EVE_PrintF(FWo, cx, y0 + 65, 31, EVE_OPT_CENTER, "%ld.%01ld", (long)val_int, (long)val_dec);
+            FWo = EVE_PrintF(FWo, cx, y0 + 65, 31, EVE_OPT_CENTER, "%ld", (long)val_int);
 
             FWo = EVE_Cmd_Dat_0(FWo, EVE_ENC_COLOR_RGB(120, 120, 120));
             FWo = EVE_PrintF(FWo, cx, y0 + 100, 26, EVE_OPT_CENTER, "%s", bot_units[i]);
         }
-    }
+//    }
 
     FWo = EVE_Cmd_Dat_0(FWo, EVE_ENC_DISPLAY());
     FWo = EVE_Cmd_Dat_0(FWo, EVE_ENC_CMD_SWAP);

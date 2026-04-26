@@ -11,7 +11,8 @@ static float s_curr_hv=0, s_curr_soc=0, s_curr_lv=0, s_curr_hvlow=0, s_curr_cell
 static float s_curr_hv_current=0, s_curr_pl=0, s_curr_bps=0, s_curr_tps0p=0, s_curr_tps1p=0;
 static float s_curr_rpm=0, s_curr_bms_fault=0,  s_curr_bms_warn=0, s_curr_bms_stat=0;
 static float s_curr_energy_pct=0;
-static float s_curr_pl_tq=0;
+static float s_shunt_voltage=0;
+static float s_shunt_current=0;
 static float s_energy_used_kWh = 0.0f;
 static uint32_t s_energy_ts_ms    = 0;
 
@@ -44,7 +45,8 @@ float celltemp_low() { return s_curr_celltemp_low; }
 float dash_fault_code() { return s_fault_code; }
 float dash_fault_source() { return s_source; }
 float dash_fault_context() { return s_context; }
-float pl_tq() 		 {return s_curr_pl_tq;}
+float shunt_current() 		 {return s_shunt_current;}
+float shunt_voltage() 		 {return s_shunt_voltage;}
 
 float bps_percent(){ return s_curr_bps; }
 float rpm()         { return s_curr_rpm; }
@@ -59,6 +61,7 @@ bool init_vcu(FdcanBus& bus) {
   if (!bus.initClassic500k()) return false;
   const uint16_t ids[] = {
     CAN_TPS0, CAN_TPS1, CAN_BPS, CAN_LV_ADDR, CAN_PL, CAN_ENERGY_USED_ADDR,
+    CAN_SHUNT_CURRENT, CAN_SHUNT_VOLTAGE,
   };
   for (uint16_t id : ids) bus.addStdFilter(id);
   return true;
@@ -118,12 +121,19 @@ void poll(FdcanBus& bus) {
         break;
       case CAN_PL:
         s_curr_pl = d[4];
-        s_curr_pl_tq = (int16_t)u16(d, 2, 3);  // sbyte2 Nm
         break;
       case CAN_ENERGY_USED_ADDR: {
           s_curr_energy_pct = d[0]; // 6 sent = 6% directly
           s_energy_ts_ms = now_ms();
           break;
+      }
+      case CAN_SHUNT_CURRENT: {
+    	  s_shunt_current = (int32_t)u32(d, 0, 1, 2, 3) * 0.001f; // mA -> A
+    	  break;
+      }
+      case CAN_SHUNT_VOLTAGE: {
+    	  s_shunt_voltage = (int32_t)u32(d, 0, 1, 2, 3) * 0.001f; // mV -> V
+    	  break;
       }
       case CAN_DASH_FAULT:
         s_fault_code = d[0];
