@@ -203,7 +203,7 @@ static void MX_FDCAN1_Init(void)
   hfdcan1.Init.DataTimeSeg1 = 1;
   hfdcan1.Init.DataTimeSeg2 = 1;
   hfdcan1.Init.MessageRAMOffset = 64;   // placed AFTER FDCAN2's region in shared SRAMCAN
-  hfdcan1.Init.StdFiltersNbr = 8;
+  hfdcan1.Init.StdFiltersNbr = 16;
   hfdcan1.Init.ExtFiltersNbr = 0;
   hfdcan1.Init.RxFifo0ElmtsNbr = 8;
   hfdcan1.Init.RxFifo0ElmtSize = FDCAN_DATA_BYTES_8;

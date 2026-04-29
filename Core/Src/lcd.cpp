@@ -5,6 +5,7 @@
 #include "EVE_base.h"
 #include "EVE_draw.h"
 #include "can_service.h"
+#include "dash_fault.h"
 
 const uint8_t DLCODE_BOOTUP[12] =
 {
@@ -15,10 +16,12 @@ const uint8_t DLCODE_BOOTUP[12] =
 
 float max_power = 0.0f;
 
+#define DASH_FAULT_DISPLAY_MS 3000u
+
 void LCD_demoCodeTest(void)
 {
     float tps_avg = (cansvc::tps0_percent() + cansvc::tps1_percent()) / 2.0f;
-    float inst_power = cansvc::shunt_voltage() * cansvc::shunt_current(); // V * A -> W
+    float inst_power = (cansvc::shunt_voltage() * cansvc::shunt_current()/1000); // V * A -> W
 
     if (inst_power > max_power) max_power = inst_power;
 
@@ -26,10 +29,40 @@ void LCD_demoCodeTest(void)
     float hv_vol  = cansvc::hv();
     float t_high  = cansvc::celltemp();
     float v_low   = cansvc::hv_low();
-    renderDash(hv_vol, max_power, t_high, v_low, pl, tps_avg, cansvc::energy_pct());
+    float dash_fault = cansvc::dash_fault_code();
+
+    // Show fault overlay only for the first DASH_FAULT_DISPLAY_MS after faults
+    // first appear. Trigger on the 0 -> nonzero rising edge only — changes in
+    // the bitmask while the window is open must NOT restart the timer, or the
+    // overlay never goes away when bits flap. Latch the displayed mask so the
+    // listed faults stay stable for the duration of the window (otherwise the
+    // top entry visibly cycles when bits toggle frame-to-frame).
+    static uint32_t latched_fault = 0;
+    static uint32_t fault_start_ms = 0;
+    uint32_t cur_fault = (uint32_t)dash_fault;
+    uint32_t now = HAL_GetTick();
+    bool in_window = (latched_fault != 0) && ((now - fault_start_ms) < DASH_FAULT_DISPLAY_MS);
+
+    if (in_window) {
+        // Accumulate any newly-set bits, but keep the timer running.
+        latched_fault |= cur_fault;
+    } else if (cur_fault != 0 && latched_fault == 0) {
+        // Rising edge: open a fresh window.
+        latched_fault = cur_fault;
+        fault_start_ms = now;
+        in_window = true;
+    } else if (cur_fault == 0) {
+        // Re-arm so the next 0 -> nonzero edge can trigger again.
+        latched_fault = 0;
+    }
+    // else: window expired and faults are still active — keep overlay hidden.
+
+    float fault_to_show = in_window ? (float)latched_fault : 0.0f;
+
+    renderDash(hv_vol, max_power, t_high, v_low, pl, tps_avg, cansvc::energy_pct(), fault_to_show);
 }
 
-void renderDash(float voltage, float max_power, float cell_high, float cell_low, float PL, float TPS, float energy){
+void renderDash(float voltage, float max_power, float cell_high, float cell_low, float PL, float TPS, float energy, float dash_fault){
     /* Top row: Pack V | Highest Cell Temp | Lowest Cell Voltage
      * Bottom row: TPS | PL | PLTq
      * Middle: energy-used bar
@@ -43,13 +76,13 @@ void renderDash(float voltage, float max_power, float cell_high, float cell_low,
 
     float bot_rect[3]    = {TPS, PL, max_power};
     const char* bot_labels[3] = {"TPS", "PL", "Power"};
-    const char* bot_units[3]  = {"%", "kW", "W"};
+    const char* bot_units[3]  = {"%", "kW", "kW"};
 
     FWo = EVE_REG_Read_16(EVE_REG_CMD_WRITE);
     FWo = Wait_for_EVE_Execution_Complete(FWo);
 
     FWo = EVE_Cmd_Dat_0(FWo, EVE_ENC_CMD_DLSTART);
-    FWo = EVE_Cmd_Dat_0(FWo, EVE_ENC_CLEAR_COLOR_RGB(255, 255, 255));
+    FWo = EVE_Cmd_Dat_0(FWo, EVE_ENC_CLEAR_COLOR_RGB(150, 150, 150));
     FWo = EVE_Cmd_Dat_0(FWo, EVE_ENC_CLEAR(1, 1, 1));
 
     /* Display resolution is 800 x 480 */
@@ -57,17 +90,50 @@ void renderDash(float voltage, float max_power, float cell_high, float cell_low,
     const int rectWidth = 200, rectHeight = 120;
     const int xOff = (800 - (3 * rectWidth + 2 * gap)) / 2;
 
-//    /* checking for dash fault */
-//    if(cansvc::dash_fault_code() == 0){
-//        int cx = 450;
-//
-//        FWo = EVE_Cmd_Dat_0(FWo, EVE_ENC_COLOR_RGB(0, 0, 0));
-//        FWo = EVE_Open_Rectangle(FWo, 400, 200, 500, 300, 2);
-//
-//        FWo = EVE_Cmd_Dat_0(FWo, EVE_ENC_COLOR_RGB(80, 80, 80));
-//        FWo = EVE_PrintF(FWo, cx, 220, 27, EVE_OPT_CENTER, "Dash Fault Triggered");
-//    }
-//    else{
+   /* checking for dash fault */
+   if(dash_fault != 0){
+       /* Flash background between bright and dark red ~2.5Hz to grab attention */
+       bool flash_on = ((HAL_GetTick() / 200u) & 1u) == 0u;
+       uint8_t bg_r = flash_on ? 220 : 110;
+
+       /* Full-screen red fill overrides the gray clear */
+       FWo = EVE_Cmd_Dat_0(FWo, EVE_ENC_COLOR_RGB(bg_r, 0, 0));
+       FWo = EVE_Filled_Rectangle(FWo, 0, 0, 800, 480);
+
+       /* Thick white border frame */
+       FWo = EVE_Cmd_Dat_0(FWo, EVE_ENC_COLOR_RGB(255, 255, 255));
+       FWo = EVE_Open_Rectangle(FWo, 20, 20, 780, 460, 8);
+
+       /* Huge "FAULT" header */
+       FWo = EVE_PrintF(FWo, 400, 90, 31, EVE_OPT_CENTER, "!! FAULT !!");
+
+       /* List every active fault bit. Cap visible entries so the list cannot
+        * overflow the action prompt at y=400. */
+       uint32_t fault_mask = (uint32_t)dash_fault;
+       const int max_visible = 5;
+       int line_y = 180;
+       int shown = 0;
+       int total = 0;
+       for (int b = 0; b < 32; b++) {
+           uint32_t bit = (uint32_t)1 << b;
+           if ((fault_mask & bit) == 0) continue;
+           total++;
+           if (shown < max_visible) {
+               const char* name = GetSingleFaultName(bit);
+               if (name == nullptr) name = "Unknown Fault";
+               FWo = EVE_PrintF(FWo, 400, line_y, 31, EVE_OPT_CENTER, "%s", name);
+               line_y += 45;
+               shown++;
+           }
+       }
+       if (total > shown) {
+           FWo = EVE_PrintF(FWo, 400, line_y, 28, EVE_OPT_CENTER, "+%d more", total - shown);
+       }
+
+       /* Action prompt at bottom */
+       FWo = EVE_PrintF(FWo, 400, 420, 28, EVE_OPT_CENTER, "Check Vehicle");
+   }
+   else{
         /* Top row */
         int yOff = 30;
         for (int i = 0; i < 3; i++) {
@@ -150,7 +216,7 @@ void renderDash(float voltage, float max_power, float cell_high, float cell_low,
             FWo = EVE_Cmd_Dat_0(FWo, EVE_ENC_COLOR_RGB(120, 120, 120));
             FWo = EVE_PrintF(FWo, cx, y0 + 100, 26, EVE_OPT_CENTER, "%s", bot_units[i]);
         }
-//    }
+    }
 
     FWo = EVE_Cmd_Dat_0(FWo, EVE_ENC_DISPLAY());
     FWo = EVE_Cmd_Dat_0(FWo, EVE_ENC_CMD_SWAP);

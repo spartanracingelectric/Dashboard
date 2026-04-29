@@ -5,7 +5,7 @@
 [PROTOCOL] CAN
 
 [BUSMASTER_VERSION] [3.2.2]
-[NUMBER_OF_MESSAGES] 13
+[NUMBER_OF_MESSAGES] 14
 
 [START_MSG] TPS0,1280,8,5,1,S,Simulator
 [START_SIGNALS] ThrottlePercent,8,1,0,U,255,0,1,0,0.392157,%,,Dashboard
@@ -28,6 +28,10 @@
 [START_SIGNALS] BPS0_RawValue,16,3,0,U,65535,0,1,0,1,,,Dashboard
 [START_SIGNALS] BPS0_CalibMin,16,5,0,U,65535,0,1,0,1,,,Dashboard
 [START_SIGNALS] BPS0_CalibMax,16,7,0,U,65535,0,1,0,1,,,Dashboard
+[END_MSG]
+
+[START_MSG] DASH_FAULT,1285,4,1,1,S,Simulator
+[START_SIGNALS] Fault_Code,32,1,0,U,4294967295,0,1,0,1,,,Dashboard
 [END_MSG]
 
 [START_MSG] LV_SOC_Eff,1287,8,5,1,S,Simulator
@@ -129,6 +133,7 @@
 1280 S "VCU 0x500 - TPS0: throttle%, tps0%, raw value, calib min/max";
 1281 S "VCU 0x501 - TPS1: throttle%, tps1%, raw value, calib min/max";
 1282 S "VCU 0x502 - BPS0: brake%, raw voltage, calib min/max";
+1285 S "VCU 0x505 - Dash Fault: u32 LE bitfield (bytes 0-3). Bits: 0x1 tpsOutOfRange, 0x2 bpsOutOfRange, 0x4 tpsPowerFailure, 0x8 bpsPowerFailure, 0x10 tpsSignalFailure, 0x20 bpsSignalFailure, 0x40 tpsNotCalibrated, 0x80 bpsNotCalibrated, 0x100 tpsOutOfSync, 0x200 bpsOutOfSync, 0x400 tpsbpsImplausible.";
 1287 S "VCU 0x507 - LV battery voltage, regen torque, efficiency score, energy percentage (LV SOC byte unused — VCU bug)";
 1298 S "VCU 0x512 - Power Limit Status B: PID integral, PL torque, target power, PID output, clamp method";
 1536 S "Custom_BMS 0x600 - Safety Checker: fault/warning flags, cell imbalance, HV sense, and pack V (Sum + HVsens). Dashboard reads pack V from bytes 6-7.";

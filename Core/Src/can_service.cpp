@@ -9,7 +9,7 @@
 //Internal state
 static float s_curr_hv=0, s_curr_soc=0, s_curr_lv=0, s_curr_hvlow=0, s_curr_celltemp=0, s_curr_celltemp_low=0;
 static float s_curr_hv_current=0, s_curr_pl=0, s_curr_bps=0, s_curr_tps0p=0, s_curr_tps1p=0;
-static float s_curr_rpm=0, s_curr_bms_fault=0,  s_curr_bms_warn=0, s_curr_bms_stat=0;
+static float s_curr_rpm=0, s_curr_bms_fault=0,  s_curr_bms_warn=0, s_curr_bms_stat=0, s_fault=0;
 static float s_curr_energy_pct=0;
 static float s_shunt_voltage=0;
 static float s_shunt_current=0;
@@ -17,7 +17,12 @@ static float s_energy_used_kWh = 0.0f;
 static uint32_t s_energy_ts_ms    = 0;
 
 /* Parameters for Dash Fault */
-static float s_fault_code = 0, s_source = 0, s_context = 0;
+static float s_source = 0, s_context = 0;
+
+// DEBUG: visibility into what's actually arriving on the bus
+static uint32_t s_last_rx_id = 0xFFFFFFFF;
+static uint32_t s_rx_count   = 0;
+static uint32_t s_dash_fault_hits = 0;
 
 // static float s_energy_used_kWh = 3.0f; // Half full sample start for energy bar
 
@@ -42,7 +47,7 @@ float tps1_voltage(){ return 0.0f; }
 float pl()           { return s_curr_pl; }
 float celltemp()     { return s_curr_celltemp; }
 float celltemp_low() { return s_curr_celltemp_low; }
-float dash_fault_code() { return s_fault_code; }
+float dash_fault_code() { return s_fault; }
 float dash_fault_source() { return s_source; }
 float dash_fault_context() { return s_context; }
 float shunt_current() 		 {return s_shunt_current;}
@@ -56,12 +61,16 @@ float bms_stat()    { return s_curr_bms_stat; }
 float energy_pct()  { return s_curr_energy_pct; }
 float can_service_get_energy_used_kWh() { return s_energy_used_kWh; }
 
+uint32_t debug_last_rx_id()      { return s_last_rx_id; }
+uint32_t debug_rx_count()        { return s_rx_count; }
+uint32_t debug_dash_fault_hits() { return s_dash_fault_hits; }
+
 //Filters & init
 bool init_vcu(FdcanBus& bus) {
   if (!bus.initClassic500k()) return false;
   const uint16_t ids[] = {
     CAN_TPS0, CAN_TPS1, CAN_BPS, CAN_LV_ADDR, CAN_PL, CAN_ENERGY_USED_ADDR,
-    CAN_SHUNT_CURRENT, CAN_SHUNT_VOLTAGE,
+    CAN_SHUNT_CURRENT, CAN_SHUNT_VOLTAGE, CAN_DASH_FAULT,
   };
   for (uint16_t id : ids) bus.addStdFilter(id);
   return true;
@@ -89,6 +98,8 @@ void poll(FdcanBus& bus) {
   CanFrame f{};
   while (bus.receive(f)) {
     const uint8_t* d = f.data;
+    s_last_rx_id = f.id;
+    s_rx_count++;
 
     switch (f.id) {
       case CAN_BMS_SAFETY_CHECKER_ADDR:                 // Custom_BMS Safety_Checker (0x600)
@@ -136,9 +147,8 @@ void poll(FdcanBus& bus) {
     	  break;
       }
       case CAN_DASH_FAULT:
-        s_fault_code = d[0];
-        s_source = d[1];
-        s_context = d[2];
+        s_fault = (int32_t)u32(d, 0, 1, 2, 3);
+        s_dash_fault_hits++;
         break;
       default:
         break;

@@ -16,6 +16,8 @@ float tps0_percent();
 float tps0_voltage();
 float tps1_percent();
 float tps1_voltage();
+float dash_fault_code();
+
 float bps_percent();
 float shunt_current();
 float shunt_voltage();
@@ -28,6 +30,11 @@ float bms_warn();
 float bms_stat();
 float energy_pct();  // energy percentage from VCU
 float can_service_get_energy_used_kWh();
+
+// DEBUG
+uint32_t debug_last_rx_id();
+uint32_t debug_rx_count();
+uint32_t debug_dash_fault_hits();
 
 // Service
 bool  init_vcu(FdcanBus& bus);   // FDCAN2: TPS/BPS/LV/PL/Energy
