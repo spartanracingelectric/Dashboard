@@ -67,11 +67,14 @@ static const Theme kLightTheme = {
     {120, 120, 120},
 };
 
+// Night-driver theme: pure black background plus dim warm amber text.
+// The warm (low-blue) tint is easier on the eyes than full white at night
+// and helps preserve dark adaptation.
 static const Theme kDarkTheme = {
-    { 20,  20,  20},
-    {255, 255, 255},
-    {180, 180, 180},
-    {130, 130, 130},
+    {  0,   0,   0},
+    {200, 165, 100},
+    {140, 110,  65},
+    { 90,  70,  40},
 };
 
 static inline uint16_t setColor(uint16_t FWo, Color c) {
