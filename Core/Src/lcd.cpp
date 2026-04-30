@@ -6,6 +6,7 @@
 #include "EVE_draw.h"
 #include "can_service.h"
 #include "dash_fault.h"
+#include <stdint.h>
 
 const uint8_t DLCODE_BOOTUP[12] =
 {
@@ -18,211 +19,319 @@ float max_power = 0.0f;
 
 #define DASH_FAULT_DISPLAY_MS 3000u
 
-void LCD_demoCodeTest(void)
-{
-    float tps_avg = (cansvc::tps0_percent() + cansvc::tps1_percent()) / 2.0f;
-    float inst_power = (cansvc::shunt_voltage() * cansvc::shunt_current()/1000); // V * A -> W
+/* ============================================================================
+ *  Dash rendering
+ *  ----------------------------------------------------------------------------
+ *  The screen is 800 x 480. Normal layout:
+ *      Top row    (y=30)  : Pack V | High Cell Temp | Low Cell V
+ *      Energy bar (y=200) : full-width energy-used bar
+ *      Bottom row (y=330) : TPS    | PL             | Max Power
+ *
+ *  dash_mode selects the look:
+ *      0 : normal dashboard, light theme
+ *      1 : same dashboard, dark theme (just swaps the colors)
+ *      2 : goofy screen - no useful data, intentionally
+ *
+ *  Any nonzero `dash_fault` pre-empts the mode and shows a flashing fault
+ *  overlay listing the active fault bits.
+ * ========================================================================= */
 
-    if (inst_power > max_power) max_power = inst_power;
+// ---- Layout ----------------------------------------------------------------
+#define LCD_W       800
+#define LCD_H       480
+#define BOX_W       200
+#define BOX_H       120
+#define BOX_GAP     40
+#define ROW_MARGIN  ((LCD_W - (3 * BOX_W + 2 * BOX_GAP)) / 2) // centers the 3-box row
+#define TOP_ROW_Y   30
+#define BOT_ROW_Y   330
+#define BAR_Y       200
+#define BAR_H       40
 
-    float pl      = cansvc::pl();
-    float hv_vol  = cansvc::hv();
-    float t_high  = cansvc::celltemp();
-    float v_low   = cansvc::hv_low();
-    float dash_fault = cansvc::dash_fault_code();
+// ---- Theme -----------------------------------------------------------------
+typedef struct { uint8_t r, g, b; } Color;
 
-    // Show fault overlay only for the first DASH_FAULT_DISPLAY_MS after faults
-    // first appear. Trigger on the 0 -> nonzero rising edge only — changes in
-    // the bitmask while the window is open must NOT restart the timer, or the
-    // overlay never goes away when bits flap. Latch the displayed mask so the
-    // listed faults stay stable for the duration of the window (otherwise the
-    // top entry visibly cycles when bits toggle frame-to-frame).
-    static uint32_t latched_fault = 0;
-    static uint32_t fault_start_ms = 0;
-    uint32_t cur_fault = (uint32_t)dash_fault;
-    uint32_t now = HAL_GetTick();
-    bool in_window = (latched_fault != 0) && ((now - fault_start_ms) < DASH_FAULT_DISPLAY_MS);
+// All colors used by the data dashboard. Splitting into a Theme means dark
+// mode (mode 1) is just a different Theme passed to the same draw routines.
+typedef struct {
+    Color bg;     // background
+    Color value;  // big numeric value & box border (highest contrast)
+    Color label;  // metric name above the value
+    Color unit;   // unit suffix below the value
+} Theme;
 
-    if (in_window) {
-        // Accumulate any newly-set bits, but keep the timer running.
-        latched_fault |= cur_fault;
-    } else if (cur_fault != 0 && latched_fault == 0) {
-        // Rising edge: open a fresh window.
-        latched_fault = cur_fault;
-        fault_start_ms = now;
-        in_window = true;
-    } else if (cur_fault == 0) {
-        // Re-arm so the next 0 -> nonzero edge can trigger again.
-        latched_fault = 0;
-    }
-    // else: window expired and faults are still active — keep overlay hidden.
+static const Theme kLightTheme = {
+    {150, 150, 150},
+    {  0,   0,   0},
+    { 80,  80,  80},
+    {120, 120, 120},
+};
 
-    float fault_to_show = in_window ? (float)latched_fault : 0.0f;
+static const Theme kDarkTheme = {
+    { 20,  20,  20},
+    {255, 255, 255},
+    {180, 180, 180},
+    {130, 130, 130},
+};
 
-    renderDash(hv_vol, max_power, t_high, v_low, pl, tps_avg, cansvc::energy_pct(), fault_to_show);
+static inline uint16_t setColor(uint16_t FWo, Color c) {
+    return EVE_Cmd_Dat_0(FWo, EVE_ENC_COLOR_RGB(c.r, c.g, c.b));
 }
 
-void renderDash(float voltage, float max_power, float cell_high, float cell_low, float PL, float TPS, float energy, float dash_fault){
-    /* Top row: Pack V | Highest Cell Temp | Lowest Cell Voltage
-     * Bottom row: TPS | PL | PLTq
-     * Middle: energy-used bar
-     */
-
-    /* initializing dash parameters */
-    uint16_t FWo;
-    float top_rect[3]    = {voltage, cell_high, cell_low};
-    const char* top_labels[3] = {"Pack V", "High Temp", "Low Cell V"};
-    const char* top_units[3]  = {"V", "C", "V"};
-
-    float bot_rect[3]    = {TPS, PL, max_power};
-    const char* bot_labels[3] = {"TPS", "PL", "Power"};
-    const char* bot_units[3]  = {"%", "kW", "kW"};
-
-    FWo = EVE_REG_Read_16(EVE_REG_CMD_WRITE);
-    FWo = Wait_for_EVE_Execution_Complete(FWo);
-
+// ---- Frame begin / end -----------------------------------------------------
+static uint16_t beginFrame(uint16_t FWo, const Theme& th) {
     FWo = EVE_Cmd_Dat_0(FWo, EVE_ENC_CMD_DLSTART);
-    FWo = EVE_Cmd_Dat_0(FWo, EVE_ENC_CLEAR_COLOR_RGB(150, 150, 150));
+    FWo = EVE_Cmd_Dat_0(FWo, EVE_ENC_CLEAR_COLOR_RGB(th.bg.r, th.bg.g, th.bg.b));
     FWo = EVE_Cmd_Dat_0(FWo, EVE_ENC_CLEAR(1, 1, 1));
+    return FWo;
+}
 
-    /* Display resolution is 800 x 480 */
-    const int gap = 40;
-    const int rectWidth = 200, rectHeight = 120;
-    const int xOff = (800 - (3 * rectWidth + 2 * gap)) / 2;
-
-   /* checking for dash fault */
-   if(dash_fault != 0){
-       /* Flash background between bright and dark red ~2.5Hz to grab attention */
-       bool flash_on = ((HAL_GetTick() / 200u) & 1u) == 0u;
-       uint8_t bg_r = flash_on ? 220 : 110;
-
-       /* Full-screen red fill overrides the gray clear */
-       FWo = EVE_Cmd_Dat_0(FWo, EVE_ENC_COLOR_RGB(bg_r, 0, 0));
-       FWo = EVE_Filled_Rectangle(FWo, 0, 0, 800, 480);
-
-       /* Thick white border frame */
-       FWo = EVE_Cmd_Dat_0(FWo, EVE_ENC_COLOR_RGB(255, 255, 255));
-       FWo = EVE_Open_Rectangle(FWo, 20, 20, 780, 460, 8);
-
-       /* Huge "FAULT" header */
-       FWo = EVE_PrintF(FWo, 400, 90, 31, EVE_OPT_CENTER, "!! FAULT !!");
-
-       /* List every active fault bit. Cap visible entries so the list cannot
-        * overflow the action prompt at y=400. */
-       uint32_t fault_mask = (uint32_t)dash_fault;
-       const int max_visible = 5;
-       int line_y = 180;
-       int shown = 0;
-       int total = 0;
-       for (int b = 0; b < 32; b++) {
-           uint32_t bit = (uint32_t)1 << b;
-           if ((fault_mask & bit) == 0) continue;
-           total++;
-           if (shown < max_visible) {
-               const char* name = GetSingleFaultName(bit);
-               if (name == nullptr) name = "Unknown Fault";
-               FWo = EVE_PrintF(FWo, 400, line_y, 31, EVE_OPT_CENTER, "%s", name);
-               line_y += 45;
-               shown++;
-           }
-       }
-       if (total > shown) {
-           FWo = EVE_PrintF(FWo, 400, line_y, 28, EVE_OPT_CENTER, "+%d more", total - shown);
-       }
-
-       /* Action prompt at bottom */
-       FWo = EVE_PrintF(FWo, 400, 420, 28, EVE_OPT_CENTER, "Check Vehicle");
-   }
-   else{
-        /* Top row */
-        int yOff = 30;
-        for (int i = 0; i < 3; i++) {
-            int x0 = xOff + i * (rectWidth + gap);
-            int y0 = yOff;
-            int x1 = x0 + rectWidth;
-            int y1 = y0 + rectHeight;
-            int cx = (x0 + x1) / 2;
-
-            int32_t val_int = (int32_t)top_rect[i];
-            int32_t val_dec = (int32_t)((top_rect[i] - (float)val_int) * 100);
-            if (val_dec < 0) val_dec = -val_dec;
-
-            FWo = EVE_Cmd_Dat_0(FWo, EVE_ENC_COLOR_RGB(0, 0, 0));
-            FWo = EVE_Open_Rectangle(FWo, x0, y0, x1, y1, 2);
-
-            FWo = EVE_Cmd_Dat_0(FWo, EVE_ENC_COLOR_RGB(80, 80, 80));
-            FWo = EVE_PrintF(FWo, cx, y0 + 20, 27, EVE_OPT_CENTER, "%s", top_labels[i]);
-
-            FWo = EVE_Cmd_Dat_0(FWo, EVE_ENC_COLOR_RGB(0, 0, 0));
-            FWo = EVE_PrintF(FWo, cx, y0 + 65, 31, EVE_OPT_CENTER, "%ld.%02ld", (long)val_int, (long)val_dec);
-
-            FWo = EVE_Cmd_Dat_0(FWo, EVE_ENC_COLOR_RGB(120, 120, 120));
-            FWo = EVE_PrintF(FWo, cx, y0 + 100, 26, EVE_OPT_CENTER, "%s", top_units[i]);
-        }
-
-        /* Energy bar spans full width of the three boxes */
-        {
-            int barX0 = xOff;
-            int barX1 = xOff + 3 * rectWidth + 2 * gap;
-            int barY0 = 200;
-            int barH  = 40;
-            int barY1 = barY0 + barH;
-
-            float pct = energy;
-            if (pct < 0.0f) pct = 0.0f;
-            if (pct > 100.0f) pct = 100.0f;
-
-            int fillX1 = barX0 + (int)((float)(barX1 - barX0) * pct / 100.0f);
-
-            uint8_t r = (uint8_t)(pct * 255.0f / 100.0f);
-            uint8_t g = (uint8_t)((100.0f - pct) * 255.0f / 100.0f);
-            if (fillX1 > barX0) {
-                FWo = EVE_Cmd_Dat_0(FWo, EVE_ENC_COLOR_RGB(r, g, 0));
-                FWo = EVE_Filled_Rectangle(FWo, barX0, barY0, fillX1, barY1);
-            }
-
-            FWo = EVE_Cmd_Dat_0(FWo, EVE_ENC_COLOR_RGB(0, 0, 0));
-            FWo = EVE_Open_Rectangle(FWo, barX0, barY0, barX1, barY1, 2);
-
-            int barCx = (barX0 + barX1) / 2;
-            int barCy = barY0 + barH / 2;
-            FWo = EVE_Cmd_Dat_0(FWo, EVE_ENC_COLOR_RGB(0, 0, 0));
-            FWo = EVE_PrintF(FWo, barCx, barCy, 28, EVE_OPT_CENTER, "Energy  %ld%%", (long)(int32_t)pct);
-
-            FWo = EVE_Cmd_Dat_0(FWo, EVE_ENC_COLOR_RGB(80, 80, 80));
-            FWo = EVE_PrintF(FWo, barCx, barY0 - 15, 27, EVE_OPT_CENTER, "Energy Used");
-        }
-
-        /* Bottom row */
-        yOff = 330;
-        for (int i = 0; i < 3; i++) {
-            int x0 = xOff + i * (rectWidth + gap);
-            int y0 = yOff;
-            int x1 = x0 + rectWidth;
-            int y1 = y0 + rectHeight;
-            int cx = (x0 + x1) / 2;
-
-            int32_t val_int = (int32_t)bot_rect[i];
-
-            FWo = EVE_Cmd_Dat_0(FWo, EVE_ENC_COLOR_RGB(0, 0, 0));
-            FWo = EVE_Open_Rectangle(FWo, x0, y0, x1, y1, 2);
-
-            FWo = EVE_Cmd_Dat_0(FWo, EVE_ENC_COLOR_RGB(80, 80, 80));
-            FWo = EVE_PrintF(FWo, cx, y0 + 20, 27, EVE_OPT_CENTER, "%s", bot_labels[i]);
-
-            FWo = EVE_Cmd_Dat_0(FWo, EVE_ENC_COLOR_RGB(0, 0, 0));
-            FWo = EVE_PrintF(FWo, cx, y0 + 65, 31, EVE_OPT_CENTER, "%ld", (long)val_int);
-
-            FWo = EVE_Cmd_Dat_0(FWo, EVE_ENC_COLOR_RGB(120, 120, 120));
-            FWo = EVE_PrintF(FWo, cx, y0 + 100, 26, EVE_OPT_CENTER, "%s", bot_units[i]);
-        }
-    }
-
+static uint16_t endFrame(uint16_t FWo) {
     FWo = EVE_Cmd_Dat_0(FWo, EVE_ENC_DISPLAY());
     FWo = EVE_Cmd_Dat_0(FWo, EVE_ENC_CMD_SWAP);
+    return FWo;
+}
+
+// ---- Building blocks for the data dashboard --------------------------------
+
+typedef struct {
+    const char* label;
+    float       value;
+    const char* unit;
+} MetricCell;
+
+// Draws one labeled metric box. `decimals==0` prints an integer value;
+// `decimals==2` prints two decimal places.
+static uint16_t drawMetricBox(uint16_t FWo, const Theme& th, int x0, int y0,
+                              const MetricCell& m, int decimals) {
+    int x1 = x0 + BOX_W;
+    int y1 = y0 + BOX_H;
+    int cx = (x0 + x1) / 2;
+
+    FWo = setColor(FWo, th.value);
+    FWo = EVE_Open_Rectangle(FWo, x0, y0, x1, y1, 2);
+
+    FWo = setColor(FWo, th.label);
+    FWo = EVE_PrintF(FWo, cx, y0 + 20, 27, EVE_OPT_CENTER, "%s", m.label);
+
+    FWo = setColor(FWo, th.value);
+    if (decimals == 0) {
+        FWo = EVE_PrintF(FWo, cx, y0 + 65, 31, EVE_OPT_CENTER,
+                         "%ld", (long)(int32_t)m.value);
+    } else {
+        int32_t v_int = (int32_t)m.value;
+        int32_t v_dec = (int32_t)((m.value - (float)v_int) * 100);
+        if (v_dec < 0) v_dec = -v_dec;
+        FWo = EVE_PrintF(FWo, cx, y0 + 65, 31, EVE_OPT_CENTER,
+                         "%ld.%02ld", (long)v_int, (long)v_dec);
+    }
+
+    FWo = setColor(FWo, th.unit);
+    FWo = EVE_PrintF(FWo, cx, y0 + 100, 26, EVE_OPT_CENTER, "%s", m.unit);
+    return FWo;
+}
+
+static uint16_t drawMetricRow(uint16_t FWo, const Theme& th, int yOff,
+                              const MetricCell metrics[3], int decimals) {
+    for (int i = 0; i < 3; i++) {
+        int x0 = ROW_MARGIN + i * (BOX_W + BOX_GAP);
+        FWo = drawMetricBox(FWo, th, x0, yOff, metrics[i], decimals);
+    }
+    return FWo;
+}
+
+static uint16_t drawEnergyBar(uint16_t FWo, const Theme& th, float pct) {
+    if (pct < 0.0f)   pct = 0.0f;
+    if (pct > 100.0f) pct = 100.0f;
+
+    int barX0  = ROW_MARGIN;
+    int barX1  = ROW_MARGIN + 3 * BOX_W + 2 * BOX_GAP;
+    int barY0  = BAR_Y;
+    int barY1  = barY0 + BAR_H;
+    int fillX1 = barX0 + (int)((float)(barX1 - barX0) * pct / 100.0f);
+
+    // Fill ramps green -> red as energy is consumed.
+    uint8_t r = (uint8_t)(pct * 255.0f / 100.0f);
+    uint8_t g = (uint8_t)((100.0f - pct) * 255.0f / 100.0f);
+    if (fillX1 > barX0) {
+        FWo = EVE_Cmd_Dat_0(FWo, EVE_ENC_COLOR_RGB(r, g, 0));
+        FWo = EVE_Filled_Rectangle(FWo, barX0, barY0, fillX1, barY1);
+    }
+
+    FWo = setColor(FWo, th.value);
+    FWo = EVE_Open_Rectangle(FWo, barX0, barY0, barX1, barY1, 2);
+
+    int cx = (barX0 + barX1) / 2;
+    int cy = barY0 + BAR_H / 2;
+    FWo = setColor(FWo, th.value);
+    FWo = EVE_PrintF(FWo, cx, cy, 28, EVE_OPT_CENTER,
+                     "Energy  %ld%%", (long)(int32_t)pct);
+
+    FWo = setColor(FWo, th.label);
+    FWo = EVE_PrintF(FWo, cx, barY0 - 15, 27, EVE_OPT_CENTER, "Energy Used");
+    return FWo;
+}
+
+// ---- Mode renderers --------------------------------------------------------
+
+// Mode 0 (light) and mode 1 (dark) share this - only the Theme differs.
+static uint16_t drawDataDashboard(uint16_t FWo, const Theme& th,
+                                  float voltage, float cell_high, float cell_low,
+                                  float TPS, float PL, float power, float energy) {
+    const MetricCell top[3] = {
+        {"Pack V",     voltage,   "V"},
+        {"High Temp",  cell_high, "C"},
+        {"Low Cell V", cell_low,  "V"},
+    };
+    const MetricCell bot[3] = {
+        {"TPS",   TPS,   "%"},
+        {"PL",    PL,    "kW"},
+        {"Power", power, "kW"},
+    };
+
+    FWo = drawMetricRow(FWo, th, TOP_ROW_Y, top, /*decimals=*/2);
+    FWo = drawEnergyBar(FWo, th, energy);
+    FWo = drawMetricRow(FWo, th, BOT_ROW_Y, bot, /*decimals=*/0);
+    return FWo;
+}
+
+// Full-screen flashing red overlay listing every set bit in `fault_mask`.
+static uint16_t drawFaultOverlay(uint16_t FWo, uint32_t fault_mask) {
+    // Flash background between bright and dark red ~2.5 Hz to grab attention.
+    bool flash_on = ((HAL_GetTick() / 200u) & 1u) == 0u;
+    uint8_t bg_r = flash_on ? 220 : 110;
+
+    FWo = EVE_Cmd_Dat_0(FWo, EVE_ENC_COLOR_RGB(bg_r, 0, 0));
+    FWo = EVE_Filled_Rectangle(FWo, 0, 0, LCD_W, LCD_H);
+
+    FWo = EVE_Cmd_Dat_0(FWo, EVE_ENC_COLOR_RGB(255, 255, 255));
+    FWo = EVE_Open_Rectangle(FWo, 20, 20, 780, 460, 8);
+    FWo = EVE_PrintF(FWo, 400, 90, 31, EVE_OPT_CENTER, "!! FAULT !!");
+
+    // Cap visible entries so the list cannot overflow the action prompt at y=420.
+    const int max_visible = 5;
+    int line_y = 180;
+    int shown  = 0;
+    int total  = 0;
+    for (int b = 0; b < 32; b++) {
+        uint32_t bit = (uint32_t)1 << b;
+        if ((fault_mask & bit) == 0) continue;
+        total++;
+        if (shown < max_visible) {
+            const char* name = GetSingleFaultName(bit);
+            if (name == nullptr) name = "Unknown Fault";
+            FWo = EVE_PrintF(FWo, 400, line_y, 31, EVE_OPT_CENTER, "%s", name);
+            line_y += 45;
+            shown++;
+        }
+    }
+    if (total > shown) {
+        FWo = EVE_PrintF(FWo, 400, line_y, 28, EVE_OPT_CENTER,
+                         "+%d more", total - shown);
+    }
+    FWo = EVE_PrintF(FWo, 400, 420, 28, EVE_OPT_CENTER, "Check Vehicle");
+    return FWo;
+}
+
+// Mode 2: deliberately useless. Slowly cycles a loud background and prints
+// silly text so it's obvious you're not on the real dashboard.
+static uint16_t drawGoofyScreen(uint16_t FWo) {
+    static const Color palette[4] = {
+        {255, 105, 180}, // hot pink
+        { 64, 224, 208}, // turquoise
+        {255, 215,   0}, // gold
+        {138,  43, 226}, // blueviolet
+    };
+    Color bg = palette[(HAL_GetTick() / 600u) % 4u];
+
+    FWo = setColor(FWo, bg);
+    FWo = EVE_Filled_Rectangle(FWo, 0, 0, LCD_W, LCD_H);
+
+    FWo = EVE_Cmd_Dat_0(FWo, EVE_ENC_COLOR_RGB(255, 255, 255));
+    FWo = EVE_PrintF(FWo, 400,  80, 31, EVE_OPT_CENTER, "VROOOOOM");
+    FWo = EVE_PrintF(FWo, 400, 170, 30, EVE_OPT_CENTER, "(>'_')>  <('_'<)");
+    FWo = EVE_PrintF(FWo, 400, 240, 30, EVE_OPT_CENTER, "no useful data here");
+    FWo = EVE_PrintF(FWo, 400, 300, 30, EVE_OPT_CENTER, "just vibes");
+    FWo = EVE_PrintF(FWo, 400, 400, 28, EVE_OPT_CENTER, "drive fast, take chances");
+    return FWo;
+}
+
+// Edge-detected, time-windowed view of the dash fault bitmask.
+//
+// Why: the overlay should fire on the 0 -> nonzero transition and stay up for
+// DASH_FAULT_DISPLAY_MS even if bits flap. Restarting the timer on every
+// change would mean the overlay never goes away, and re-rendering the latest
+// raw mask each frame makes the listed fault visibly cycle when bits toggle.
+// Solution: latch the union of bits seen during the open window, hold it for
+// the window duration, then re-arm once the underlying mask returns to zero.
+static uint32_t latchedFaultMask(uint32_t cur_fault) {
+    static uint32_t latched  = 0;
+    static uint32_t start_ms = 0;
+
+    uint32_t now = HAL_GetTick();
+    bool in_window = (latched != 0) && ((now - start_ms) < DASH_FAULT_DISPLAY_MS);
+
+    if (in_window) {
+        latched |= cur_fault;            // accumulate without restarting timer
+    } else if (cur_fault != 0 && latched == 0) {
+        latched   = cur_fault;           // rising edge: open a fresh window
+        start_ms  = now;
+        in_window = true;
+    } else if (cur_fault == 0) {
+        latched = 0;                     // re-arm for the next rising edge
+    }
+    return in_window ? latched : 0;
+}
+
+static void renderDash(float voltage, float max_power, float cell_high, float cell_low,
+                       float PL, float TPS, float energy, float dash_fault,
+                       uint8_t dash_mode)
+{
+    uint16_t FWo = EVE_REG_Read_16(EVE_REG_CMD_WRITE);
+    FWo = Wait_for_EVE_Execution_Complete(FWo);
+
+    // Faults pre-empt every mode. Otherwise dash_mode picks the layout.
+    if (dash_fault != 0) {
+        FWo = beginFrame(FWo, kLightTheme);
+        FWo = drawFaultOverlay(FWo, (uint32_t)dash_fault);
+    } else if (dash_mode == 1) {
+        FWo = beginFrame(FWo, kDarkTheme);
+        FWo = drawDataDashboard(FWo, kDarkTheme,
+                                voltage, cell_high, cell_low,
+                                TPS, PL, max_power, energy);
+    } else if (dash_mode == 2) {
+        FWo = beginFrame(FWo, kLightTheme);
+        FWo = drawGoofyScreen(FWo);
+    } else {
+        FWo = beginFrame(FWo, kLightTheme);
+        FWo = drawDataDashboard(FWo, kLightTheme,
+                                voltage, cell_high, cell_low,
+                                TPS, PL, max_power, energy);
+    }
+
+    FWo = endFrame(FWo);
 
     EVE_REG_Write_16(EVE_REG_CMD_WRITE, FWo);
     Wait_for_EVE_Execution_Complete(FWo);
+}
+
+void LCD_demoCodeTest(void)
+{
+    float tps_avg    = (cansvc::tps0_percent() + cansvc::tps1_percent()) / 2.0f;
+    float inst_power = cansvc::shunt_voltage() * cansvc::shunt_current() / 1000.0f; // V * A / 1000 -> kW
+    if (inst_power > max_power) max_power = inst_power;
+
+    uint32_t fault_to_show = latchedFaultMask((uint32_t)cansvc::dash_fault_code());
+
+    renderDash(cansvc::hv(),
+               max_power,
+               cansvc::celltemp(),
+               cansvc::hv_low(),
+               cansvc::pl(),
+               tps_avg,
+               cansvc::energy_pct(),
+               (float)fault_to_show,
+               cansvc::dash_mode());
 }
 
 void LCD_drawLineOnce(void)

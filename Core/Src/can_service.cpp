@@ -15,6 +15,7 @@ static float s_shunt_voltage=0;
 static float s_shunt_current=0;
 static float s_energy_used_kWh = 0.0f;
 static uint32_t s_energy_ts_ms    = 0;
+static float s_dash_mode = 0;
 
 /* Parameters for Dash Fault */
 static float s_source = 0, s_context = 0;
@@ -60,6 +61,7 @@ float bms_warn()    { return s_curr_bms_warn; }
 float bms_stat()    { return s_curr_bms_stat; }
 float energy_pct()  { return s_curr_energy_pct; }
 float can_service_get_energy_used_kWh() { return s_energy_used_kWh; }
+float dash_mode()   { return s_dash_mode; }
 
 uint32_t debug_last_rx_id()      { return s_last_rx_id; }
 uint32_t debug_rx_count()        { return s_rx_count; }
@@ -129,6 +131,7 @@ void poll(FdcanBus& bus) {
         s_curr_energy_pct = d[7];            // byte 7: energy % (0-100)
         // bytes 5-6: Eff Score, s16 × 0.0001
         leds::efficiency_on_can_error((int16_t)u16(d, 5, 6) * 0.0001f);
+        s_dash_mode = d[6];
         break;
       case CAN_PL:
         s_curr_pl = d[4];

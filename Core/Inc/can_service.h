@@ -30,6 +30,7 @@ float bms_warn();
 float bms_stat();
 float energy_pct();  // energy percentage from VCU
 float can_service_get_energy_used_kWh();
+float dash_mode();
 
 // DEBUG
 uint32_t debug_last_rx_id();
