@@ -127,10 +127,10 @@ void poll(FdcanBus& bus) {
         s_curr_bps = d[0] * 0.392157f;
         break;
       case CAN_LV_ADDR:
-        s_curr_lv  = u16(d, 0, 1) * 0.001f;  // bytes 0-1: LV voltage mV → V
-        s_curr_energy_pct = d[7];            // byte 7: energy % (0-100)
-        // bytes 5-6: Eff Score, s16 × 0.0001
-        leds::efficiency_on_can_error((int16_t)u16(d, 5, 6) * 0.0001f);
+        // VCU 0x507 layout: [0:1] LV V (mV), [2:3] regen torque s16,
+        //                   [4:5] eff score s16 × 0.0001, [6] dash mode, [7] pad.
+        s_curr_lv = u16(d, 0, 1) * 0.001f;
+        leds::efficiency_on_can_error((int16_t)u16(d, 4, 5) * 0.0001f);
         s_dash_mode = d[6];
         break;
       case CAN_PL:

@@ -31,10 +31,9 @@ BO_ 1285 DASH_FAULT: 4 Simulator
 
 BO_ 1287 LV_SOC_Eff: 8 Simulator
  SG_ LV_Voltage : 0|16@1+ (1,0) [0|65535] "mV" Dashboard
- SG_ LV_SOC : 16|8@1+ (1,0) [0|100] "%" Dashboard
- SG_ Regen_Torque : 24|16@1- (1,0) [-32768|32767] "Nm" Dashboard
- SG_ Eff_Score : 40|16@1- (0.0001,0) [-3.2768|3.2767] "" Dashboard
- SG_ Energy_Pct : 56|8@1+ (1,0) [0|100] "%" Dashboard
+ SG_ Regen_Torque : 16|16@1- (1,0) [-32768|32767] "Nm" Dashboard
+ SG_ Eff_Score : 32|16@1- (0.0001,0) [-3.2768|3.2767] "" Dashboard
+ SG_ Dash_Mode : 48|8@1+ (1,0) [0|255] "" Dashboard
 
 BO_ 1298 PowerLimit_B: 8 Simulator
  SG_ PID_Integral : 0|16@1- (1,0) [-32768|32767] "" Dashboard
@@ -106,7 +105,7 @@ CM_ BO_ 1280 "VCU 0x500 - TPS0: throttle%, tps0%, raw value, calib min/max";
 CM_ BO_ 1281 "VCU 0x501 - TPS1: throttle%, tps1%, raw value, calib min/max";
 CM_ BO_ 1282 "VCU 0x502 - BPS0: brake%, raw voltage, calib min/max";
 CM_ BO_ 1285 "VCU 0x505 - Dash Fault: u32 LE bitfield (bytes 0-3). Bits: 0x1 tpsOutOfRange, 0x2 bpsOutOfRange, 0x4 tpsPowerFailure, 0x8 bpsPowerFailure, 0x10 tpsSignalFailure, 0x20 bpsSignalFailure, 0x40 tpsNotCalibrated, 0x80 bpsNotCalibrated, 0x100 tpsOutOfSync, 0x200 bpsOutOfSync, 0x400 tpsbpsImplausible.";
-CM_ BO_ 1287 "VCU 0x507 - LV battery voltage, regen torque, efficiency score, energy percentage (LV SOC byte unused — VCU bug)";
+CM_ BO_ 1287 "VCU 0x507 - LV battery voltage (0-1), regen torque (2-3), efficiency score (4-5), dash mode (6). Byte 7 is padding.";
 CM_ BO_ 1298 "VCU 0x512 - Power Limit Status B: PID integral, PL torque, target power, PID output, clamp method";
 CM_ BO_ 1536 "Custom_BMS 0x600 - Safety Checker: fault/warning flags, cell imbalance, HV sense, and pack V (Sum + HVsens). Dashboard reads pack V from bytes 6-7.";
 CM_ BO_ 1569 "Custom_BMS 0x621 - State of Charge: capacity (mAh), HV sense pack V, pack current (mA)";

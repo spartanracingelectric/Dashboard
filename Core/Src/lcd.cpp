@@ -233,8 +233,6 @@ static uint16_t drawFaultOverlay(uint16_t FWo, uint32_t fault_mask) {
     return FWo;
 }
 
-// Mode 2: deliberately useless. Slowly cycles a loud background and prints
-// silly text so it's obvious you're not on the real dashboard.
 static uint16_t drawGoofyScreen(uint16_t FWo) {
     static const Color palette[4] = {
         {255, 105, 180}, // hot pink
@@ -248,11 +246,7 @@ static uint16_t drawGoofyScreen(uint16_t FWo) {
     FWo = EVE_Filled_Rectangle(FWo, 0, 0, LCD_W, LCD_H);
 
     FWo = EVE_Cmd_Dat_0(FWo, EVE_ENC_COLOR_RGB(255, 255, 255));
-    FWo = EVE_PrintF(FWo, 400,  80, 31, EVE_OPT_CENTER, "VROOOOOM");
-    FWo = EVE_PrintF(FWo, 400, 170, 30, EVE_OPT_CENTER, "(>'_')>  <('_'<)");
-    FWo = EVE_PrintF(FWo, 400, 240, 30, EVE_OPT_CENTER, "no useful data here");
-    FWo = EVE_PrintF(FWo, 400, 300, 30, EVE_OPT_CENTER, "just vibes");
-    FWo = EVE_PrintF(FWo, 400, 400, 28, EVE_OPT_CENTER, "drive fast, take chances");
+    FWo = EVE_PrintF(FWo, 400, 240, 30, EVE_OPT_CENTER, "HIREN IS MEGA MEGA MEGA GAY LOLOLOLOL");
     return FWo;
 }
 
