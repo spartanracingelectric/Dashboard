@@ -180,7 +180,7 @@ static uint16_t drawEnergyBar(uint16_t FWo, const Theme& th, float pct) {
 // Mode 0 (light) and mode 1 (dark) share this - only the Theme differs.
 static uint16_t drawDataDashboard(uint16_t FWo, const Theme& th,
                                   float voltage, float cell_high, float cell_low,
-                                  float TPS, float PL, float power, float energy) {
+                                  float TPS, float PL, float power, float energy) { // add brake pressure parameter
     const MetricCell top[3] = {
         {"Pack V",     voltage,   "V"},
         {"High Temp",  cell_high, "C"},
@@ -282,7 +282,7 @@ static uint32_t latchedFaultMask(uint32_t cur_fault) {
 
 static void renderDash(float voltage, float max_power, float cell_high, float cell_low,
                        float PL, float TPS, float energy, float dash_fault,
-                       uint8_t dash_mode)
+                       uint8_t dash_mode) // add parameter for Brake Pressure 
 {
     uint16_t FWo = EVE_REG_Read_16(EVE_REG_CMD_WRITE);
     FWo = Wait_for_EVE_Execution_Complete(FWo);
@@ -303,7 +303,7 @@ static void renderDash(float voltage, float max_power, float cell_high, float ce
         FWo = beginFrame(FWo, kLightTheme);
         FWo = drawDataDashboard(FWo, kLightTheme,
                                 voltage, cell_high, cell_low,
-                                TPS, PL, max_power, energy);
+                                TPS, PL, max_power, energy); // add parameter for Brake Pressure
     }
 
     FWo = endFrame(FWo);
@@ -325,7 +325,7 @@ void LCD_demoCodeTest(void)
                cansvc::celltemp(),
                cansvc::hv_low(),
                cansvc::pl(),
-               tps_avg,
+               tps_avg, 
                cansvc::energy_pct(),
                (float)fault_to_show,
                cansvc::dash_mode());

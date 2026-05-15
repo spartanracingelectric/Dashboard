@@ -14,6 +14,14 @@ constexpr uint16_t CAN_ENERGY_USED_ADDR = 0x6A1;
 constexpr uint16_t CAN_RPM_ADDR      = 0x0A5;
 constexpr uint16_t CAN_SHUNT_CURRENT      = 0x3F1; // bytes[0:3] s32 LE, mA
 constexpr uint16_t CAN_SHUNT_VOLTAGE      = 0x3F3; // bytes[0:3] s32 LE, mV
+// define address 508 for Brake Pressure sensors, starting from 2 bytes in 
+/*
+ BO_ 1288 VCU_BPS_Pressures: 8 VCU
+ SG_ VCU_BPS2_Voltage : 0|16@1+ (1,0) [0|65535] "kPa" VCU
+ SG_ VCU_BPS2_Pressure : 16|16@1+ (1,0) [0|65535] "kPa" VCU
+ SG_ VCU_BPS0_Pressure : 32|16@1+ (1,0) [0|65535] "kPa" VCU
+ SG_ VCU_BPS1_Pressure : 48|16@1+ (1,0) [0|65535] "kPa" VCU 
+ */
 
 
 // Custom_BMS

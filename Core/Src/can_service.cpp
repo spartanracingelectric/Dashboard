@@ -16,6 +16,7 @@ static float s_shunt_current=0;
 static float s_energy_used_kWh = 0.0f;
 static uint32_t s_energy_ts_ms    = 0;
 static float s_dash_mode = 0;
+// add for Brake Pressure 
 
 /* Parameters for Dash Fault */
 static float s_source = 0, s_context = 0;
@@ -62,10 +63,12 @@ float bms_stat()    { return s_curr_bms_stat; }
 float energy_pct()  { return s_curr_energy_pct; }
 float can_service_get_energy_used_kWh() { return s_energy_used_kWh; }
 float dash_mode()   { return s_dash_mode; }
+// add getter messages for Brake Pressure
 
 uint32_t debug_last_rx_id()      { return s_last_rx_id; }
 uint32_t debug_rx_count()        { return s_rx_count; }
 uint32_t debug_dash_fault_hits() { return s_dash_fault_hits; }
+
 
 //Filters & init
 bool init_vcu(FdcanBus& bus) {
@@ -73,6 +76,7 @@ bool init_vcu(FdcanBus& bus) {
   const uint16_t ids[] = {
     CAN_TPS0, CAN_TPS1, CAN_BPS, CAN_LV_ADDR, CAN_PL, CAN_ENERGY_USED_ADDR,
     CAN_SHUNT_CURRENT, CAN_SHUNT_VOLTAGE, CAN_DASH_FAULT,
+    // add Brake Pressure 
   };
   for (uint16_t id : ids) bus.addStdFilter(id);
   return true;
@@ -131,7 +135,7 @@ void poll(FdcanBus& bus) {
         //                   [4:5] eff score s16 × 0.0001, [6] dash mode, [7] pad.
         s_curr_lv = u16(d, 0, 1) * 0.001f;
         leds::efficiency_on_can_error((int16_t)u16(d, 4, 5) * 0.0001f);
-        s_dash_mode = d[6];
+        s_dash_mode = d[6]; // lets readd this in code
         break;
       case CAN_PL:
         s_curr_pl = d[4];
@@ -153,6 +157,15 @@ void poll(FdcanBus& bus) {
         s_fault = (int32_t)u32(d, 0, 1, 2, 3);
         s_dash_fault_hits++;
         break;
+        // add case for Brake Pressure parse every 16 bits from 2 bytes in
+        /*
+        
+        BO_ 1288 VCU_BPS_Pressures: 8 VCU
+        SG_ VCU_BPS2_Voltage : 0|16@1+ (1,0) [0|65535] "kPa" VCU
+        SG_ VCU_BPS2_Pressure : 16|16@1+ (1,0) [0|65535] "kPa" VCU
+        SG_ VCU_BPS0_Pressure : 32|16@1+ (1,0) [0|65535] "kPa" VCU
+        SG_ VCU_BPS1_Pressure : 48|16@1+ (1,0) [0|65535] "kPa" VCU
+      */
       default:
         break;
     }
