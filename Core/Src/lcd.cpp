@@ -18,6 +18,7 @@ const uint8_t DLCODE_BOOTUP[12] =
 float max_power = 0.0f;
 
 #define DASH_FAULT_DISPLAY_MS 3000u
+#define MAX_POWER_DEBOUNCE_MS 100u
 
 /* ============================================================================
  *  Dash rendering
@@ -314,9 +315,25 @@ static void renderDash(float voltage, float max_power, float cell_high, float ce
 
 void LCD_demoCodeTest(void)
 {
+    static uint32_t power_above_start_ms = 0;
+
     float tps_avg    = (cansvc::tps0_percent() + cansvc::tps1_percent()) / 2.0f;
-    float inst_power = cansvc::shunt_voltage() * cansvc::shunt_current() / 1000.0f; // V * A / 1000 -> kW
-    if (inst_power > max_power) max_power = inst_power;
+    float inst_power = cansvc::shunt_voltage() * cansvc::shunt_current() / 1000.0f;
+
+    uint32_t now = HAL_GetTick();
+
+    if (inst_power > max_power) {
+        if (power_above_start_ms == 0) {
+            power_above_start_ms = now;
+        }
+
+        if ((now - power_above_start_ms) >= MAX_POWER_DEBOUNCE_MS) {
+            max_power = inst_power;
+            power_above_start_ms = 0;
+        }
+    } else {
+        power_above_start_ms = 0;
+    }
 
     uint32_t fault_to_show = latchedFaultMask((uint32_t)cansvc::dash_fault_code());
 
