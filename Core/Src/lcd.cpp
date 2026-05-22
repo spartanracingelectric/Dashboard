@@ -203,7 +203,7 @@ static uint16_t drawDataDashboard(uint16_t FWo, const Theme& th,
 static uint16_t drawFaultOverlay(uint16_t FWo, uint32_t fault_mask) {
     // Flash background between bright and dark red ~2.5 Hz to grab attention.
     bool flash_on = ((HAL_GetTick() / 200u) & 1u) == 0u;
-    uint8_t bg_r = flash_on ? 220 : 110;
+    uint8_t bg_r = flash_on ? 180 : 110;
 
     FWo = EVE_Cmd_Dat_0(FWo, EVE_ENC_COLOR_RGB(bg_r, 0, 0));
     FWo = EVE_Filled_Rectangle(FWo, 0, 0, LCD_W, LCD_H);
