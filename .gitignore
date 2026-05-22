@@ -29,7 +29,7 @@ desktop.ini
 __pycache__/
 *.pyc
 
-# ===== Claude Code =====
+
 .claude/
 
 # ===== Secrets / credentials =====
