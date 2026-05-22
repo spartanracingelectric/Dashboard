@@ -23,59 +23,55 @@ float max_power = 0.0f;
 /* ============================================================================
  *  Dash rendering
  *  ----------------------------------------------------------------------------
- *  The screen is 800 x 480. Normal layout:
- *      Top row    (y=30)  : Pack V | High Cell Temp | Low Cell V
- *      Energy bar (y=200) : full-width energy-used bar
- *      Bottom row (y=330) : TPS    | PL             | Max Power
+ *  The screen is 800 x 480, but the bottom third (y >= 320) is hidden behind
+ *  the steering wheel, so everything is packed into the visible top region:
+ *      Top row    (y=8)   : Pack V | High Cell Temp | Low Cell V
+ *      Energy bar (y=150) : full-width energy-remaining bar
+ *      Bottom row (y=196) : TPS    | PL             | Max Power
  *
  *  dash_mode selects the look:
- *      0 : normal dashboard, light theme
- *      1 : same dashboard, dark theme (just swaps the colors)
  *      2 : goofy screen - no useful data, intentionally
+ *      anything else : normal dashboard (single dark-gray theme)
  *
  *  Any nonzero `dash_fault` pre-empts the mode and shows a flashing fault
  *  overlay listing the active fault bits.
  * ========================================================================= */
 
 // ---- Layout ----------------------------------------------------------------
+// The bottom third of the panel (y >= VISIBLE_H) is hidden behind the steering
+// wheel, so the whole dashboard is packed into the visible top region above it.
 #define LCD_W       800
 #define LCD_H       480
+#define VISIBLE_H   320          // steering wheel hides everything below this y
 #define BOX_W       200
-#define BOX_H       120
+#define BOX_H       100
 #define BOX_GAP     40
 #define ROW_MARGIN  ((LCD_W - (3 * BOX_W + 2 * BOX_GAP)) / 2) // centers the 3-box row
-#define TOP_ROW_Y   30
-#define BOT_ROW_Y   330
-#define BAR_Y       200
-#define BAR_H       40
+#define TOP_ROW_Y   8
+#define BOT_ROW_Y   196
+#define BAR_Y       150
+#define BAR_H       32
 
 // ---- Theme -----------------------------------------------------------------
 typedef struct { uint8_t r, g, b; } Color;
 
-// All colors used by the data dashboard. Splitting into a Theme means dark
-// mode (mode 1) is just a different Theme passed to the same draw routines.
+// All colors used by the data dashboard, grouped so the draw routines stay
+// theme-agnostic.
 typedef struct {
     Color bg;     // background
-    Color value;  // big numeric value & box border (highest contrast)
+    Color border; // box & bar outlines (team accent)
+    Color value;  // big numeric value (highest contrast)
     Color label;  // metric name above the value
     Color unit;   // unit suffix below the value
 } Theme;
 
-static const Theme kLightTheme = {
-    {150, 150, 150},
-    {  0,   0,   0},
-    { 80,  80,  80},
-    {120, 120, 120},
-};
-
-// Night-driver theme: pure black background plus dim warm amber text.
-// The warm (low-blue) tint is easier on the eyes than full white at night
-// and helps preserve dark adaptation.
-static const Theme kDarkTheme = {
-    {  0,   0,   0},
-    {200, 165, 100},
-    {140, 110,  65},
-    { 90,  70,  40},
+// Spartan Racing theme: dark gray background, team-gold values framed in team blue.
+static const Theme kTheme = {
+    { 40,  40,  40},   // bg:     dark gray
+    { 56, 162, 219},   // border: Spartan blue
+    {255, 199,   0},   // value:  Spartan gold
+    {255, 255, 255},   // label:  white
+    {170, 170, 170},   // unit:   dim gray
 };
 
 static inline uint16_t setColor(uint16_t FWo, Color c) {
@@ -112,26 +108,26 @@ static uint16_t drawMetricBox(uint16_t FWo, const Theme& th, int x0, int y0,
     int y1 = y0 + BOX_H;
     int cx = (x0 + x1) / 2;
 
-    FWo = setColor(FWo, th.value);
+    FWo = setColor(FWo, th.border);
     FWo = EVE_Open_Rectangle(FWo, x0, y0, x1, y1, 2);
 
     FWo = setColor(FWo, th.label);
-    FWo = EVE_PrintF(FWo, cx, y0 + 20, 27, EVE_OPT_CENTER, "%s", m.label);
+    FWo = EVE_PrintF(FWo, cx, y0 + 16, 27, EVE_OPT_CENTER, "%s", m.label);
 
     FWo = setColor(FWo, th.value);
     if (decimals == 0) {
-        FWo = EVE_PrintF(FWo, cx, y0 + 65, 31, EVE_OPT_CENTER,
+        FWo = EVE_PrintF(FWo, cx, y0 + 52, 31, EVE_OPT_CENTER,
                          "%ld", (long)(int32_t)m.value);
     } else {
         int32_t v_int = (int32_t)m.value;
         int32_t v_dec = (int32_t)((m.value - (float)v_int) * 100);
         if (v_dec < 0) v_dec = -v_dec;
-        FWo = EVE_PrintF(FWo, cx, y0 + 65, 31, EVE_OPT_CENTER,
+        FWo = EVE_PrintF(FWo, cx, y0 + 52, 31, EVE_OPT_CENTER,
                          "%ld.%02ld", (long)v_int, (long)v_dec);
     }
 
     FWo = setColor(FWo, th.unit);
-    FWo = EVE_PrintF(FWo, cx, y0 + 100, 26, EVE_OPT_CENTER, "%s", m.unit);
+    FWo = EVE_PrintF(FWo, cx, y0 + 84, 26, EVE_OPT_CENTER, "%s", m.unit);
     return FWo;
 }
 
@@ -162,7 +158,7 @@ static uint16_t drawEnergyBar(uint16_t FWo, const Theme& th, float pct) {
         FWo = EVE_Filled_Rectangle(FWo, barX0, barY0, fillX1, barY1);
     }
 
-    FWo = setColor(FWo, th.value);
+    FWo = setColor(FWo, th.border);
     FWo = EVE_Open_Rectangle(FWo, barX0, barY0, barX1, barY1, 2);
 
     int cx = (barX0 + barX1) / 2;
@@ -178,7 +174,7 @@ static uint16_t drawEnergyBar(uint16_t FWo, const Theme& th, float pct) {
 
 // ---- Mode renderers --------------------------------------------------------
 
-// Mode 0 (light) and mode 1 (dark) share this - only the Theme differs.
+// Renders the normal data dashboard using the single Spartan theme.
 static uint16_t drawDataDashboard(uint16_t FWo, const Theme& th,
                                   float voltage, float cell_high, float cell_low,
                                   float TPS, float PL, float power, float energy) { // add brake pressure parameter
@@ -288,23 +284,19 @@ static void renderDash(float voltage, float max_power, float cell_high, float ce
     uint16_t FWo = EVE_REG_Read_16(EVE_REG_CMD_WRITE);
     FWo = Wait_for_EVE_Execution_Complete(FWo);
 
-    // Faults pre-empt every mode. Otherwise dash_mode picks the layout.
+    // Faults pre-empt every mode. dash_mode 2 is the goofy screen; everything
+    // else is the normal single-theme dashboard.
     if (dash_fault != 0) {
-        FWo = beginFrame(FWo, kLightTheme);
+        FWo = beginFrame(FWo, kTheme);
         FWo = drawFaultOverlay(FWo, (uint32_t)dash_fault);
-    } else if (dash_mode == 1) {
-        FWo = beginFrame(FWo, kDarkTheme);
-        FWo = drawDataDashboard(FWo, kDarkTheme,
-                                voltage, cell_high, cell_low,
-                                TPS, PL, max_power, energy);
     } else if (dash_mode == 2) {
-        FWo = beginFrame(FWo, kLightTheme);
+        FWo = beginFrame(FWo, kTheme);
         FWo = drawGoofyScreen(FWo);
     } else {
-        FWo = beginFrame(FWo, kLightTheme);
-        FWo = drawDataDashboard(FWo, kLightTheme,
+        FWo = beginFrame(FWo, kTheme);
+        FWo = drawDataDashboard(FWo, kTheme,
                                 voltage, cell_high, cell_low,
-                                TPS, PL, max_power, energy); // add parameter for Brake Pressure
+                                TPS, PL, max_power, energy);
     }
 
     FWo = endFrame(FWo);
