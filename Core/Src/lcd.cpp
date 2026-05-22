@@ -154,9 +154,9 @@ static uint16_t drawEnergyBar(uint16_t FWo, const Theme& th, float pct) {
     int barY1  = barY0 + BAR_H;
     int fillX1 = barX0 + (int)((float)(barX1 - barX0) * pct / 100.0f);
 
-    // Fill ramps green -> red as energy is consumed.
-    uint8_t r = (uint8_t)(pct * 255.0f / 100.0f);
-    uint8_t g = (uint8_t)((100.0f - pct) * 255.0f / 100.0f);
+    // Battery-style gauge: bar drains as energy is spent, green when full -> red when low.
+    uint8_t r = (uint8_t)((100.0f - pct) * 255.0f / 100.0f);
+    uint8_t g = (uint8_t)(pct * 255.0f / 100.0f);
     if (fillX1 > barX0) {
         FWo = EVE_Cmd_Dat_0(FWo, EVE_ENC_COLOR_RGB(r, g, 0));
         FWo = EVE_Filled_Rectangle(FWo, barX0, barY0, fillX1, barY1);
@@ -172,7 +172,7 @@ static uint16_t drawEnergyBar(uint16_t FWo, const Theme& th, float pct) {
                      "Energy  %ld%%", (long)(int32_t)pct);
 
     FWo = setColor(FWo, th.label);
-    FWo = EVE_PrintF(FWo, cx, barY0 - 15, 27, EVE_OPT_CENTER, "Energy Used");
+    FWo = EVE_PrintF(FWo, cx, barY0 - 15, 27, EVE_OPT_CENTER, "Energy Remaining");
     return FWo;
 }
 
@@ -199,13 +199,13 @@ static uint16_t drawDataDashboard(uint16_t FWo, const Theme& th,
     return FWo;
 }
 
-// Full-screen flashing red overlay listing every set bit in `fault_mask`.
+// Full-screen flashing yellow overlay listing every set bit in `fault_mask`.
 static uint16_t drawFaultOverlay(uint16_t FWo, uint32_t fault_mask) {
-    // Flash background between bright and dark red ~2.5 Hz to grab attention.
+    // Flash background between bright and dark yellow ~2.5 Hz to grab attention.
     bool flash_on = ((HAL_GetTick() / 200u) & 1u) == 0u;
-    uint8_t bg_r = flash_on ? 180 : 110;
+    uint8_t bg_v = flash_on ? 180 : 110;
 
-    FWo = EVE_Cmd_Dat_0(FWo, EVE_ENC_COLOR_RGB(bg_r, 0, 0));
+    FWo = EVE_Cmd_Dat_0(FWo, EVE_ENC_COLOR_RGB(bg_v, bg_v, 0));
     FWo = EVE_Filled_Rectangle(FWo, 0, 0, LCD_W, LCD_H);
 
     FWo = EVE_Cmd_Dat_0(FWo, EVE_ENC_COLOR_RGB(255, 255, 255));

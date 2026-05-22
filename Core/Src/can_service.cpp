@@ -14,7 +14,6 @@ static float s_curr_energy_pct=0;
 static float s_shunt_voltage=0;
 static float s_shunt_current=0;
 static float s_energy_used_kWh = 0.0f;
-static uint32_t s_energy_ts_ms    = 0;
 static float s_dash_mode = 0;
 // add for Brake Pressure 
 
@@ -74,7 +73,7 @@ uint32_t debug_dash_fault_hits() { return s_dash_fault_hits; }
 bool init_vcu(FdcanBus& bus) {
   if (!bus.initClassic500k()) return false;
   const uint16_t ids[] = {
-    CAN_TPS0, CAN_TPS1, CAN_BPS, CAN_LV_ADDR, CAN_PL, CAN_ENERGY_USED_ADDR,
+    CAN_TPS0, CAN_TPS1, CAN_BPS, CAN_LV_ADDR, CAN_PL,
     CAN_SHUNT_CURRENT, CAN_SHUNT_VOLTAGE, CAN_DASH_FAULT,
     // add Brake Pressure 
   };
@@ -132,19 +131,15 @@ void poll(FdcanBus& bus) {
         break;
       case CAN_LV_ADDR:
         // VCU 0x507 layout: [0:1] LV V (mV), [2:3] regen torque s16,
-        //                   [4:5] eff score s16 × 0.0001, [6] dash mode, [7] pad.
+        //                   [4:5] eff score s16 × 0.0001, [6] dash mode, [7] energy remaining %.
         s_curr_lv = u16(d, 0, 1) * 0.001f;
         leds::efficiency_on_can_error((int16_t)u16(d, 4, 5) * 0.0001f);
         s_dash_mode = d[6]; // lets readd this in code
+        s_curr_energy_pct = d[7]; // 0-100% battery remaining
         break;
       case CAN_PL:
         s_curr_pl = d[4];
         break;
-      case CAN_ENERGY_USED_ADDR: {
-          s_curr_energy_pct = d[0]; // 6 sent = 6% directly
-          s_energy_ts_ms = now_ms();
-          break;
-      }
       case CAN_SHUNT_CURRENT: {
     	  s_shunt_current = (int32_t)u32(d, 0, 1, 2, 3) * 0.001f; // mA -> A
     	  break;

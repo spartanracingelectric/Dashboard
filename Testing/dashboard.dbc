@@ -34,6 +34,7 @@ BO_ 1287 LV_SOC_Eff: 8 Simulator
  SG_ Regen_Torque : 16|16@1- (1,0) [-32768|32767] "Nm" Dashboard
  SG_ Eff_Score : 32|16@1- (0.0001,0) [-3.2768|3.2767] "" Dashboard
  SG_ Dash_Mode : 48|8@1+ (1,0) [0|255] "" Dashboard
+ SG_ Energy_Remaining_Pct : 56|8@1+ (1,0) [0|100] "%" Dashboard
 
 BO_ 1298 PowerLimit_B: 8 Simulator
  SG_ PID_Integral : 0|16@1- (1,0) [-32768|32767] "" Dashboard
@@ -92,9 +93,6 @@ BO_ 1571 BMS_Pack_Summary_2: 8 Custom_BMS
 BO_ 165 RPM: 8 Simulator
  SG_ RPM : 8|16@1+ (1,0) [0|65535] "rpm" Dashboard
 
-BO_ 1697 ENERGY_USED: 8 Simulator
- SG_ Energy_Used : 0|32@1+ (0.001,0) [0|4294967.295] "kWh" Dashboard
-
 BO_ 1009 SHUNT_Current: 4 Simulator
  SG_ SHUNT_Current_mA : 0|32@1- (1,0) [-2147483648|2147483647] "mA" Dashboard
 
@@ -105,14 +103,13 @@ CM_ BO_ 1280 "VCU 0x500 - TPS0: throttle%, tps0%, raw value, calib min/max";
 CM_ BO_ 1281 "VCU 0x501 - TPS1: throttle%, tps1%, raw value, calib min/max";
 CM_ BO_ 1282 "VCU 0x502 - BPS0: brake%, raw voltage, calib min/max";
 CM_ BO_ 1285 "VCU 0x505 - Dash Fault: u32 LE bitfield (bytes 0-3). Bits: 0x1 tpsOutOfRange, 0x2 bpsOutOfRange, 0x4 tpsPowerFailure, 0x8 bpsPowerFailure, 0x10 tpsSignalFailure, 0x20 bpsSignalFailure, 0x40 tpsNotCalibrated, 0x80 bpsNotCalibrated, 0x100 tpsOutOfSync, 0x200 bpsOutOfSync, 0x400 tpsbpsImplausible.";
-CM_ BO_ 1287 "VCU 0x507 - LV battery voltage (0-1), regen torque (2-3), efficiency score (4-5), dash mode (6). Byte 7 is padding.";
+CM_ BO_ 1287 "VCU 0x507 - LV battery voltage (0-1), regen torque (2-3), efficiency score (4-5), dash mode (6), energy remaining % (7).";
 CM_ BO_ 1298 "VCU 0x512 - Power Limit Status B: PID integral, PL torque, target power, PID output, clamp method";
 CM_ BO_ 1536 "Custom_BMS 0x600 - Safety Checker: fault/warning flags, cell imbalance, HV sense, and pack V (Sum + HVsens). Dashboard reads pack V from bytes 6-7.";
 CM_ BO_ 1569 "Custom_BMS 0x621 - State of Charge: capacity (mAh), HV sense pack V, pack current (mA)";
 CM_ BO_ 1570 "Custom_BMS 0x622 - Pack Summary 1: highest/lowest cell voltage (scale 0.0001 V), highest/lowest cell temp, total pack voltage. Dashboard reads cell temps from bytes 4-5.";
 CM_ BO_ 1571 "Custom_BMS 0x623 - Pack Summary 2: fault/warning flags, pack imbalance, HV sense, pack SOC (future: drive left LEDs from bytes 6-7)";
 CM_ BO_ 165 "Motor RPM (bytes 1-2)";
-CM_ BO_ 1697 "Cumulative energy used in Wh, displayed as kWh";
 CM_ BO_ 1009 "SHUNT 0x3F1 - pack current (s32 LE, mA). Dashboard scales to A.";
 CM_ BO_ 1011 "SHUNT 0x3F3 - pack bus voltage (s32 LE, mV). Dashboard scales to V.";
 
