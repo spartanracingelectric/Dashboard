@@ -44,33 +44,33 @@ BO_ 1298 PowerLimit_B: 8 Simulator
  SG_ PL_ClampMethod : 56|8@1+ (1,0) [0|255] "" Dashboard
 
 BO_ 1536 BMS_Safety_Checker: 8 Custom_BMS
- SG_ BMS_Cell_High_Temp_Warning      : 2|1@1- (1,0) [0|1] "" Dashboard
- SG_ BMS_Cell_Volt_Imbalance_Warning : 3|1@1- (1,0) [0|1] "" Dashboard
- SG_ BMS_Cell_Low_Volt_Warning       : 4|1@1- (1,0) [0|1] "" Dashboard
- SG_ BMS_Cell_High_Volt_Warning      : 5|1@1- (1,0) [0|1] "" Dashboard
- SG_ BMS_Pack_Low_Volt_Warning       : 6|1@1- (1,0) [0|1] "" Dashboard
- SG_ BMS_Pack_High_Volt_Warning      : 7|1@1- (1,0) [0|1] "" Dashboard
- SG_ BMS_Cell_High_Temp_Fault        : 10|1@1- (1,0) [0|1] "" Dashboard
- SG_ BMS_Cell_Volt_Imbalance_Fault   : 11|1@1- (1,0) [0|1] "" Dashboard
- SG_ BMS_Cell_Low_Volt_Fault         : 12|1@1- (1,0) [0|1] "" Dashboard
- SG_ BMS_Cell_High_Volt_Fault        : 13|1@1- (1,0) [0|1] "" Dashboard
- SG_ BMS_Pack_Low_Volt_Fault         : 14|1@1- (1,0) [0|1] "" Dashboard
- SG_ BMS_Pack_High_Volt_Fault        : 15|1@1- (1,0) [0|1] "" Dashboard
+ SG_ BMS_Cell_High_Temp_Warning      : 2|1@1+ (1,0) [0|1] "" Dashboard
+ SG_ BMS_Cell_Volt_Imbalance_Warning : 3|1@1+ (1,0) [0|1] "" Dashboard
+ SG_ BMS_Cell_Low_Volt_Warning       : 4|1@1+ (1,0) [0|1] "" Dashboard
+ SG_ BMS_Cell_High_Volt_Warning      : 5|1@1+ (1,0) [0|1] "" Dashboard
+ SG_ BMS_Pack_Low_Volt_Warning       : 6|1@1+ (1,0) [0|1] "" Dashboard
+ SG_ BMS_Pack_High_Volt_Warning      : 7|1@1+ (1,0) [0|1] "" Dashboard
+ SG_ BMS_Cell_High_Temp_Fault        : 10|1@1+ (1,0) [0|1] "" Dashboard
+ SG_ BMS_Cell_Volt_Imbalance_Fault   : 11|1@1+ (1,0) [0|1] "" Dashboard
+ SG_ BMS_Cell_Low_Volt_Fault         : 12|1@1+ (1,0) [0|1] "" Dashboard
+ SG_ BMS_Cell_High_Volt_Fault        : 13|1@1+ (1,0) [0|1] "" Dashboard
+ SG_ BMS_Pack_Low_Volt_Fault         : 14|1@1+ (1,0) [0|1] "" Dashboard
+ SG_ BMS_Pack_High_Volt_Fault        : 15|1@1+ (1,0) [0|1] "" Dashboard
  SG_ BMS_Cell_Max_Min_Difference     : 16|16@1+ (0.0001,0) [0|6.5535] "V" Dashboard
  SG_ BMS_HVsens_Pack_Voltage         : 32|16@1+ (0.01,0) [0|655.35] "V" Dashboard
  SG_ BMS_Sum_Pack_Voltage            : 48|16@1+ (0.01,0) [0|655.35] "V" Dashboard
 
-BO_ 1569 BMS_State_of_Charge: 7 Custom_BMS
- SG_ BMS_Capacity             : 0|16@1+  (1,0)    [0|65535]      "mAh" Dashboard
- SG_ BMS_HV_Sense_Pack_Voltage: 16|16@1+ (0.01,0) [0|65535]      "V"   Dashboard
- SG_ BMS_Current              : 32|32@1+ (1,0)    [0|4294967295] "mA"  Dashboard
+BO_ 1569 BMS_State_of_Charge: 8 Custom_BMS
+ SG_ BMS_SOC_Capacity : 0|16@1- (1,0) [-32768|32767] "mAh" Dashboard
+ SG_ BMS_SOC_Percent  : 16|16@1+ (0.01,0) [0|100] "%" Dashboard
+ SG_ BMS_Current      : 32|32@1- (1,0) [-2147483648|2147483647] "mA" Dashboard
 
 BO_ 1570 BMS_Pack_Summary_1: 8 Custom_BMS
- SG_ BMS_Highest_Cell_Voltage : 0|16@1+ (0.0001,0) [0|6.5535] "V" Dashboard
- SG_ BMS_Lowest_Cell_Voltage : 16|16@1+ (0.0001,0) [0|6.5535] "V" Dashboard
- SG_ BMS_Higest_Cell_Temperature : 32|8@1- (1,0) [-128|127] "C" Dashboard
- SG_ BMS_Lowest_Cell_Temperature : 40|8@1- (1,0) [-128|127] "C" Dashboard
- SG_ BMS_Total_Pack_Voltage : 48|16@1+ (0.01,0) [0|655.35] "V" Dashboard
+ SG_ BMS_Highest_Cell_Voltage     : 0|16@1+ (0.0001,0) [0|6.5535] "V" Dashboard
+ SG_ BMS_Lowest_Cell_Voltage      : 16|16@1+ (0.0001,0) [0|6.5535] "V" Dashboard
+ SG_ BMS_Highest_Cell_Temperature : 32|8@1- (1,0) [-128|127] "C" Dashboard
+ SG_ BMS_Lowest_Cell_Temperature  : 40|8@1- (1,0) [-128|127] "C" Dashboard
+ SG_ BMS_Total_Pack_Voltage       : 48|16@1+ (0.01,0) [0|655.35] "V" Dashboard
 
 BO_ 1571 BMS_Pack_Summary_2: 8 Custom_BMS
  SG_ BMS_Cell_Overvolt_Fault       : 0|1@1+ (1,0) [0|1] "" Dashboard
@@ -86,9 +86,9 @@ BO_ 1571 BMS_Pack_Summary_2: 8 Custom_BMS
  SG_ BMS_Cell_High_Temp_Warning    : 10|1@1+ (1,0) [0|1] "" Dashboard
  SG_ BMS_Cell_Low_Temp_Warning     : 11|1@1+ (1,0) [0|1] "" Dashboard
  SG_ BMS_Cell_Imbalance_Warning    : 12|1@1+ (1,0) [0|1] "" Dashboard
- SG_ BMS_Pack_Imbalance            : 16|16@1- (0.001,0) [-32.768|32.767] "mV" Dashboard
+ SG_ BMS_Pack_Imbalance            : 16|16@1- (1,0) [-32768|32767] "mV" Dashboard
  SG_ BMS_HV_Sense_Pack_Voltage     : 32|16@1+ (0.01,0) [0|655.35] "V" Dashboard
- SG_ BMS_State_of_Charge           : 48|16@1+ (0.01,0) [0|655.35] "%" Dashboard
+ SG_ BMS_State_of_Charge           : 48|16@1- (1,0) [-32768|32767] "mAh" Dashboard
 
 BO_ 165 RPM: 8 Simulator
  SG_ RPM : 8|16@1+ (1,0) [0|65535] "rpm" Dashboard
@@ -106,9 +106,9 @@ CM_ BO_ 1285 "VCU 0x505 - Dash Fault: u32 LE bitfield (bytes 0-3). Bits: 0x1 tps
 CM_ BO_ 1287 "VCU 0x507 - LV battery voltage (0-1), regen torque (2-3), efficiency score (4-5), dash mode (6), energy remaining % (7).";
 CM_ BO_ 1298 "VCU 0x512 - Power Limit Status B: PID integral, PL torque, target power, PID output, clamp method";
 CM_ BO_ 1536 "Custom_BMS 0x600 - Safety Checker: fault/warning flags, cell imbalance, HV sense, and pack V (Sum + HVsens). Dashboard reads pack V from bytes 6-7.";
-CM_ BO_ 1569 "Custom_BMS 0x621 - State of Charge: capacity (mAh), HV sense pack V, pack current (mA)";
-CM_ BO_ 1570 "Custom_BMS 0x622 - Pack Summary 1: highest/lowest cell voltage (scale 0.0001 V), highest/lowest cell temp, total pack voltage. Dashboard reads cell temps from bytes 4-5.";
-CM_ BO_ 1571 "Custom_BMS 0x623 - Pack Summary 2: fault/warning flags, pack imbalance, HV sense, pack SOC (future: drive left LEDs from bytes 6-7)";
+CM_ BO_ 1569 "Custom_BMS 0x621 - State of Charge: SOC capacity (s16 mAh), SOC percent (u16 × 0.01 %), pack current (s32 mA)";
+CM_ BO_ 1570 "Custom_BMS 0x622 - Pack Summary 1: highest/lowest cell voltage (scale 0.0001 V), highest/lowest cell temp (s8 °C), total pack voltage. Dashboard reads lowest cell V from bytes 2-3 and highest cell temp from byte 4.";
+CM_ BO_ 1571 "Custom_BMS 0x623 - Pack Summary 2: fault/warning flags in byte 0, pack imbalance (s16 mV), HV sense, pack SOC (s16 mAh)";
 CM_ BO_ 165 "Motor RPM (bytes 1-2)";
 CM_ BO_ 1009 "SHUNT 0x3F1 - pack current (s32 LE, mA). Dashboard scales to A.";
 CM_ BO_ 1011 "SHUNT 0x3F3 - pack bus voltage (s32 LE, mV). Dashboard scales to V.";

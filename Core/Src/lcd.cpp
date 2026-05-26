@@ -33,8 +33,7 @@ float max_power = 0.0f;
  *      2 : goofy screen - no useful data, intentionally
  *      anything else : normal dashboard (single dark-gray theme)
  *
- *  Any nonzero `dash_fault` pre-empts the mode and shows a flashing fault
- *  overlay listing the active fault bits.
+ *  A BMS fault in DF_DisplayMask pre-empts the mode and shows the overlay.
  * ========================================================================= */
 
 // ---- Layout ----------------------------------------------------------------
@@ -195,9 +194,8 @@ static uint16_t drawDataDashboard(uint16_t FWo, const Theme& th,
     return FWo;
 }
 
-// Full-screen flashing yellow overlay listing every set bit in `fault_mask`.
-static uint16_t drawFaultOverlay(uint16_t FWo, uint32_t fault_mask) {
-    // Flash background between bright and dark yellow ~2.5 Hz to grab attention.
+static uint16_t drawFaultOverlay(uint16_t FWo, uint8_t fault_mask,
+                                 float low_cell_v, float high_cell_temp) {
     bool flash_on = ((HAL_GetTick() / 200u) & 1u) == 0u;
     uint8_t bg_v = flash_on ? 180 : 110;
 
@@ -206,29 +204,24 @@ static uint16_t drawFaultOverlay(uint16_t FWo, uint32_t fault_mask) {
 
     FWo = EVE_Cmd_Dat_0(FWo, EVE_ENC_COLOR_RGB(255, 255, 255));
     FWo = EVE_Open_Rectangle(FWo, 20, 20, 780, 460, 8);
-    FWo = EVE_PrintF(FWo, 400, 90, 31, EVE_OPT_CENTER, "!! FAULT !!");
+    FWo = EVE_PrintF(FWo, 400, 90, 31, EVE_OPT_CENTER, "!! BMS FAULT !!");
 
-    // Cap visible entries so the list cannot overflow the action prompt at y=420.
-    const int max_visible = 5;
     int line_y = 180;
-    int shown  = 0;
-    int total  = 0;
-    for (int b = 0; b < 32; b++) {
-        uint32_t bit = (uint32_t)1 << b;
-        if ((fault_mask & bit) == 0) continue;
-        total++;
-        if (shown < max_visible) {
-            const char* name = GetSingleFaultName(bit);
-            if (name == nullptr) name = "Unknown Fault";
-            FWo = EVE_PrintF(FWo, 400, line_y, 31, EVE_OPT_CENTER, "%s", name);
-            line_y += 45;
-            shown++;
-        }
+    if (fault_mask & DF_CellUndervolt) {
+        FWo = EVE_PrintF(FWo, 400, line_y, 31, EVE_OPT_CENTER, "Cell Undervoltage");
+        int32_t v_int = (int32_t)low_cell_v;
+        int32_t v_mv  = (int32_t)((low_cell_v - (float)v_int) * 1000.0f);
+        if (v_mv < 0) v_mv = -v_mv;
+        FWo = EVE_PrintF(FWo, 400, line_y + 40, 30, EVE_OPT_CENTER,
+                         "%ld.%03ld V", (long)v_int, (long)v_mv);
+        line_y += 110;
     }
-    if (total > shown) {
-        FWo = EVE_PrintF(FWo, 400, line_y, 28, EVE_OPT_CENTER,
-                         "+%d more", total - shown);
+    if (fault_mask & DF_CellHighTemp) {
+        FWo = EVE_PrintF(FWo, 400, line_y, 31, EVE_OPT_CENTER, "High Cell Temp");
+        FWo = EVE_PrintF(FWo, 400, line_y + 40, 30, EVE_OPT_CENTER,
+                         "%ld C", (long)(int32_t)high_cell_temp);
     }
+
     FWo = EVE_PrintF(FWo, 400, 420, 28, EVE_OPT_CENTER, "Check Vehicle");
     return FWo;
 }
@@ -250,45 +243,26 @@ static uint16_t drawGoofyScreen(uint16_t FWo) {
     return FWo;
 }
 
-// Edge-detected, time-windowed view of the dash fault bitmask.
-//
-// Why: the overlay should fire on the 0 -> nonzero transition and stay up for
-// DASH_FAULT_DISPLAY_MS even if bits flap. Restarting the timer on every
-// change would mean the overlay never goes away, and re-rendering the latest
-// raw mask each frame makes the listed fault visibly cycle when bits toggle.
-// Solution: latch the union of bits seen during the open window, hold it for
-// the window duration, then re-arm once the underlying mask returns to zero.
-static uint32_t latchedFaultMask(uint32_t cur_fault) {
-    static uint32_t latched  = 0;
-    static uint32_t start_ms = 0;
-
-    uint32_t now = HAL_GetTick();
-    bool in_window = (latched != 0) && ((now - start_ms) < DASH_FAULT_DISPLAY_MS);
-
-    if (in_window) {
-        latched |= cur_fault;            // accumulate without restarting timer
-    } else if (cur_fault != 0 && latched == 0) {
-        latched   = cur_fault;           // rising edge: open a fresh window
-        start_ms  = now;
-        in_window = true;
-    } else if (cur_fault == 0) {
-        latched = 0;                     // re-arm for the next rising edge
-    }
-    return in_window ? latched : 0;
+// Latches BMS fault bits (masked to DF_DisplayMask) for DASH_FAULT_DISPLAY_MS
+// so flapping bits don't make the overlay flicker. Accumulates within the
+// window without restarting the timer; re-arms once the mask returns to 0.
+static uint8_t latchedFaultMask(uint8_t cur_fault) {
+    static uint8_t latched = 0;
+    latched |= (cur_fault & DF_DisplayMask);
+    return latched;
 }
 
+
 static void renderDash(float voltage, float max_power, float cell_high, float cell_low,
-                       float PL, float TPS, float energy, float dash_fault,
-                       uint8_t dash_mode) // add parameter for Brake Pressure 
+                       float PL, float TPS, float energy, uint8_t fault_mask,
+                       uint8_t dash_mode)
 {
     uint16_t FWo = EVE_REG_Read_16(EVE_REG_CMD_WRITE);
     FWo = Wait_for_EVE_Execution_Complete(FWo);
 
-    // Faults pre-empt every mode. dash_mode 2 is the goofy screen; everything
-    // else is the normal single-theme dashboard.
-    if (dash_fault != 0) {
+    if (fault_mask != 0) {
         FWo = beginFrame(FWo, kTheme);
-        FWo = drawFaultOverlay(FWo, (uint32_t)dash_fault);
+        FWo = drawFaultOverlay(FWo, fault_mask, cell_low, cell_high);
     } else if (dash_mode == 2) {
         FWo = beginFrame(FWo, kTheme);
         FWo = drawGoofyScreen(FWo);
@@ -327,16 +301,16 @@ void LCD_demoCodeTest(void)
         power_above_start_ms = 0;
     }
 
-    uint32_t fault_to_show = latchedFaultMask((uint32_t)cansvc::dash_fault_code());
+    uint8_t fault_to_show = latchedFaultMask((uint8_t)cansvc::bms_fault());
 
     renderDash(cansvc::hv(),
                max_power,
                cansvc::celltemp(),
                cansvc::hv_low(),
                cansvc::pl(),
-               tps_avg, 
+               tps_avg,
                cansvc::energy_pct(),
-               (float)fault_to_show,
+               fault_to_show,
                cansvc::dash_mode());
 }
 

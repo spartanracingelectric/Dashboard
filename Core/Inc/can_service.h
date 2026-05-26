@@ -5,42 +5,21 @@
 
 namespace cansvc {
 
-
-float hv();          // pack voltage
-float hv_current();  // pack current
-float hv_temp();     // pack temp (°C)
-float hv_low();      // lowest cell voltage (V)
-float lv();          // low voltage battery
-float soc();         // state of charge %
+float hv();            // pack voltage
+float hv_low();        // lowest cell voltage (V)
+float celltemp();      // highest cell temp (°C)
 float tps0_percent();
-float tps0_voltage();
 float tps1_percent();
-float tps1_voltage();
-float dash_fault_code();
-
-float bps_percent();
+float pl();            // power limit
 float shunt_current();
 float shunt_voltage();
-float pl();           // power limit
-float rpm();
-float celltemp();      // highest cell temp (°C)
-float celltemp_low();  // lowest cell temp (°C)
-float bms_fault();
-float bms_warn();
-float bms_stat();
-float energy_pct();  // energy percentage from VCU
-float can_service_get_energy_used_kWh();
+float bms_fault();     // Pack_Summary_2 byte 0 (see dash_fault.h)
+float energy_pct();    // energy remaining %
 float dash_mode();
 
-// DEBUG
-uint32_t debug_last_rx_id();
-uint32_t debug_rx_count();
-uint32_t debug_dash_fault_hits();
-
-// Service
-bool  init_vcu(FdcanBus& bus);   // FDCAN2: TPS/BPS/LV/PL/Energy
+bool  init_vcu(FdcanBus& bus);   // FDCAN2: TPS/LV/PL/Shunt
 bool  init_bms(FdcanBus& bus);   // FDCAN1: Safety_Checker/Pack_Summary_1/2
-void  poll(FdcanBus& bus);       // call on each bus
+void  poll(FdcanBus& bus);
 void  send_test(FdcanBus& bus);
 
 } // namespace
