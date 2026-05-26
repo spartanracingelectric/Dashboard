@@ -29,11 +29,10 @@ float max_power = 0.0f;
  *      Energy bar (y=150) : full-width energy-remaining bar
  *      Bottom row (y=196) : TPS    | PL             | Max Power
  *
- *  dash_mode selects the look:
- *      2 : goofy screen - no useful data, intentionally
- *      anything else : normal dashboard (single dark-gray theme)
+ *  dash_mode controls LCD brightness (0 = brightest, 6 = dimmest); see
+ *  LCD_demoCodeTest for the mapping.
  *
- *  A BMS fault in DF_DisplayMask pre-empts the mode and shows the overlay.
+ *  A BMS fault in DF_DisplayMask pre-empts everything and shows the overlay.
  * ========================================================================= */
 
 // ---- Layout ----------------------------------------------------------------
@@ -226,23 +225,6 @@ static uint16_t drawFaultOverlay(uint16_t FWo, uint8_t fault_mask,
     return FWo;
 }
 
-static uint16_t drawGoofyScreen(uint16_t FWo) {
-    static const Color palette[4] = {
-        {255, 105, 180}, // hot pink
-        { 64, 224, 208}, // turquoise
-        {255, 215,   0}, // gold
-        {138,  43, 226}, // blueviolet
-    };
-    Color bg = palette[(HAL_GetTick() / 600u) % 4u];
-
-    FWo = setColor(FWo, bg);
-    FWo = EVE_Filled_Rectangle(FWo, 0, 0, LCD_W, LCD_H);
-
-    FWo = EVE_Cmd_Dat_0(FWo, EVE_ENC_COLOR_RGB(255, 255, 255));
-    FWo = EVE_PrintF(FWo, 400, 240, 30, EVE_OPT_CENTER, "HIREN IS MEGA MEGA MEGA GAY LOLOLOLOL");
-    return FWo;
-}
-
 // Latches BMS fault bits (masked to DF_DisplayMask) for DASH_FAULT_DISPLAY_MS
 // so flapping bits don't make the overlay flicker. Accumulates within the
 // window without restarting the timer; re-arms once the mask returns to 0.
@@ -254,20 +236,15 @@ static uint8_t latchedFaultMask(uint8_t cur_fault) {
 
 
 static void renderDash(float voltage, float max_power, float cell_high, float cell_low,
-                       float PL, float TPS, float energy, uint8_t fault_mask,
-                       uint8_t dash_mode)
+                       float PL, float TPS, float energy, uint8_t fault_mask)
 {
     uint16_t FWo = EVE_REG_Read_16(EVE_REG_CMD_WRITE);
     FWo = Wait_for_EVE_Execution_Complete(FWo);
 
+    FWo = beginFrame(FWo, kTheme);
     if (fault_mask != 0) {
-        FWo = beginFrame(FWo, kTheme);
         FWo = drawFaultOverlay(FWo, fault_mask, cell_low, cell_high);
-    } else if (dash_mode == 2) {
-        FWo = beginFrame(FWo, kTheme);
-        FWo = drawGoofyScreen(FWo);
     } else {
-        FWo = beginFrame(FWo, kTheme);
         FWo = drawDataDashboard(FWo, kTheme,
                                 voltage, cell_high, cell_low,
                                 TPS, PL, max_power, energy);
@@ -282,6 +259,7 @@ static void renderDash(float voltage, float max_power, float cell_high, float ce
 void LCD_demoCodeTest(void)
 {
     static uint32_t power_above_start_ms = 0;
+    static uint8_t  last_pwm_duty        = 0xFF; // force a write on the first frame
 
     float tps_avg    = (cansvc::tps0_percent() + cansvc::tps1_percent()) / 2.0f;
     float inst_power = cansvc::shunt_voltage() * cansvc::shunt_current() / 1000.0f;
@@ -301,6 +279,15 @@ void LCD_demoCodeTest(void)
         power_above_start_ms = 0;
     }
 
+    // dash_mode -> LCD backlight: 0 = brightest (PWM 128), 6 = dimmest (PWM 8).
+    uint8_t mode = (uint8_t)cansvc::dash_mode();
+    if (mode > 6) mode = 6;
+    uint8_t pwm_duty = (uint8_t)(128 - mode * 20);
+    if (pwm_duty != last_pwm_duty) {
+        LCD_writeRegister8(REG_PWM_DUTY_ADDRESS, pwm_duty);
+        last_pwm_duty = pwm_duty;
+    }
+
     uint8_t fault_to_show = latchedFaultMask((uint8_t)cansvc::bms_fault());
 
     renderDash(cansvc::hv(),
@@ -310,8 +297,7 @@ void LCD_demoCodeTest(void)
                cansvc::pl(),
                tps_avg,
                cansvc::energy_pct(),
-               fault_to_show,
-               cansvc::dash_mode());
+               fault_to_show);
 }
 
 void LCD_drawLineOnce(void)
