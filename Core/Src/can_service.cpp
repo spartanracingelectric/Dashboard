@@ -27,7 +27,7 @@ float dash_mode()    { return s_dash_mode; }
 bool init_vcu(FdcanBus& bus) {
   if (!bus.initClassic500k()) return false;
   const uint16_t ids[] = {
-    CAN_TPS0, CAN_TPS1, CAN_LV_ADDR, CAN_PL,
+    CAN_TPS0, CAN_TPS1, CAN_LV_ADDR, CAN_BPS1, CAN_PL,
     CAN_SHUNT_CURRENT, CAN_SHUNT_VOLTAGE,
   };
   for (uint16_t id : ids) bus.addStdFilter(id);
@@ -74,8 +74,10 @@ void poll(FdcanBus& bus) {
       case CAN_LV_ADDR:
         // 0x507 byte[4:5] eff score s16 × 0.0001 -> LED bar
         leds::efficiency_on_can_error((int16_t)u16(d, 4, 5) * 0.0001f);
-        s_dash_mode = d[6];
         s_curr_energy_pct = d[7];
+        break;
+      case CAN_BPS1:
+        s_dash_mode = d[1];
         break;
       case CAN_PL:
         s_curr_pl = d[4];
