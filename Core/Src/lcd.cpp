@@ -29,7 +29,7 @@ float max_power = 0.0f;
  *      Energy bar (y=150) : full-width energy-remaining bar
  *      Bottom row (y=196) : TPS    | PL             | Max Power
  *
- *  dash_mode controls LCD brightness (0 = brightest, 6 = dimmest); see
+ *  dash_mode controls LCD brightness (1 = brightest, 6 = dimmest); see
  *  LCD_demoCodeTest for the mapping.
  *
  *  A BMS fault in DF_DisplayMask pre-empts everything and shows the overlay.
@@ -279,10 +279,12 @@ void LCD_demoCodeTest(void)
         power_above_start_ms = 0;
     }
 
-    // dash_mode -> LCD backlight: 0 = brightest (PWM 128), 6 = dimmest (PWM 8).
+    // dash_mode -> LCD backlight: 1 = brightest (PWM 128), 6 = dimmest (PWM 28).
+    // VCU sends 1..6 from PL knob; 0 only appears before the first CAN frame, treat as brightest.
     uint8_t mode = (uint8_t)cansvc::dash_mode();
+    if (mode == 0) mode = 1;
     if (mode > 6) mode = 6;
-    uint8_t pwm_duty = (uint8_t)(128 - mode * 20);
+    uint8_t pwm_duty = (uint8_t)(128 - (mode - 1) * 20);
     if (pwm_duty != last_pwm_duty) {
         LCD_writeRegister8(REG_PWM_DUTY_ADDRESS, pwm_duty);
         last_pwm_duty = pwm_duty;
