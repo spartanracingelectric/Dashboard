@@ -324,7 +324,7 @@ void LCD_drawLineOnce(void)
     FWo = EVE_Cmd_Dat_0(FWo, EVE_ENC_COLOR_A(255));
 
     FWo = EVE_Cmd_Dat_0(FWo, EVE_ENC_COLOR_RGB(255, 255, 255));
-    FWo = EVE_Text(FWo, 250, 190, 31, 0, (char*)"HIREN WAS HERE");
+    FWo = EVE_Text(FWo, 250, 190, 31, 0, (char*)"AKASH WAS HERE");
 
     // Finish and swap
     FWo = EVE_Cmd_Dat_0(FWo, EVE_ENC_DISPLAY());
