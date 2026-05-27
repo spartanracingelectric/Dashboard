@@ -279,12 +279,12 @@ void LCD_demoCodeTest(void)
         power_above_start_ms = 0;
     }
 
-    // dash_mode -> LCD backlight: 1 = brightest (PWM 128), 6 = dimmest (PWM 28).
+    // dash_mode -> LCD backlight: 1 = brightest (PWM 128, 100%), 6 = dimmest (PWM 8, ~6%).
     // VCU sends 1..6 from PL knob; 0 only appears before the first CAN frame, treat as brightest.
     uint8_t mode = (uint8_t)cansvc::dash_mode();
     if (mode == 0) mode = 1;
     if (mode > 6) mode = 6;
-    uint8_t pwm_duty = (uint8_t)(128 - (mode - 1) * 20);
+    uint8_t pwm_duty = (uint8_t)(128 - (mode - 1) * 24);
     if (pwm_duty != last_pwm_duty) {
         LCD_writeRegister8(REG_PWM_DUTY_ADDRESS, pwm_duty);
         last_pwm_duty = pwm_duty;
