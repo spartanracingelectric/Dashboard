@@ -17,8 +17,12 @@ const uint8_t DLCODE_BOOTUP[12] =
 
 float max_power = 0.0f;
 
-#define DASH_FAULT_DISPLAY_MS 3000u
+#define DASH_FAULT_DISPLAY_MS 10000u
 #define MAX_POWER_DEBOUNCE_MS 100u
+#define NOS_DISPLAY_MS        3000u
+#define PACK_CAPACITY_KWH     6.0f
+#define NOS_TRIGGER_KWH       1.0f
+#define NOS_TRIGGER_PCT       (100.0f - (NOS_TRIGGER_KWH / PACK_CAPACITY_KWH) * 100.0f)
 
 /* ============================================================================
  *  Dash rendering
@@ -193,6 +197,40 @@ static uint16_t drawDataDashboard(uint16_t FWo, const Theme& th,
     return FWo;
 }
 
+static uint16_t nos(uint16_t FWo) {
+    bool flash_on = ((HAL_GetTick() / 200u) & 1u) == 0u;
+    uint8_t bg_v = flash_on ? 180 : 110;
+
+    FWo = EVE_Cmd_Dat_0(FWo, EVE_ENC_COLOR_RGB(bg_v, bg_v, 0));
+    FWo = EVE_Filled_Rectangle(FWo, 0, 0, LCD_W, LCD_H);
+
+    FWo = EVE_Cmd_Dat_0(FWo, EVE_ENC_COLOR_RGB(255, 255, 255));
+    FWo = EVE_Open_Rectangle(FWo, 20, 20, 780, 460, 8);
+    FWo = EVE_PrintF(FWo, 400, 180, 31, EVE_OPT_CENTER, "NOS ACTIVATED");
+    return FWo;
+}
+
+static bool nosActive(float energy) {
+    static bool     armed    = true;
+    static bool     showing  = false;
+    static uint32_t start_ms = 0;
+
+    uint32_t now = HAL_GetTick();
+
+    if (armed && energy <= NOS_TRIGGER_PCT) {
+        armed    = false;
+        showing  = true;
+        start_ms = now;
+    } else if (energy > NOS_TRIGGER_PCT) {
+        armed = true;
+    }
+
+    if (showing && (now - start_ms) >= NOS_DISPLAY_MS) {
+        showing = false;
+    }
+    return showing;
+}
+
 static uint16_t drawFaultOverlay(uint16_t FWo, uint8_t fault_mask,
                                  float low_cell_v, float high_cell_temp) {
     bool flash_on = ((HAL_GetTick() / 200u) & 1u) == 0u;
@@ -229,9 +267,24 @@ static uint16_t drawFaultOverlay(uint16_t FWo, uint8_t fault_mask,
 // so flapping bits don't make the overlay flicker. Accumulates within the
 // window without restarting the timer; re-arms once the mask returns to 0.
 static uint8_t latchedFaultMask(uint8_t cur_fault) {
-    static uint8_t latched = 0;
-    latched |= (cur_fault & DF_DisplayMask);
-    return latched;
+    static uint8_t  latched  = 0;
+    static uint32_t start_ms = 0;
+
+    cur_fault &= DF_DisplayMask;             // only the bits we display
+
+    uint32_t now = HAL_GetTick();
+    bool in_window = (latched != 0) && ((now - start_ms) < DASH_FAULT_DISPLAY_MS);
+
+    if (in_window) {
+        latched |= cur_fault;                // accumulate without restarting timer
+    } else if (cur_fault != 0 && latched == 0) {
+        latched   = cur_fault;               // rising edge: open a fresh 10 s window
+        start_ms  = now;
+        in_window = true;
+    } else if (cur_fault == 0) {
+        latched = 0;                         // fault cleared: re-arm for the next edge
+    }
+    return in_window ? latched : 0;
 }
 
 
@@ -244,6 +297,8 @@ static void renderDash(float voltage, float max_power, float cell_high, float ce
     FWo = beginFrame(FWo, kTheme);
     if (fault_mask != 0) {
         FWo = drawFaultOverlay(FWo, fault_mask, cell_low, cell_high);
+    } else if (nosActive(energy)) {
+        FWo = nos(FWo);
     } else {
         FWo = drawDataDashboard(FWo, kTheme,
                                 voltage, cell_high, cell_low,
