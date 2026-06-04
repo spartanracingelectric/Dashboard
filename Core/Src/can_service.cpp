@@ -9,6 +9,9 @@ static float s_curr_hv = 0, s_curr_hvlow = 0, s_curr_celltemp = 0;
 static float s_curr_tps0p = 0, s_curr_tps1p = 0, s_curr_pl = 0;
 static float s_curr_bms_fault = 0, s_curr_energy_pct = 0, s_dash_mode = 0;
 static float s_shunt_voltage = 0, s_shunt_current = 0;
+static float s_motor_temp = 0, s_mcu_temp = 0, s_fl_temp = 0;
+static float s_fr_temp = 0, s_rl_temp = 0, s_rr_temp = 0, s_long_g = 0;
+static float s_lat_g = 0, s_pack_imbal = 0, s_term_sense = 0;
 
 namespace cansvc {
 
@@ -23,6 +26,16 @@ float shunt_voltage(){ return s_shunt_voltage; }
 float bms_fault()    { return s_curr_bms_fault; }
 float energy_pct()   { return s_curr_energy_pct; }
 float dash_mode()    { return s_dash_mode; }
+float motor_temp()   { return s_motor_temp;}
+float mcu_temp()     { return s_mcu_temp;}
+float tire_fl_temp() { return s_fl_temp;}
+float tire_fr_temp() { return s_fr_temp;}
+float tire_rl_temp() { return s_rl_temp;}
+float tire_rr_temp() { return s_rr_temp;}
+float long_g()       { return s_long_g;}
+float lat_g()        { return s_lat_g;}
+float pack_imbal()   { return s_pack_imbal;}
+bool term_sense()    { return s_term_sense;;}
 
 bool init_vcu(FdcanBus& bus) {
   if (!bus.initClassic500k()) return false;

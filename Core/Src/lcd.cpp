@@ -64,6 +64,30 @@ typedef struct {
     Color unit;   // unit suffix below the value
 } Theme;
 
+typedef struct {
+    // default dash
+    float voltage;
+    float max_power;
+    float cell_high;
+    float cell_low;
+    float PL;
+    float TPS;
+    float energy;
+    uint8_t fault_mask;
+
+    // diagnostics dash
+    float mcu_temp;
+    float motor_temp;
+    float fl_temp;
+    float fr_temp;
+    float rl_temp;
+    float rr_temp;
+    float long_g;
+    float lat_g;
+    float pack_imbal;
+    bool term_sense;
+} DashData;
+
 // Spartan Racing theme: dark gray background, team-gold values framed in team blue.
 static const Theme kTheme = {
     { 40,  40,  40},   // bg:     dark gray
@@ -250,21 +274,110 @@ static uint8_t latchedFaultMask(uint8_t cur_fault) {
     return in_window ? latched : 0;
 }
 
+// vertical list rendering
+static uint16_t drawDiagnosticLine(uint16_t FWo, const Theme& th,
+                                   int y,
+                                   const char* label,
+                                   float value,
+                                   const char* unit,
+                                   int decimals)
+{
+    FWo = setColor(FWo, th.label);
+    FWo = EVE_PrintF(FWo, 40, y, 28, 0, "%s", label);
 
-static void renderDash(float voltage, float max_power, float cell_high, float cell_low,
-                       float PL, float TPS, float energy, uint8_t fault_mask)
+    FWo = setColor(FWo, th.value);
+
+    if (decimals == 0) {
+        FWo = EVE_PrintF(FWo, 620, y, 28, EVE_OPT_RIGHTX,
+                         "%ld %s", (long)(int32_t)value, unit);
+    } else {
+        int32_t v_int = (int32_t)value;
+        int32_t v_dec = (int32_t)((value - (float)v_int) * 100.0f);
+        if (v_dec < 0) v_dec = -v_dec;
+
+        FWo = EVE_PrintF(FWo, 620, y, 28, EVE_OPT_RIGHTX,
+                         "%ld.%02ld %s",
+                         (long)v_int,
+                         (long)v_dec,
+                         unit);
+    }
+
+    return FWo;
+}
+
+static uint16_t drawDiagnostics(uint16_t FWo, const Theme& th,
+                                float mcu_temp,
+                                float motor_temp,
+                                float fl_temp,
+                                float fr_temp,
+                                float rl_temp,
+                                float rr_temp,
+                                float long_g,
+                                float lat_g,
+                                float pack_imbal,
+                                bool term_sense)
+{
+    int y = 25;
+    const int dy = 42;
+
+    FWo = setColor(FWo, th.value);
+    FWo = EVE_PrintF(FWo, 400, y, 31, EVE_OPT_CENTER, "DIAGNOSTICS MODE");
+    y += 55;
+
+    FWo = drawDiagnosticLine(FWo, th, y, "MCU Temp",   mcu_temp,   "C", 0); y += dy;
+    FWo = drawDiagnosticLine(FWo, th, y, "Motor Temp", motor_temp, "C", 0); y += dy;
+
+    FWo = drawDiagnosticLine(FWo, th, y, "Tire FL", fl_temp, "C", 0); y += dy;
+    FWo = drawDiagnosticLine(FWo, th, y, "Tire FR", fr_temp, "C", 0); y += dy;
+    FWo = drawDiagnosticLine(FWo, th, y, "Tire RL", rl_temp, "C", 0); y += dy;
+    FWo = drawDiagnosticLine(FWo, th, y, "Tire RR", rr_temp, "C", 0); y += dy;
+
+    FWo = drawDiagnosticLine(FWo, th, y, "IMU Long G", long_g, "G", 2); y += dy;
+    FWo = drawDiagnosticLine(FWo, th, y, "IMU Lat G",  lat_g,  "G", 2); y += dy;
+
+    FWo = drawDiagnosticLine(FWo, th, y, "Pack Imbalance", pack_imbal, "mV", 0); y += dy;
+
+    FWo = setColor(FWo, th.label);
+    FWo = EVE_PrintF(FWo, 40, y, 28, 0, "Term Sense");
+
+    FWo = setColor(FWo, term_sense ? th.value : (Color){255, 80, 80});
+    FWo = EVE_PrintF(FWo, 620, y, 28, EVE_OPT_RIGHTX,
+                     term_sense ? "OK" : "FAULT");
+
+    return FWo;
+}
+
+static void renderDash(const DashData& d, uint8_t mode)
 {
     uint16_t FWo = EVE_REG_Read_16(EVE_REG_CMD_WRITE);
     FWo = Wait_for_EVE_Execution_Complete(FWo);
 
     FWo = beginFrame(FWo, kTheme);
-    if (fault_mask != 0) {
-        FWo = drawFaultOverlay(FWo, fault_mask, cell_low, cell_high);
+    if (d.fault_mask != 0) {
+        FWo = drawFaultOverlay(FWo, d.fault_mask, d.cell_low, d.cell_high);
     }
+    else if (mode == 6) {
+        FWo = drawDiagnostics(FWo, kTheme,
+                        d.mcu_temp,
+                        d.motor_temp,
+                        d.fl_temp,
+                        d.fr_temp,
+                        d.rl_temp,
+                        d.rr_temp,
+                        d.long_g,
+                        d.lat_g,
+                        d.pack_imbal,
+                        d.term_sense);
+}
     else {
         FWo = drawDataDashboard(FWo, kTheme,
-                                voltage, cell_high, cell_low,
-                                TPS, PL, max_power, energy);
+                        d.voltage,
+                        d.cell_high,
+                        d.cell_low,
+                        d.TPS,
+                        d.PL,
+                        d.max_power,
+                        d.energy);
     }
 
     FWo = endFrame(FWo);
@@ -296,27 +409,80 @@ void LCD_demoCodeTest(void)
         power_above_start_ms = 0;
     }
 
-    // dash_mode -> LCD backlight: 1 = brightest (PWM 128), 6 = dimmest (PWM 28).
-    // VCU sends 1..6 from PL knob; 0 only appears before the first CAN frame, treat as brightest.
+    // dash_mode: 1 - 4 is dimmer and dimmer, 5 is off, 6 is diagnostics mode
     uint8_t mode = (uint8_t)cansvc::dash_mode();
+    uint8_t fault_to_show = latchedFaultMask((uint8_t)cansvc::bms_fault());
+    // dash_mode:
+    // 1 - 4: dimmer and dimmer
+    // 5: off
+    // 6: diagnostics mode, full brightness
+    uint8_t mode = (uint8_t)cansvc::dash_mode();
+
     if (mode == 0) mode = 1;
     if (mode > 6) mode = 6;
-    uint8_t pwm_duty = (uint8_t)(128 - (mode - 1) * 20);
+
+    uint8_t pwm_duty = 128;
+
+    switch (mode) {
+        case 1:
+            pwm_duty = 128;
+            break;
+
+        case 2:
+            pwm_duty = 95;
+            break;
+
+        case 3:
+            pwm_duty = 62;
+            break;
+
+        case 4:
+            pwm_duty = 29;
+            break;
+
+        case 5:
+            pwm_duty = 0;
+            break;
+
+        case 6:
+            pwm_duty = 128;
+            break;
+
+        default:
+            pwm_duty = 128;
+            break;
+    }
+
     if (pwm_duty != last_pwm_duty) {
         LCD_writeRegister8(REG_PWM_DUTY_ADDRESS, pwm_duty);
         last_pwm_duty = pwm_duty;
     }
 
-    uint8_t fault_to_show = latchedFaultMask((uint8_t)cansvc::bms_fault());
+    DashData d = {
+        // Normal dash
+        .voltage    = cansvc::hv(),
+        .max_power  = max_power,
+        .cell_high  = cansvc::celltemp(),
+        .cell_low   = cansvc::hv_low(),
+        .PL         = cansvc::pl(),
+        .TPS        = tps_avg,
+        .energy     = cansvc::energy_pct(),
+        .fault_mask = fault_to_show,
 
-    renderDash(cansvc::hv(),
-               max_power,
-               cansvc::celltemp(),
-               cansvc::hv_low(),
-               cansvc::pl(),
-               tps_avg,
-               cansvc::energy_pct(),
-               fault_to_show);
+        // Diagnostics dash
+        .mcu_temp   = cansvc::mcu_temp(),
+        .motor_temp = cansvc::motor_temp(),
+        .fl_temp    = cansvc::tire_fl_temp(),
+        .fr_temp    = cansvc::tire_fr_temp(),
+        .rl_temp    = cansvc::tire_rl_temp(),
+        .rr_temp    = cansvc::tire_rr_temp(),
+        .long_g     = cansvc::long_g(),
+        .lat_g      = cansvc::lat_g(),
+        .pack_imbal = cansvc::pack_imbal(),
+        .term_sense = cansvc::term_sense(),
+    };
+    renderDash(d, mode);
+
 }
 
 void LCD_drawLineOnce(void)
