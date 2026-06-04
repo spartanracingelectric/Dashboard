@@ -35,7 +35,7 @@ float tire_rr_temp() { return s_rr_temp;}
 float long_g()       { return s_long_g;}
 float lat_g()        { return s_lat_g;}
 float pack_imbal()   { return s_pack_imbal;}
-bool term_sense()    { return s_term_sense;;}
+bool term_sense()    { return s_term_sense;}
 
 bool init_vcu(FdcanBus& bus) {
   if (!bus.initClassic500k()) return false;
@@ -77,6 +77,7 @@ void poll(FdcanBus& bus) {
         break;
       case CAN_BMS_SUMMARY_2_ADDR:                // 0x623 Pack_Summary_2
         s_curr_bms_fault = d[0];                  // fault bits (see dash_fault.h)
+        s_pack_imbal = d[16];
         break;
       case CAN_TPS0:
         s_curr_tps0p = d[0] * 0.392157f;
@@ -101,6 +102,25 @@ void poll(FdcanBus& bus) {
       case CAN_SHUNT_VOLTAGE:
         s_shunt_voltage = (int32_t)u32(d, 0, 1, 2, 3) * 0.001f; // mV -> V
         break;
+      case CAN_MCM_TEMP:
+        s_mcu_temp = d[0];
+      break;
+      case CAN_MOTOR_TEMP:
+        s_motor_temp = d[4,5];
+      break;
+      case CAN_TIRE_FR:
+
+
+      break;
+      case CAN_TIRE_RL:
+
+      break;
+      case CAN_TIRE_RR:
+
+      break;
+      case CAN_TERM_SENSE:
+        s_pack_imbal = d[0];
+      break;
       default:
         break;
     }

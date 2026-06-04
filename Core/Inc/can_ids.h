@@ -12,7 +12,7 @@
     // TireSensor-sourced
     constexpr uint16_t CAN_TIRE_FR      = 0x4B4; // from 4b4 to 4b7 is all fr
     constexpr uint16_t CAN_TIRE_RL      = 0x4B8; // from 4b8 to 4bb is all rl
-    constexpr uint16_t CAN_TIRE_RR      = 0x4B8; // from 4bc to 4bf is all rr
+    constexpr uint16_t CAN_TIRE_RR      = 0x4BC; // from 4bc to 4bf is all rr
 
     // BMS-sourced
     constexpr uint16_t CAN_BMS_SUMMARY_2_ADDR      = 0x623; // byte 16: pack imbalance mV

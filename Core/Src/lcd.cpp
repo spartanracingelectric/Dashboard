@@ -180,7 +180,7 @@ static uint16_t drawEnergyBar(uint16_t FWo, const Theme& th, float pct) {
         FWo = EVE_Cmd_Dat_0(FWo, EVE_ENC_COLOR_RGB(r, g, 0));
         FWo = EVE_Filled_Rectangle(FWo, barX0, barY0, fillX1, barY1);
     }
-
+ 
     FWo = setColor(FWo, th.border);
     FWo = EVE_Open_Rectangle(FWo, barX0, barY0, barX1, barY1, 2);
 
