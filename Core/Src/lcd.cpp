@@ -329,8 +329,8 @@ static uint16_t drawDiagnostics(uint16_t FWo, const Theme& th,
     FWo = drawDiagnosticLine(FWo, th, y, "Tire RL", rl_temp, "C", 0); y += dy;
     FWo = drawDiagnosticLine(FWo, th, y, "Tire RR", rr_temp, "C", 0); y += dy;
 
-    FWo = drawDiagnosticLine(FWo, th, y, "IMU Long G", long_g, "G", 2); y += dy;
-    FWo = drawDiagnosticLine(FWo, th, y, "IMU Lat G",  lat_g,  "G", 2); y += dy;
+    FWo = drawDiagnosticLine(FWo, th, y, "Max Long G", long_g, "G", 2); y += dy;
+    FWo = drawDiagnosticLine(FWo, th, y, "Max Lat G",  lat_g,  "G", 2); y += dy;
 
     FWo = drawDiagnosticLine(FWo, th, y, "Pack Imbalance", pack_imbal, "mV", 0); y += dy;
 

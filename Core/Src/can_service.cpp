@@ -40,7 +40,7 @@ bool term_sense()    { return s_term_sense;}
 bool init_vcu(FdcanBus& bus) {
   if (!bus.initClassic500k()) return false;
   const uint16_t ids[] = {
-    CAN_TPS0, CAN_TPS1, CAN_LV_ADDR, CAN_BPS1, CAN_PL,
+    CAN_TPS0, CAN_TPS1, CAN_LV_ADDR, CAN_PL,
     CAN_SHUNT_CURRENT, CAN_SHUNT_VOLTAGE,
     // diagnostics
     CAN_MCM_TEMP, CAN_MOTOR_TEMP, CAN_IMU_ACCEL,
@@ -68,6 +68,7 @@ static inline uint32_t u32(const uint8_t* d, int b0, int b1, int b2, int b3) {
 static inline uint16_t be16(const uint8_t* d, int msb, int lsb) {
   return ((uint16_t)d[msb] << 8) | (uint16_t)d[lsb];
 }
+static inline float mag(float x) { return x < 0 ? -x : x; }
 // Average the frame's 4 big-endian channels, then apply the DAQ scale (C).
 static inline float tire_avg(const uint8_t* d) {
   uint32_t sum = (uint32_t)be16(d, 0, 1) + be16(d, 2, 3) + be16(d, 4, 5) + be16(d, 6, 7);
@@ -99,10 +100,8 @@ void poll(FdcanBus& bus) {
       case CAN_LV_ADDR:
         // 0x507 byte[4:5] eff score s16 × 0.0001 -> LED bar
         leds::efficiency_on_can_error((int16_t)u16(d, 4, 5) * 0.0001f);
+        s_dash_mode = d[6];
         s_curr_energy_pct = d[7];
-        break;
-      case CAN_BPS1:
-        s_dash_mode = d[1];
         break;
       case CAN_PL:
         s_curr_pl = d[4];
@@ -119,10 +118,14 @@ void poll(FdcanBus& bus) {
       case CAN_MOTOR_TEMP:
         s_motor_temp = (int16_t)u16(d, 4, 5) * 0.1f;
         break;
-      case CAN_IMU_ACCEL:
-        s_long_g = (int16_t)u16(d, 0, 1) * 0.001f;
-        s_lat_g  = (int16_t)u16(d, 2, 3) * 0.001f;
+      case CAN_IMU_ACCEL: {
+        // hold the largest-magnitude G seen on each axis (sign preserved)
+        float lg = (int16_t)u16(d, 0, 1) * 0.001f;
+        float tg = (int16_t)u16(d, 2, 3) * 0.001f;
+        if (mag(lg) > mag(s_long_g)) s_long_g = lg;
+        if (mag(tg) > mag(s_lat_g))  s_lat_g  = tg;
         break;
+      }
       case CAN_TIRE_FR:
         s_fr_temp = tire_avg(d);
         break;
