@@ -18,7 +18,6 @@ float energy_pct();    // energy remaining %
 float dash_mode();
 float motor_temp();
 float mcu_temp();
-float tire_fl_temp();
 float tire_fr_temp();
 float tire_rl_temp();
 float tire_rr_temp();

@@ -9,9 +9,10 @@ static float s_curr_hv = 0, s_curr_hvlow = 0, s_curr_celltemp = 0;
 static float s_curr_tps0p = 0, s_curr_tps1p = 0, s_curr_pl = 0;
 static float s_curr_bms_fault = 0, s_curr_energy_pct = 0, s_dash_mode = 0;
 static float s_shunt_voltage = 0, s_shunt_current = 0;
-static float s_motor_temp = 0, s_mcu_temp = 0, s_fl_temp = 0;
+static float s_motor_temp = 0, s_mcu_temp = 0;
 static float s_fr_temp = 0, s_rl_temp = 0, s_rr_temp = 0, s_long_g = 0;
-static float s_lat_g = 0, s_pack_imbal = 0, s_term_sense = 0;
+static float s_lat_g = 0, s_pack_imbal = 0;
+static bool  s_term_sense = false;
 
 namespace cansvc {
 
@@ -28,7 +29,6 @@ float energy_pct()   { return s_curr_energy_pct; }
 float dash_mode()    { return s_dash_mode; }
 float motor_temp()   { return s_motor_temp;}
 float mcu_temp()     { return s_mcu_temp;}
-float tire_fl_temp() { return s_fl_temp;}
 float tire_fr_temp() { return s_fr_temp;}
 float tire_rl_temp() { return s_rl_temp;}
 float tire_rr_temp() { return s_rr_temp;}
@@ -42,6 +42,9 @@ bool init_vcu(FdcanBus& bus) {
   const uint16_t ids[] = {
     CAN_TPS0, CAN_TPS1, CAN_LV_ADDR, CAN_BPS1, CAN_PL,
     CAN_SHUNT_CURRENT, CAN_SHUNT_VOLTAGE,
+    // diagnostics
+    CAN_MCM_TEMP, CAN_MOTOR_TEMP, CAN_IMU_ACCEL,
+    CAN_TIRE_FR, CAN_TIRE_RL, CAN_TIRE_RR, CAN_TERM_SENSE,
   };
   for (uint16_t id : ids) bus.addStdFilter(id);
   return true;
@@ -62,6 +65,14 @@ static inline uint16_t u16(const uint8_t* d, int lo, int hi) {
 static inline uint32_t u32(const uint8_t* d, int b0, int b1, int b2, int b3) {
   return (uint32_t)d[b0] | ((uint32_t)d[b1] << 8) | ((uint32_t)d[b2] << 16) | ((uint32_t)d[b3] << 24);
 }
+static inline uint16_t be16(const uint8_t* d, int msb, int lsb) {
+  return ((uint16_t)d[msb] << 8) | (uint16_t)d[lsb];
+}
+// Average the frame's 4 big-endian channels, then apply the DAQ scale (C).
+static inline float tire_avg(const uint8_t* d) {
+  uint32_t sum = (uint32_t)be16(d, 0, 1) + be16(d, 2, 3) + be16(d, 4, 5) + be16(d, 6, 7);
+  return (sum * 0.25f) * 0.001f - 100.0f;
+}
 
 void poll(FdcanBus& bus) {
   CanFrame f{};
@@ -77,7 +88,7 @@ void poll(FdcanBus& bus) {
         break;
       case CAN_BMS_SUMMARY_2_ADDR:                // 0x623 Pack_Summary_2
         s_curr_bms_fault = d[0];                  // fault bits (see dash_fault.h)
-        s_pack_imbal = d[16];
+        s_pack_imbal = (int16_t)u16(d, 2, 3);
         break;
       case CAN_TPS0:
         s_curr_tps0p = d[0] * 0.392157f;
@@ -103,24 +114,27 @@ void poll(FdcanBus& bus) {
         s_shunt_voltage = (int32_t)u32(d, 0, 1, 2, 3) * 0.001f; // mV -> V
         break;
       case CAN_MCM_TEMP:
-        s_mcu_temp = d[0];
-      break;
+        s_mcu_temp = (int16_t)u16(d, 0, 1) * 0.1f;
+        break;
       case CAN_MOTOR_TEMP:
-        s_motor_temp = d[4,5];
-      break;
+        s_motor_temp = (int16_t)u16(d, 4, 5) * 0.1f;
+        break;
+      case CAN_IMU_ACCEL:
+        s_long_g = (int16_t)u16(d, 0, 1) * 0.001f;
+        s_lat_g  = (int16_t)u16(d, 2, 3) * 0.001f;
+        break;
       case CAN_TIRE_FR:
-
-
-      break;
+        s_fr_temp = tire_avg(d);
+        break;
       case CAN_TIRE_RL:
-
-      break;
+        s_rl_temp = tire_avg(d);
+        break;
       case CAN_TIRE_RR:
-
-      break;
+        s_rr_temp = tire_avg(d);
+        break;
       case CAN_TERM_SENSE:
-        s_pack_imbal = d[0];
-      break;
+        s_term_sense = (d[0] != 0);
+        break;
       default:
         break;
     }

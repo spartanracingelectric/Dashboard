@@ -78,7 +78,6 @@ typedef struct {
     // diagnostics dash
     float mcu_temp;
     float motor_temp;
-    float fl_temp;
     float fr_temp;
     float rl_temp;
     float rr_temp;
@@ -308,7 +307,6 @@ static uint16_t drawDiagnosticLine(uint16_t FWo, const Theme& th,
 static uint16_t drawDiagnostics(uint16_t FWo, const Theme& th,
                                 float mcu_temp,
                                 float motor_temp,
-                                float fl_temp,
                                 float fr_temp,
                                 float rl_temp,
                                 float rr_temp,
@@ -327,7 +325,6 @@ static uint16_t drawDiagnostics(uint16_t FWo, const Theme& th,
     FWo = drawDiagnosticLine(FWo, th, y, "MCU Temp",   mcu_temp,   "C", 0); y += dy;
     FWo = drawDiagnosticLine(FWo, th, y, "Motor Temp", motor_temp, "C", 0); y += dy;
 
-    FWo = drawDiagnosticLine(FWo, th, y, "Tire FL", fl_temp, "C", 0); y += dy;
     FWo = drawDiagnosticLine(FWo, th, y, "Tire FR", fr_temp, "C", 0); y += dy;
     FWo = drawDiagnosticLine(FWo, th, y, "Tire RL", rl_temp, "C", 0); y += dy;
     FWo = drawDiagnosticLine(FWo, th, y, "Tire RR", rr_temp, "C", 0); y += dy;
@@ -360,7 +357,6 @@ static void renderDash(const DashData& d, uint8_t mode)
         FWo = drawDiagnostics(FWo, kTheme,
                         d.mcu_temp,
                         d.motor_temp,
-                        d.fl_temp,
                         d.fr_temp,
                         d.rl_temp,
                         d.rr_temp,
@@ -409,14 +405,12 @@ void LCD_demoCodeTest(void)
         power_above_start_ms = 0;
     }
 
-    // dash_mode: 1 - 4 is dimmer and dimmer, 5 is off, 6 is diagnostics mode
-    uint8_t mode = (uint8_t)cansvc::dash_mode();
-    uint8_t fault_to_show = latchedFaultMask((uint8_t)cansvc::bms_fault());
     // dash_mode:
     // 1 - 4: dimmer and dimmer
     // 5: off
     // 6: diagnostics mode, full brightness
     uint8_t mode = (uint8_t)cansvc::dash_mode();
+    uint8_t fault_to_show = latchedFaultMask((uint8_t)cansvc::bms_fault());
 
     if (mode == 0) mode = 1;
     if (mode > 6) mode = 6;
@@ -472,7 +466,6 @@ void LCD_demoCodeTest(void)
         // Diagnostics dash
         .mcu_temp   = cansvc::mcu_temp(),
         .motor_temp = cansvc::motor_temp(),
-        .fl_temp    = cansvc::tire_fl_temp(),
         .fr_temp    = cansvc::tire_fr_temp(),
         .rl_temp    = cansvc::tire_rl_temp(),
         .rr_temp    = cansvc::tire_rr_temp(),

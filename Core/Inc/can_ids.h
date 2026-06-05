@@ -4,21 +4,19 @@
 /* DIAGNOSTICS SCREEN*/
 
     // MCM-sourced
-    constexpr uint16_t CAN_MCM_TEMP      = 0x0A0; // byte[0] module a
-    constexpr uint16_t CAN_MOTOR_TEMP    = 0x0A2; // byte[4:5] motor temp
+    constexpr uint16_t CAN_MCM_TEMP      = 0x0A0; // [0:1] module A temp, int16 ×0.1 C
+    constexpr uint16_t CAN_MOTOR_TEMP    = 0x0A2; // [4:5] motor temp, int16 ×0.1 C
 
-    // IMU-souced - TO DO
+    // IMU-sourced (custom DAQ->dash). LE int16 ×0.001 G: [0:1] long G, [2:3] lat G
+    constexpr uint16_t CAN_IMU_ACCEL     = 0x4C0;
 
-    // TireSensor-sourced
-    constexpr uint16_t CAN_TIRE_FR      = 0x4B4; // from 4b4 to 4b7 is all fr
-    constexpr uint16_t CAN_TIRE_RL      = 0x4B8; // from 4b8 to 4bb is all rl
-    constexpr uint16_t CAN_TIRE_RR      = 0x4BC; // from 4bc to 4bf is all rr
-
-    // BMS-sourced
-    constexpr uint16_t CAN_BMS_SUMMARY_2_ADDR      = 0x623; // byte 16: pack imbalance mV
+    // TireSensor-sourced (DAQ). Big-endian Ch1-4 frame, avg ×0.001 - 100 C. FL (0x4B0) dead, unused.
+    constexpr uint16_t CAN_TIRE_FR      = 0x4B4;
+    constexpr uint16_t CAN_TIRE_RL      = 0x4B8;
+    constexpr uint16_t CAN_TIRE_RR      = 0x4BC;
 
     // VCU-sourced
-    constexpr uint16_t CAN_TERM_SENSE          = 0x509; // byte[0:1] hvil term
+    constexpr uint16_t CAN_TERM_SENSE   = 0x509; // [0] HVIL (1 = HV present)
 
 
 
@@ -36,4 +34,4 @@
     // BMS-sourced
     constexpr uint16_t CAN_BMS_SAFETY_CHECKER_ADDR = 0x600; // [6:7] Sum pack V × 0.01
     constexpr uint16_t CAN_HV_ADDR                 = 0x622; // [2:3] lowest cell V × 0.0001; [4] highest cell temp s8
-    constexpr uint16_t CAN_BMS_SUMMARY_2_ADDR      = 0x623; // byte 0: fault bits (see dash_fault.h)
+    constexpr uint16_t CAN_BMS_SUMMARY_2_ADDR      = 0x623; // [0] fault bits (dash_fault.h); [2:3] pack imbalance mV int16
