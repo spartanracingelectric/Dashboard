@@ -12,6 +12,7 @@ static float s_shunt_voltage = 0, s_shunt_current = 0;
 static float s_motor_temp = 0, s_mcu_temp = 0;
 static float s_fr_temp = 0, s_rl_temp = 0, s_rr_temp = 0, s_long_g = 0;
 static float s_lat_g = 0, s_pack_imbal = 0;
+static float s_curr_slip = 0, s_slip_target = 0;
 static bool  s_term_sense = false;
 
 namespace cansvc {
@@ -27,6 +28,8 @@ float shunt_voltage(){ return s_shunt_voltage; }
 float bms_fault()    { return s_curr_bms_fault; }
 float energy_pct()   { return s_curr_energy_pct; }
 float dash_mode()    { return s_dash_mode; }
+float slip_ratio()   { return s_curr_slip; }
+float slip_target()  { return s_slip_target; }
 float motor_temp()   { return s_motor_temp;}
 float mcu_temp()     { return s_mcu_temp;}
 float tire_fr_temp() { return s_fr_temp;}
@@ -40,7 +43,7 @@ bool term_sense()    { return s_term_sense;}
 bool init_vcu(FdcanBus& bus) {
   if (!bus.initClassic500k()) return false;
   const uint16_t ids[] = {
-    CAN_TPS0, CAN_TPS1, CAN_LV_ADDR, CAN_PL,
+    CAN_TPS0, CAN_TPS1, CAN_LV_ADDR, CAN_PL, CAN_LC_STATUS_A,
     CAN_SHUNT_CURRENT, CAN_SHUNT_VOLTAGE,
     // diagnostics
     CAN_MCM_TEMP, CAN_MOTOR_TEMP, CAN_IMU_ACCEL,
@@ -105,6 +108,11 @@ void poll(FdcanBus& bus) {
         break;
       case CAN_PL:
         s_curr_pl = d[4];
+        break;
+      case CAN_LC_STATUS_A:
+        // 0x50B: [2:3] current slip, [6:7] target slip - both s16 LE ×1000
+        s_curr_slip   = (int16_t)u16(d, 2, 3) * 0.001f;
+        s_slip_target = (int16_t)u16(d, 6, 7) * 0.001f;
         break;
       case CAN_SHUNT_CURRENT:
         s_shunt_current = (int32_t)u32(d, 0, 1, 2, 3) * 0.001f; // mA -> A

@@ -16,6 +16,8 @@ float shunt_voltage();
 float bms_fault();     // Pack_Summary_2 byte 0 (see dash_fault.h)
 float energy_pct();    // energy remaining %
 float dash_mode();
+float slip_ratio();    // launch control current slip ratio (0x50B [2:3] / 1000)
+float slip_target();   // launch control target slip ratio  (0x50B [6:7] / 1000)
 float motor_temp();
 float mcu_temp();
 float tire_fr_temp();

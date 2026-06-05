@@ -31,8 +31,9 @@ float max_power = 0.0f;
  *      Energy bar (y=150) : full-width energy-remaining bar
  *      Bottom row (y=196) : TPS    | PL             | Max Power
  *
- *  dash_mode controls LCD brightness (1 = brightest, 6 = dimmest); see
- *  LCD_demoCodeTest for the mapping.
+ *  dash_mode controls LCD brightness and which screen renders: 1-3 dim the
+ *  backlight, 4 turns it off, 5 is the launch-control screen, 6 is diagnostics.
+ *  See LCD_demoCodeTest for the brightness mapping and renderDash for screens.
  *
  *  A BMS fault in DF_DisplayMask pre-empts everything and shows the overlay.
  * ========================================================================= */
@@ -74,6 +75,8 @@ typedef struct {
     float PL;
     float TPS;
     float energy;
+    float slip;        // launch control current slip ratio (mode 5)
+    float slip_target; // launch control target slip ratio  (mode 5)
     uint8_t fault_mask;
     bool limp;
 
@@ -384,6 +387,28 @@ static uint16_t drawDiagnostics(uint16_t FWo, const Theme& th,
     return FWo;
 }
 
+// Launch Control screen (dash mode 5): the normal top-row boxes plus the launch
+// slip readouts. Both target and current slip come from CAN 0x50B and are
+// already divided back from the x1000 integers in can_service.
+static uint16_t drawLaunchControl(uint16_t FWo, const Theme& th,
+                                  float voltage, float cell_high, float cell_low,
+                                  float target_slip, float current_slip)
+{
+    const MetricCell top[3] = {
+        {"Pack V",     voltage,   "V"},
+        {"High Temp",  cell_high, "C"},
+        {"Low Cell V", cell_low,  "V"},
+    };
+    FWo = drawMetricRow(FWo, th, TOP_ROW_Y, top, /*decimals=*/2);
+
+    FWo = setColor(FWo, th.value);
+    FWo = EVE_PrintF(FWo, LCD_W / 2, 130, 30, EVE_OPT_CENTER, "LAUNCH CONTROL");
+
+    FWo = drawDiagnosticLine(FWo, th, 185, "Target Slip",  target_slip,  "", 2);
+    FWo = drawDiagnosticLine(FWo, th, 235, "Current Slip", current_slip, "", 2);
+    return FWo;
+}
+
 static void renderDash(const DashData& d, uint8_t mode)
 {
     uint16_t FWo = EVE_REG_Read_16(EVE_REG_CMD_WRITE);
@@ -395,6 +420,14 @@ static void renderDash(const DashData& d, uint8_t mode)
     }
     else if (d.limp) {
         FWo = drawLimpOverlay(FWo);
+    }
+    else if (mode == 5) {
+        FWo = drawLaunchControl(FWo, kTheme,
+                        d.voltage,
+                        d.cell_high,
+                        d.cell_low,
+                        d.slip_target,
+                        d.slip);
     }
     else if (mode == 6) {
         FWo = drawDiagnostics(FWo, kTheme,
@@ -449,8 +482,9 @@ void LCD_demoCodeTest(void)
     }
 
     // dash_mode:
-    // 1 - 4: dimmer and dimmer
-    // 5: off
+    // 1 - 3: brightest -> dim (128 / 78 / 28)
+    // 4: backlight off
+    // 5: launch control screen (full brightness)
     // 6: diagnostics mode, full brightness
     uint8_t mode = (uint8_t)cansvc::dash_mode();
     uint8_t fault_to_show = latchedFaultMask((uint8_t)cansvc::bms_fault());
@@ -463,27 +497,27 @@ void LCD_demoCodeTest(void)
 
     switch (mode) {
         case 1:
-            pwm_duty = 128;
+            pwm_duty = 128;     // brightest
             break;
 
         case 2:
-            pwm_duty = 95;
+            pwm_duty = 78;      // mid
             break;
 
         case 3:
-            pwm_duty = 62;
+            pwm_duty = 28;      // dim
             break;
 
         case 4:
-            pwm_duty = 29;
+            pwm_duty = 0;       // backlight off
             break;
 
         case 5:
-            pwm_duty = 0;
+            pwm_duty = 128;     // LC mode - full so the slip screen is visible
             break;
 
         case 6:
-            pwm_duty = 128;
+            pwm_duty = 128;     // diagnostics, full brightness
             break;
 
         default:
@@ -505,6 +539,8 @@ void LCD_demoCodeTest(void)
         .PL         = cansvc::pl(),
         .TPS        = tps_avg,
         .energy     = cansvc::energy_pct(),
+        .slip       = cansvc::slip_ratio(),
+        .slip_target = cansvc::slip_target(),
         .fault_mask = fault_to_show,
         .limp       = limp_to_show,
 
