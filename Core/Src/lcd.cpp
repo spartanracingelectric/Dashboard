@@ -20,6 +20,7 @@ float max_power = 0.0f;
 #define DASH_FAULT_DISPLAY_MS 10000u
 #define MAX_POWER_DEBOUNCE_MS 100u
 #define PACK_CAPACITY_KWH     6.0f
+#define LIMP_CELL_TEMP_C      55.0f  // hottest cell triggers the VCU 15 kW limp
 
 /* ============================================================================
  *  Dash rendering
@@ -74,6 +75,7 @@ typedef struct {
     float TPS;
     float energy;
     uint8_t fault_mask;
+    bool limp;
 
     // diagnostics dash
     float mcu_temp;
@@ -273,6 +275,44 @@ static uint8_t latchedFaultMask(uint8_t cur_fault) {
     return in_window ? latched : 0;
 }
 
+static uint16_t drawLimpOverlay(uint16_t FWo) {
+    bool flash_on = ((HAL_GetTick() / 200u) & 1u) == 0u;
+    uint8_t bg_v = flash_on ? 200 : 120;
+
+    FWo = EVE_Cmd_Dat_0(FWo, EVE_ENC_COLOR_RGB(bg_v, bg_v, 0));
+    FWo = EVE_Filled_Rectangle(FWo, 0, 0, LCD_W, LCD_H);
+
+    FWo = EVE_Cmd_Dat_0(FWo, EVE_ENC_COLOR_RGB(255, 255, 255));
+    FWo = EVE_Open_Rectangle(FWo, 20, 20, 780, 460, 8);
+    FWo = EVE_PrintF(FWo, 400, 90,  31, EVE_OPT_CENTER, "LIMP DICK MODE");
+    FWo = EVE_PrintF(FWo, 400, 160, 30, EVE_OPT_CENTER, "FALL BACK TO 15KW");
+    FWo = EVE_PrintF(FWo, 400, 240, 28, EVE_OPT_CENTER, "Cell Temp > %d C",
+                     (int)LIMP_CELL_TEMP_C);
+    return FWo;
+}
+
+// Same one-shot 10 s behaviour as latchedFaultMask, but for the thermal-limp
+// condition: opens a fresh window on the rising edge, hides after the window
+// even if still hot, and re-arms once the condition clears.
+static bool latchedLimp(bool cond) {
+    static bool     latched  = false;
+    static uint32_t start_ms = 0;
+
+    uint32_t now = HAL_GetTick();
+    bool in_window = latched && ((now - start_ms) < DASH_FAULT_DISPLAY_MS);
+
+    if (in_window) {
+        // keep showing within the window
+    } else if (cond && !latched) {
+        latched   = true;                    // rising edge: open a fresh 10 s window
+        start_ms  = now;
+        in_window = true;
+    } else if (!cond) {
+        latched = false;                     // cooled off: re-arm for the next edge
+    }
+    return in_window;
+}
+
 // vertical list rendering
 static uint16_t drawDiagnosticLine(uint16_t FWo, const Theme& th,
                                    int y,
@@ -339,7 +379,7 @@ static uint16_t drawDiagnostics(uint16_t FWo, const Theme& th,
 
     FWo = setColor(FWo, term_sense ? th.value : (Color){255, 80, 80});
     FWo = EVE_PrintF(FWo, 620, y, 28, EVE_OPT_RIGHTX,
-                     term_sense ? "OK" : "FAULT");
+                     term_sense ? "ON" : "OFF");
 
     return FWo;
 }
@@ -352,6 +392,9 @@ static void renderDash(const DashData& d, uint8_t mode)
     FWo = beginFrame(FWo, kTheme);
     if (d.fault_mask != 0) {
         FWo = drawFaultOverlay(FWo, d.fault_mask, d.cell_low, d.cell_high);
+    }
+    else if (d.limp) {
+        FWo = drawLimpOverlay(FWo);
     }
     else if (mode == 6) {
         FWo = drawDiagnostics(FWo, kTheme,
@@ -411,6 +454,7 @@ void LCD_demoCodeTest(void)
     // 6: diagnostics mode, full brightness
     uint8_t mode = (uint8_t)cansvc::dash_mode();
     uint8_t fault_to_show = latchedFaultMask((uint8_t)cansvc::bms_fault());
+    bool    limp_to_show  = latchedLimp(cansvc::celltemp() > LIMP_CELL_TEMP_C);
 
     if (mode == 0) mode = 1;
     if (mode > 6) mode = 6;
@@ -462,6 +506,7 @@ void LCD_demoCodeTest(void)
         .TPS        = tps_avg,
         .energy     = cansvc::energy_pct(),
         .fault_mask = fault_to_show,
+        .limp       = limp_to_show,
 
         // Diagnostics dash
         .mcu_temp   = cansvc::mcu_temp(),
