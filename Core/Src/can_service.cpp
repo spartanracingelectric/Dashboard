@@ -88,7 +88,7 @@ void poll(FdcanBus& bus) {
         break;
       case CAN_HV_ADDR:                           // 0x622 Pack_Summary_1
         s_curr_hvlow    = u16(d, 2, 3) * 0.0001f; // Lowest_Cell_Voltage
-        s_curr_celltemp = (int8_t)d[4];           // Highest_Cell_Temperature
+        s_curr_celltemp = (int8_t)d[4];           // Highest_Cell_Temperature not including mod 7 and 8
         break;
       case CAN_BMS_SUMMARY_2_ADDR:                // 0x623 Pack_Summary_2
         s_curr_bms_fault = d[0];                  // fault bits (see dash_fault.h)
