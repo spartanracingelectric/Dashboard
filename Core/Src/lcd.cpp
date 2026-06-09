@@ -31,9 +31,10 @@ float max_power = 0.0f;
  *      Energy bar (y=150) : full-width energy-remaining bar
  *      Bottom row (y=196) : TPS    | PL             | Max Power
  *
- *  dash_mode controls LCD brightness and which screen renders: 1-3 dim the
- *  backlight, 4 turns it off, 5 is the launch-control screen, 6 is diagnostics.
- *  See LCD_demoCodeTest for the brightness mapping and renderDash for screens.
+ *  dash_mode selects which screen renders: 1 is the
+ *  normal dash, 2 is diagnostics, 3 is launch control, 4 and 5 are unused and
+ *  fall back to the normal dash, and 6 is the torque-limit screen (the VCU caps
+ *  torque at 50 Nm in this mode).
  *
  *  A BMS fault in DF_DisplayMask pre-empts everything and shows the overlay.
  * ========================================================================= */
@@ -75,8 +76,8 @@ typedef struct {
     float PL;
     float TPS;
     float energy;
-    float slip;        // launch control current slip ratio (mode 5)
-    float slip_target; // launch control target slip ratio  (mode 5)
+    float slip;        // launch control current slip ratio (mode 3)
+    float slip_target; // launch control target slip ratio  (mode 3)
     uint8_t fault_mask;
     bool limp;
 
@@ -261,19 +262,19 @@ static uint8_t latchedFaultMask(uint8_t cur_fault) {
     static uint8_t  latched  = 0;
     static uint32_t start_ms = 0;
 
-    cur_fault &= DF_DisplayMask;             // only the bits we display
+    cur_fault &= DF_DisplayMask;
 
     uint32_t now = HAL_GetTick();
     bool in_window = (latched != 0) && ((now - start_ms) < DASH_FAULT_DISPLAY_MS);
 
     if (in_window) {
-        latched |= cur_fault;                // accumulate without restarting timer
+        latched |= cur_fault;
     } else if (cur_fault != 0 && latched == 0) {
-        latched   = cur_fault;               // rising edge: open a fresh 10 s window
+        latched   = cur_fault;
         start_ms  = now;
         in_window = true;
     } else if (cur_fault == 0) {
-        latched = 0;                         // fault cleared: re-arm for the next edge
+        latched = 0;
     }
     return in_window ? latched : 0;
 }
@@ -305,13 +306,12 @@ static bool latchedLimp(bool cond) {
     bool in_window = latched && ((now - start_ms) < DASH_FAULT_DISPLAY_MS);
 
     if (in_window) {
-        // keep showing within the window
     } else if (cond && !latched) {
-        latched   = true;                    // rising edge: open a fresh 10 s window
+        latched   = true;
         start_ms  = now;
         in_window = true;
     } else if (!cond) {
-        latched = false;                     // cooled off: re-arm for the next edge
+        latched = false;
     }
     return in_window;
 }
@@ -387,9 +387,8 @@ static uint16_t drawDiagnostics(uint16_t FWo, const Theme& th,
     return FWo;
 }
 
-// Launch Control screen (dash mode 5): the normal top-row boxes plus the launch
+// Launch Control screen (dash mode 3): the normal top-row boxes plus the launch
 // slip readouts. Both target and current slip come from CAN 0x50B and are
-// already divided back from the x1000 integers in can_service.
 static uint16_t drawLaunchControl(uint16_t FWo, const Theme& th,
                                   float voltage, float cell_high, float cell_low,
                                   float target_slip, float current_slip)
@@ -409,6 +408,29 @@ static uint16_t drawLaunchControl(uint16_t FWo, const Theme& th,
     return FWo;
 }
 
+// Torque-limit screen (dash mode 6): the VCU caps motor torque at 50 Nm and
+// disables power limit, launch control, regen, and efficiency. Mirror that on
+// the dashd.
+static uint16_t drawTorqueLimit(uint16_t FWo, const Theme& th,
+                                float voltage, float cell_high, float cell_low)
+{
+    const MetricCell top[3] = {
+        {"Pack V",     voltage,   "V"},
+        {"High Temp",  cell_high, "C"},
+        {"Low Cell V", cell_low,  "V"},
+    };
+    FWo = drawMetricRow(FWo, th, TOP_ROW_Y, top, /*decimals=*/2);
+
+    FWo = setColor(FWo, th.value);
+    FWo = EVE_PrintF(FWo, LCD_W / 2, 130, 30, EVE_OPT_CENTER, "TORQUE LIMIT");
+    FWo = EVE_PrintF(FWo, LCD_W / 2, 175, 31, EVE_OPT_CENTER, "50 Nm");
+
+    FWo = setColor(FWo, th.label);
+    FWo = EVE_PrintF(FWo, LCD_W / 2, 245, 27, EVE_OPT_CENTER,
+                     "PL / LC / REGEN / EFF OFF");
+    return FWo;
+}
+
 static void renderDash(const DashData& d, uint8_t mode)
 {
     uint16_t FWo = EVE_REG_Read_16(EVE_REG_CMD_WRITE);
@@ -421,15 +443,7 @@ static void renderDash(const DashData& d, uint8_t mode)
     else if (d.limp) {
         FWo = drawLimpOverlay(FWo);
     }
-    else if (mode == 5) {
-        FWo = drawLaunchControl(FWo, kTheme,
-                        d.voltage,
-                        d.cell_high,
-                        d.cell_low,
-                        d.slip_target,
-                        d.slip);
-    }
-    else if (mode == 6) {
+    else if (mode == 2) {
         FWo = drawDiagnostics(FWo, kTheme,
                         d.mcu_temp,
                         d.motor_temp,
@@ -440,8 +454,23 @@ static void renderDash(const DashData& d, uint8_t mode)
                         d.lat_g,
                         d.pack_imbal,
                         d.term_sense);
-}
+    }
+    else if (mode == 3) {
+        FWo = drawLaunchControl(FWo, kTheme,
+                        d.voltage,
+                        d.cell_high,
+                        d.cell_low,
+                        d.slip_target,
+                        d.slip);
+    }
+    else if (mode == 6) {
+        FWo = drawTorqueLimit(FWo, kTheme,
+                        d.voltage,
+                        d.cell_high,
+                        d.cell_low);
+    }
     else {
+        // modes 1, 4, 5: normal data dashboard (4 and 5 are unused / "do nothing")
         FWo = drawDataDashboard(FWo, kTheme,
                         d.voltage,
                         d.cell_high,
@@ -481,11 +510,11 @@ void LCD_demoCodeTest(void)
         power_above_start_ms = 0;
     }
 
-    // dash_mode:
-    // 1 - 3: brightest -> dim (128 / 78 / 28)
-    // 4: backlight off
-    // 5: launch control screen (full brightness)
-    // 6: diagnostics mode, full brightness
+    // dash_mode (rotary knob, shared with the VCU):
+    //   1: normal dash        4: unused ("do nothing" -> normal dash)
+    //   2: diagnostics        5: unused ("do nothing" -> normal dash)
+    //   3: launch control     6: torque-limit mode (VCU caps torque at 50 Nm)
+    // The knob now selects screens rather than brightness now
     uint8_t mode = (uint8_t)cansvc::dash_mode();
     uint8_t fault_to_show = latchedFaultMask((uint8_t)cansvc::bms_fault());
     bool    limp_to_show  = latchedLimp(cansvc::celltemp() > LIMP_CELL_TEMP_C);
@@ -493,37 +522,7 @@ void LCD_demoCodeTest(void)
     if (mode == 0) mode = 1;
     if (mode > 6) mode = 6;
 
-    uint8_t pwm_duty = 128;
-
-    switch (mode) {
-        case 1:
-            pwm_duty = 128;     // brightest
-            break;
-
-        case 2:
-            pwm_duty = 78;      // mid
-            break;
-
-        case 3:
-            pwm_duty = 28;      // dim
-            break;
-
-        case 4:
-            pwm_duty = 0;       // backlight off
-            break;
-
-        case 5:
-            pwm_duty = 128;     // LC mode - full so the slip screen is visible
-            break;
-
-        case 6:
-            pwm_duty = 128;     // diagnostics, full brightness
-            break;
-
-        default:
-            pwm_duty = 128;
-            break;
-    }
+    uint8_t pwm_duty = 128;     // full brightness for every mode
 
     if (pwm_duty != last_pwm_duty) {
         LCD_writeRegister8(REG_PWM_DUTY_ADDRESS, pwm_duty);
