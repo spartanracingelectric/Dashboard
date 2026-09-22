@@ -75,6 +75,7 @@ typedef struct {
     float cell_low;
     float PL;
     float TPS;
+    float BPS;
     float energy;
     float slip;        // launch control current slip ratio (mode 3)
     float slip_target; // launch control target slip ratio  (mode 3)
@@ -205,14 +206,15 @@ static uint16_t drawEnergyBar(uint16_t FWo, const Theme& th, float pct) {
 // Renders the normal data dashboard using the single Spartan theme.
 static uint16_t drawDataDashboard(uint16_t FWo, const Theme& th,
                                   float voltage, float cell_high, float cell_low,
-                                  float TPS, float PL, float power, float energy) { // add brake pressure parameter
+                                  float TPS, float BPS, float PL, float power, float energy) { // add brake pressure parameter
     const MetricCell top[3] = {
         {"Pack V",     voltage,   "V"},
         {"High Temp",  cell_high, "C"},
         {"Low Cell V", cell_low,  "V"},
     };
-    const MetricCell bot[3] = {
+    const MetricCell bot[4] = {
         {"TPS",   TPS,   "%"},
+        {"BPS",   BPS,   "%"},
         {"PL",    PL,    "kW"},
         {"Power", power, "kW"},
     };
@@ -493,6 +495,7 @@ void LCD_demoCodeTest(void)
     static uint8_t  last_pwm_duty        = 0xFF; // force a write on the first frame
 
     float tps_avg    = (cansvc::tps0_percent() + cansvc::tps1_percent()) / 2.0f;
+    float bps        = cansvc::bps0_percent();
     float inst_power = cansvc::shunt_voltage() * cansvc::shunt_current() / 1000.0f;
 
     uint32_t now = HAL_GetTick();
@@ -537,6 +540,7 @@ void LCD_demoCodeTest(void)
         .cell_low   = cansvc::hv_low(),
         .PL         = cansvc::pl(),
         .TPS        = tps_avg,
+        .BPS        = bps,
         .energy     = cansvc::energy_pct(),
         .slip       = cansvc::slip_ratio(),
         .slip_target = cansvc::slip_target(),

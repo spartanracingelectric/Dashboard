@@ -10,6 +10,7 @@ float hv_low();        // lowest cell voltage (V)
 float celltemp();      // highest cell temp (°C)
 float tps0_percent();
 float tps1_percent();
+float bps0_percent();
 float pl();            // power limit
 float shunt_current();
 float shunt_voltage();

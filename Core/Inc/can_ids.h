@@ -25,6 +25,7 @@
     // VCU-sourced
     constexpr uint16_t CAN_TPS0          = 0x500; // byte[0] throttle%, scale 0.392157
     constexpr uint16_t CAN_TPS1          = 0x501; // byte[0] throttle%, scale 0.392157
+    constexpr uint16_t CAN_BPS0          = 0x502; // 
     constexpr uint16_t CAN_LV_ADDR       = 0x507; // [4:5] eff score s16×0.0001; [6] dash_mode (1..6); [7] energy %
     constexpr uint16_t CAN_PL            = 0x512; // byte[4] target power
     constexpr uint16_t CAN_LC_STATUS_A   = 0x50B; // [2:3] current slip s16 LE ×1000; [4] LC state; [5] LC phase; [6:7] target slip s16 LE ×1000

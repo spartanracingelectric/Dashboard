@@ -7,6 +7,7 @@
 
 static float s_curr_hv = 0, s_curr_hvlow = 0, s_curr_celltemp = 0;
 static float s_curr_tps0p = 0, s_curr_tps1p = 0, s_curr_pl = 0;
+static float s_curr_bps0p = 0;
 static float s_curr_bms_fault = 0, s_curr_energy_pct = 0, s_dash_mode = 0;
 static float s_shunt_voltage = 0, s_shunt_current = 0;
 static float s_motor_temp = 0, s_mcu_temp = 0;
@@ -22,6 +23,7 @@ float hv_low()       { return s_curr_hvlow; }
 float celltemp()     { return s_curr_celltemp; }
 float tps0_percent() { return s_curr_tps0p; }
 float tps1_percent() { return s_curr_tps1p; }
+float bps0_percent() { return s_curr_bps0p; }
 float pl()           { return s_curr_pl; }
 float shunt_current(){ return s_shunt_current; }
 float shunt_voltage(){ return s_shunt_voltage; }
@@ -44,7 +46,7 @@ bool init_vcu(FdcanBus& bus) {
   if (!bus.initClassic500k()) return false;
   const uint16_t ids[] = {
     CAN_TPS0, CAN_TPS1, CAN_LV_ADDR, CAN_PL, CAN_LC_STATUS_A,
-    CAN_SHUNT_CURRENT, CAN_SHUNT_VOLTAGE,
+    CAN_SHUNT_CURRENT, CAN_SHUNT_VOLTAGE, CAN_BPS0,
     // diagnostics
     CAN_MCM_TEMP, CAN_MOTOR_TEMP, CAN_IMU_ACCEL,
     CAN_TIRE_FR, CAN_TIRE_RL, CAN_TIRE_RR, CAN_TERM_SENSE,
@@ -99,6 +101,9 @@ void poll(FdcanBus& bus) {
         break;
       case CAN_TPS1:
         s_curr_tps1p = d[0] * 0.392157f;
+        break;
+      case CAN_BPS0:
+        s_curr_bps0p = d[0] * 0.392157f;
         break;
       case CAN_LV_ADDR:
         // 0x507 byte[4:5] eff score s16 × 0.0001 -> LED bar
