@@ -478,6 +478,7 @@ static void renderDash(const DashData& d, uint8_t mode)
                         d.cell_high,
                         d.cell_low,
                         d.TPS,
+						d.BPS,
                         d.PL,
                         d.max_power,
                         d.energy);
