@@ -11,6 +11,7 @@ float celltemp();      // highest cell temp (°C)
 float tps0_percent();
 float tps1_percent();
 float bps0_percent();
+float bps1_percent();
 float pl();            // power limit
 float shunt_current();
 float shunt_voltage();
