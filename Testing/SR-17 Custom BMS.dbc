@@ -1,0 +1,820 @@
+VERSION ""
+
+BS_:
+
+BU_: 
+
+BO_ 1536 BMS_Safety_Checker: 8 Custom_BMS											
+SG_ BMS_Cell_High_Temp_Warning : 2|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_Cell_Volt_Imbalance_Warning : 3|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_Cell_Low_Volt_Warning : 4|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_Cell_High_Volt_Warning : 5|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_Pack_Low_Volt_Warning : 6|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_Pack_High_Volt_Warning : 7|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_Cell_High_Temp_Fault : 10|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_Cell_Volt_Imbalance_Fault : 11|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_Cell_Low_Volt_Fault : 12|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_Cell_High_Volt_Fault : 13|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_Pack_Low_Volt_Fault : 14|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_Pack_High_Volt_Fault : 15|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_Cell_Max_Min_Difference : 16|16@1+ (0.0001,0) [0|6.5535] "V" Custom_BMS
+SG_ BMS_HVsens_Pack_Voltage : 32|16@1+ (0.01,0) [0|655.35] "V" Custom_BMS
+SG_ BMS_Sum_Pack_Voltage : 48|16@1+ (0.01,0) [0|655.35] "V" Custom_BMS
+
+BO_ 1540 BMS_Balance_Enable: 1 Custom_BMS
+SG_ BMS_Balance_Enable : 0|1@1+ (1,0) [0|1] "" Custom_BMS
+
+BO_ 1569 BMS_State_of_Charge: 8 Custom_BMS
+SG_ BMS_SOC_Capacity : 0|16@1- (1,0) [-32768|32767] "mAh" Custom_BMS
+SG_ BMS_SOC_Percent : 16|16@1+ (0.01,0) [0|100] "%" Custom_BMS
+SG_ BMS_Current : 32|32@1- (1,0) [-2147483648|2147483647] "mA" Custom_BMS
+
+BO_ 1570 BMS_Pack_Summary_1: 8 Custom_BMS											
+SG_ BMS_Highest_Cell_Voltage : 0|16@1+ (0.0001,0) [0|6.5535] "V" Custom_BMS
+SG_ BMS_Lowest_Cell_Voltage  : 16|16@1+ (0.0001,0) [0|6.5535] "V" Custom_BMS
+SG_ BMS_Highest_Cell_Temperature : 32|8@1- (1,0) [-128|127] "C" Custom_BMS
+SG_ BMS_Lowest_Cell_Temperature : 40|8@1- (1,0) [-128|127] "C" Custom_BMS
+SG_ BMS_Total_Pack_Voltage   : 48|16@1+ (0.01,0) [0|655.35] "V" Custom_BMS			
+
+BO_ 1571 BMS_Pack_Summary_2: 8 Custom_BMS											
+SG_ BMS_Cell_Overvolt_Fault          : 0|1@1+  (1,0) [0|1]     ""    Custom_BMS
+SG_ BMS_Cell_Undervolt_Fault         : 1|1@1+  (1,0) [0|1]     ""    Custom_BMS
+SG_ BMS_Cell_High_Temp_Fault         : 2|1@1+  (1,0) [0|1]     ""    Custom_BMS
+SG_ BMS_Cell_Low_Temp_Fault          : 3|1@1+  (1,0) [0|1]     ""    Custom_BMS
+SG_ BMS_Redundant_Voltage_Fault      : 4|1@1+  (1,0) [0|1]     ""    Custom_BMS
+SG_ BMS_Redundant_Temp_Fault         : 5|1@1+  (1,0) [0|1]     ""    Custom_BMS
+SG_ BMS_Invalid_Data_Fault           : 6|1@1+  (1,0) [0|1]     ""    Custom_BMS
+SG_ BMS_Open_Wire_Detection_Fault    : 7|1@1+  (1,0) [0|1]     ""    Custom_BMS
+SG_ BMS_Cell_Overvolt_Warning        : 8|1@1+  (1,0) [0|1]     ""    Custom_BMS
+SG_ BMS_Cell_Undervolt_Warning       : 9|1@1+  (1,0) [0|1]     ""    Custom_BMS
+SG_ BMS_Cell_High_Temp_Warning       : 10|1@1+ (1,0) [0|1]     ""    Custom_BMS
+SG_ BMS_Cell_Low_Temp_Warning        : 11|1@1+ (1,0) [0|1]     ""    Custom_BMS
+SG_ BMS_Cell_Imbalance_Warning       : 12|1@1+ (1,0) [0|1]     ""    Custom_BMS
+SG_ BMS_Pack_Imbalance               : 16|16@1- (1,0) [-32.768|32.767] "mV"  Custom_BMS
+SG_ BMS_HV_Sense_Pack_Voltage        : 32|16@1+ (0.01,0) [0|655.35] "V"  Custom_BMS
+SG_ BMS_State_of_Charge              : 48|16@1- (1,0) [-32768|32767] "mAh" Custom_BMS
+
+BO_ 1572 BMS_Balance_Status_M1_to_M4: 8 Custom_BMS
+SG_ BMS_M1_Cell_1 : 0|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M1_Cell_2 : 1|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M1_Cell_3 : 2|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M1_Cell_4 : 3|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M1_Cell_5 : 4|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M1_Cell_6 : 5|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M1_Cell_7 : 6|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M1_Cell_8 : 7|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M1_Cell_9 : 8|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M1_Cell_10 : 9|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M1_Cell_11 : 10|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M1_Cell_12 : 11|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M1_Cell_13 : 12|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M1_Cell_14 : 13|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M2_Cell_1 : 16|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M2_Cell_2 : 17|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M2_Cell_3 : 18|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M2_Cell_4 : 19|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M2_Cell_5 : 20|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M2_Cell_6 : 21|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M2_Cell_7 : 22|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M2_Cell_8 : 23|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M2_Cell_9 : 24|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M2_Cell_10 : 25|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M2_Cell_11 : 26|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M2_Cell_12 : 27|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M2_Cell_13 : 28|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M2_Cell_14 : 29|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M3_Cell_1 : 32|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M3_Cell_2 : 33|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M3_Cell_3 : 34|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M3_Cell_4 : 35|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M3_Cell_5 : 36|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M3_Cell_6 : 37|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M3_Cell_7 : 38|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M3_Cell_8 : 39|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M3_Cell_9 : 40|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M3_Cell_10 : 41|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M3_Cell_11 : 42|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M3_Cell_12 : 43|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M3_Cell_13 : 44|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M3_Cell_14 : 45|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M4_Cell_1 : 48|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M4_Cell_2 : 49|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M4_Cell_3 : 50|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M4_Cell_4 : 51|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M4_Cell_5 : 52|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M4_Cell_6 : 53|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M4_Cell_7 : 54|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M4_Cell_8 : 55|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M4_Cell_9 : 56|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M4_Cell_10 : 57|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M4_Cell_11 : 58|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M4_Cell_12 : 59|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M4_Cell_13 : 60|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M4_Cell_14 : 61|1@1+ (1,0) [0|1] "" Custom_BMS
+
+BO_ 1573 BMS_Balance_Status_M5_to_M8: 8 Custom_BMS
+SG_ BMS_M5_Cell_1 : 0|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M5_Cell_2 : 1|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M5_Cell_3 : 2|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M5_Cell_4 : 3|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M5_Cell_5 : 4|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M5_Cell_6 : 5|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M5_Cell_7 : 6|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M5_Cell_8 : 7|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M5_Cell_9 : 8|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M5_Cell_10 : 9|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M5_Cell_11 : 10|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M5_Cell_12 : 11|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M5_Cell_13 : 12|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M5_Cell_14 : 13|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M6_Cell_1 : 16|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M6_Cell_2 : 17|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M6_Cell_3 : 18|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M6_Cell_4 : 19|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M6_Cell_5 : 20|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M6_Cell_6 : 21|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M6_Cell_7 : 22|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M6_Cell_8 : 23|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M6_Cell_9 : 24|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M6_Cell_10 : 25|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M6_Cell_11 : 26|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M6_Cell_12 : 27|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M6_Cell_13 : 28|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M6_Cell_14 : 29|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M7_Cell_1 : 32|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M7_Cell_2 : 33|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M7_Cell_3 : 34|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M7_Cell_4 : 35|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M7_Cell_5 : 36|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M7_Cell_6 : 37|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M7_Cell_7 : 38|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M7_Cell_8 : 39|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M7_Cell_9 : 40|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M7_Cell_10 : 41|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M7_Cell_11 : 42|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M7_Cell_12 : 43|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M7_Cell_13 : 44|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M7_Cell_14 : 45|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M8_Cell_1 : 48|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M8_Cell_2 : 49|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M8_Cell_3 : 50|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M8_Cell_4 : 51|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M8_Cell_5 : 52|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M8_Cell_6 : 53|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M8_Cell_7 : 54|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M8_Cell_8 : 55|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M8_Cell_9 : 56|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M8_Cell_10 : 57|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M8_Cell_11 : 58|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M8_Cell_12 : 59|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M8_Cell_13 : 60|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M8_Cell_14 : 61|1@1+ (1,0) [0|1] "" Custom_BMS
+
+BO_ 1574 BMS_Balance_Status_M9_to_M10: 8 Custom_BMS
+SG_ BMS_M9_Cell_1 : 0|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M9_Cell_2 : 1|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M9_Cell_3 : 2|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M9_Cell_4 : 3|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M9_Cell_5 : 4|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M9_Cell_6 : 5|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M9_Cell_7 : 6|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M9_Cell_8 : 7|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M9_Cell_9 : 8|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M9_Cell_10 : 9|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M9_Cell_11 : 10|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M9_Cell_12 : 11|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M9_Cell_13 : 12|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M9_Cell_14 : 13|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M10_Cell_1 : 16|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M10_Cell_2 : 17|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M10_Cell_3 : 18|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M10_Cell_4 : 19|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M10_Cell_5 : 20|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M10_Cell_6 : 21|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M10_Cell_7 : 22|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M10_Cell_8 : 23|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M10_Cell_9 : 24|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M10_Cell_10 : 25|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M10_Cell_11 : 26|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M10_Cell_12 : 27|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M10_Cell_13 : 28|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M10_Cell_14 : 29|1@1+ (1,0) [0|1] "" Custom_BMS
+
+BO_ 1575 BMS_Balance_State : 1 Custom_BMS
+SG_ BMS_Balance_State_Idle   : 0|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_Balance_State_Rest   : 1|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_Balance_State_Active : 2|1@1+ (1,0) [0|1] "" Custom_BMS
+
+BO_ 1584 BMS_M1_Cell_Voltage_Data_1: 8 Custom_BMS
+SG_ BMS_M1_Cell_1_Voltage  : 0|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+SG_ BMS_M1_Cell_2_Voltage  : 16|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+SG_ BMS_M1_Cell_3_Voltage  : 32|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+SG_ BMS_M1_Cell_4_Voltage  : 48|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+
+BO_ 1585 BMS_M1_Cell_Voltage_Data_2: 8 Custom_BMS
+SG_ BMS_M1_Cell_5_Voltage  : 0|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+SG_ BMS_M1_Cell_6_Voltage  : 16|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+SG_ BMS_M1_Cell_7_Voltage  : 32|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+SG_ BMS_M1_Cell_8_Voltage  : 48|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+
+BO_ 1586 BMS_M1_Cell_Voltage_Data_3: 8 Custom_BMS
+SG_ BMS_M1_Cell_9_Voltage  : 0|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+SG_ BMS_M1_Cell_10_Voltage : 16|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+SG_ BMS_M1_Cell_11_Voltage : 32|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+SG_ BMS_M1_Cell_12_Voltage : 48|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+
+BO_ 1587 BMS_M1_M2_Cell_Voltage_Data_4: 8 Custom_BMS
+SG_ BMS_M1_Cell_13_Voltage : 0|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+SG_ BMS_M1_Cell_14_Voltage : 16|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+SG_ BMS_M2_Cell_1_Voltage  : 32|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+SG_ BMS_M2_Cell_2_Voltage  : 48|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+
+BO_ 1588 BMS_M2_Cell_Voltage_Data_5: 8 Custom_BMS
+SG_ BMS_M2_Cell_3_Voltage  : 0|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+SG_ BMS_M2_Cell_4_Voltage  : 16|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+SG_ BMS_M2_Cell_5_Voltage  : 32|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+SG_ BMS_M2_Cell_6_Voltage  : 48|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+
+BO_ 1589 BMS_M2_Cell_Voltage_Data_6: 8 Custom_BMS
+SG_ BMS_M2_Cell_7_Voltage  : 0|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+SG_ BMS_M2_Cell_8_Voltage  : 16|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+SG_ BMS_M2_Cell_9_Voltage  : 32|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+SG_ BMS_M2_Cell_10_Voltage : 48|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+
+BO_ 1590 BMS_M2_Cell_Voltage_Data_7: 8 Custom_BMS
+SG_ BMS_M2_Cell_11_Voltage : 0|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+SG_ BMS_M2_Cell_12_Voltage : 16|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+SG_ BMS_M2_Cell_13_Voltage : 32|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+SG_ BMS_M2_Cell_14_Voltage : 48|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+
+BO_ 1591 BMS_M3_Cell_Voltage_Data_8: 8 Custom_BMS
+SG_ BMS_M3_Cell_1_Voltage  : 0|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+SG_ BMS_M3_Cell_2_Voltage  : 16|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+SG_ BMS_M3_Cell_3_Voltage  : 32|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+SG_ BMS_M3_Cell_4_Voltage  : 48|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+
+BO_ 1592 BMS_M3_Cell_Voltage_Data_9: 8 Custom_BMS
+SG_ BMS_M3_Cell_5_Voltage  : 0|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+SG_ BMS_M3_Cell_6_Voltage  : 16|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+SG_ BMS_M3_Cell_7_Voltage  : 32|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+SG_ BMS_M3_Cell_8_Voltage  : 48|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+
+BO_ 1593 BMS_M3_Cell_Voltage_Data_10: 8 Custom_BMS
+SG_ BMS_M3_Cell_9_Voltage  : 0|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+SG_ BMS_M3_Cell_10_Voltage : 16|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+SG_ BMS_M3_Cell_11_Voltage : 32|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+SG_ BMS_M3_Cell_12_Voltage : 48|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+
+BO_ 1594 BMS_M3_M4_Cell_Voltage_Data_11: 8 Custom_BMS
+SG_ BMS_M3_Cell_13_Voltage : 0|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+SG_ BMS_M3_Cell_14_Voltage : 16|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+SG_ BMS_M4_Cell_1_Voltage  : 32|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+SG_ BMS_M4_Cell_2_Voltage  : 48|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+
+BO_ 1595 BMS_M4_Cell_Voltage_Data_12: 8 Custom_BMS
+SG_ BMS_M4_Cell_3_Voltage  : 0|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+SG_ BMS_M4_Cell_4_Voltage  : 16|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+SG_ BMS_M4_Cell_5_Voltage  : 32|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+SG_ BMS_M4_Cell_6_Voltage  : 48|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+
+BO_ 1596 BMS_M4_Cell_Voltage_Data_13: 8 Custom_BMS
+SG_ BMS_M4_Cell_7_Voltage  : 0|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+SG_ BMS_M4_Cell_8_Voltage  : 16|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+SG_ BMS_M4_Cell_9_Voltage  : 32|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+SG_ BMS_M4_Cell_10_Voltage : 48|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+
+BO_ 1597 BMS_M4_Cell_Voltage_Data_14: 8 Custom_BMS
+SG_ BMS_M4_Cell_11_Voltage : 0|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+SG_ BMS_M4_Cell_12_Voltage : 16|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+SG_ BMS_M4_Cell_13_Voltage : 32|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+SG_ BMS_M4_Cell_14_Voltage : 48|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+
+BO_ 1598 BMS_M5_Cell_Voltage_Data_15: 8 Custom_BMS
+SG_ BMS_M5_Cell_1_Voltage  : 0|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+SG_ BMS_M5_Cell_2_Voltage  : 16|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+SG_ BMS_M5_Cell_3_Voltage  : 32|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+SG_ BMS_M5_Cell_4_Voltage  : 48|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+
+BO_ 1599 BMS_M5_Cell_Voltage_Data_16: 8 Custom_BMS
+SG_ BMS_M5_Cell_5_Voltage  : 0|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+SG_ BMS_M5_Cell_6_Voltage  : 16|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+SG_ BMS_M5_Cell_7_Voltage  : 32|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+SG_ BMS_M5_Cell_8_Voltage  : 48|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+
+BO_ 1600 BMS_M5_Cell_Voltage_Data_17: 8 Custom_BMS
+SG_ BMS_M5_Cell_9_Voltage  : 0|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+SG_ BMS_M5_Cell_10_Voltage : 16|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+SG_ BMS_M5_Cell_11_Voltage : 32|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+SG_ BMS_M5_Cell_12_Voltage : 48|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+
+BO_ 1601 BMS_M5_M6_Cell_Voltage_Data_18: 8 Custom_BMS
+SG_ BMS_M5_Cell_13_Voltage : 0|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+SG_ BMS_M5_Cell_14_Voltage : 16|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+SG_ BMS_M6_Cell_1_Voltage  : 32|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+SG_ BMS_M6_Cell_2_Voltage  : 48|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+
+BO_ 1602 BMS_M6_Cell_Voltage_Data_19: 8 Custom_BMS
+SG_ BMS_M6_Cell_3_Voltage  : 0|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+SG_ BMS_M6_Cell_4_Voltage  : 16|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+SG_ BMS_M6_Cell_5_Voltage  : 32|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+SG_ BMS_M6_Cell_6_Voltage  : 48|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+
+BO_ 1603 BMS_M6_Cell_Voltage_Data_20: 8 Custom_BMS
+SG_ BMS_M6_Cell_7_Voltage  : 0|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+SG_ BMS_M6_Cell_8_Voltage  : 16|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+SG_ BMS_M6_Cell_9_Voltage  : 32|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+SG_ BMS_M6_Cell_10_Voltage : 48|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+
+BO_ 1604 BMS_M6_Cell_Voltage_Data_21: 8 Custom_BMS
+SG_ BMS_M6_Cell_11_Voltage : 0|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+SG_ BMS_M6_Cell_12_Voltage : 16|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+SG_ BMS_M6_Cell_13_Voltage : 32|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+SG_ BMS_M6_Cell_14_Voltage : 48|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+
+BO_ 1605 BMS_M7_Cell_Voltage_Data_22: 8 Custom_BMS
+SG_ BMS_M7_Cell_1_Voltage  : 0|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+SG_ BMS_M7_Cell_2_Voltage  : 16|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+SG_ BMS_M7_Cell_3_Voltage  : 32|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+SG_ BMS_M7_Cell_4_Voltage  : 48|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+
+BO_ 1606 BMS_M7_Cell_Voltage_Data_23: 8 Custom_BMS
+SG_ BMS_M7_Cell_5_Voltage  : 0|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+SG_ BMS_M7_Cell_6_Voltage  : 16|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+SG_ BMS_M7_Cell_7_Voltage  : 32|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+SG_ BMS_M7_Cell_8_Voltage  : 48|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+
+BO_ 1607 BMS_M7_Cell_Voltage_Data_24: 8 Custom_BMS
+SG_ BMS_M7_Cell_9_Voltage  : 0|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+SG_ BMS_M7_Cell_10_Voltage : 16|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+SG_ BMS_M7_Cell_11_Voltage : 32|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+SG_ BMS_M7_Cell_12_Voltage : 48|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+
+BO_ 1608 BMS_M7_M8_Cell_Voltage_Data_25: 8 Custom_BMS
+SG_ BMS_M7_Cell_13_Voltage : 0|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+SG_ BMS_M7_Cell_14_Voltage : 16|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+SG_ BMS_M8_Cell_1_Voltage  : 32|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+SG_ BMS_M8_Cell_2_Voltage  : 48|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+
+BO_ 1609 BMS_M8_Cell_Voltage_Data_26: 8 Custom_BMS
+SG_ BMS_M8_Cell_3_Voltage  : 0|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+SG_ BMS_M8_Cell_4_Voltage  : 16|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+SG_ BMS_M8_Cell_5_Voltage  : 32|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+SG_ BMS_M8_Cell_6_Voltage  : 48|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+
+BO_ 1610 BMS_M8_Cell_Voltage_Data_27: 8 Custom_BMS
+SG_ BMS_M8_Cell_7_Voltage  : 0|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+SG_ BMS_M8_Cell_8_Voltage  : 16|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+SG_ BMS_M8_Cell_9_Voltage  : 32|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+SG_ BMS_M8_Cell_10_Voltage : 48|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+
+BO_ 1611 BMS_M8_Cell_Voltage_Data_28: 8 Custom_BMS
+SG_ BMS_M8_Cell_11_Voltage : 0|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+SG_ BMS_M8_Cell_12_Voltage : 16|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+SG_ BMS_M8_Cell_13_Voltage : 32|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+SG_ BMS_M8_Cell_14_Voltage : 48|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+
+BO_ 1612 BMS_M9_Cell_Voltage_Data_29: 8 Custom_BMS
+SG_ BMS_M9_Cell_1_Voltage  : 0|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+SG_ BMS_M9_Cell_2_Voltage  : 16|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+SG_ BMS_M9_Cell_3_Voltage  : 32|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+SG_ BMS_M9_Cell_4_Voltage  : 48|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+
+BO_ 1613 BMS_M9_Cell_Voltage_Data_30: 8 Custom_BMS
+SG_ BMS_M9_Cell_5_Voltage  : 0|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+SG_ BMS_M9_Cell_6_Voltage  : 16|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+SG_ BMS_M9_Cell_7_Voltage  : 32|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+SG_ BMS_M9_Cell_8_Voltage  : 48|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+
+BO_ 1614 BMS_M9_Cell_Voltage_Data_31: 8 Custom_BMS
+SG_ BMS_M9_Cell_9_Voltage  : 0|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+SG_ BMS_M9_Cell_10_Voltage : 16|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+SG_ BMS_M9_Cell_11_Voltage : 32|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+SG_ BMS_M9_Cell_12_Voltage : 48|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+
+BO_ 1615 BMS_M9_M10_Cell_Voltage_Data_32: 8 Custom_BMS
+SG_ BMS_M9_Cell_13_Voltage : 0|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+SG_ BMS_M9_Cell_14_Voltage : 16|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+SG_ BMS_M10_Cell_1_Voltage : 32|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+SG_ BMS_M10_Cell_2_Voltage : 48|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+
+BO_ 1616 BMS_M10_Cell_Voltage_Data_33: 8 Custom_BMS
+SG_ BMS_M10_Cell_3_Voltage : 0|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+SG_ BMS_M10_Cell_4_Voltage : 16|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+SG_ BMS_M10_Cell_5_Voltage : 32|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+SG_ BMS_M10_Cell_6_Voltage : 48|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+
+BO_ 1617 BMS_M10_Cell_Voltage_Data_34: 8 Custom_BMS
+SG_ BMS_M10_Cell_7_Voltage  : 0|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+SG_ BMS_M10_Cell_8_Voltage  : 16|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+SG_ BMS_M10_Cell_9_Voltage  : 32|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+SG_ BMS_M10_Cell_10_Voltage : 48|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+
+BO_ 1618 BMS_M10_Cell_Voltage_Data_35: 8 Custom_BMS
+SG_ BMS_M10_Cell_11_Voltage : 0|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+SG_ BMS_M10_Cell_12_Voltage : 16|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+SG_ BMS_M10_Cell_13_Voltage : 32|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+SG_ BMS_M10_Cell_14_Voltage : 48|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+
+BO_ 1664 BMS_M1_Thermistor_Data_1: 8 Custom_BMS
+SG_ BMS_M1_Thermistor_1 : 0|8@1- (1,0) [-128|127] "C" Custom_BMS
+SG_ BMS_M1_Thermistor_2 : 8|8@1- (1,0) [-128|127] "C" Custom_BMS
+SG_ BMS_M1_Thermistor_3 : 16|8@1- (1,0) [-128|127] "C" Custom_BMS
+SG_ BMS_M1_Thermistor_4 : 24|8@1- (1,0) [-128|127] "C" Custom_BMS
+SG_ BMS_M1_Thermistor_5 : 32|8@1- (1,0) [-128|127] "C" Custom_BMS
+SG_ BMS_M1_Thermistor_6 : 40|8@1- (1,0) [-128|127] "C" Custom_BMS
+SG_ BMS_M1_Thermistor_7 : 48|8@1- (1,0) [-128|127] "C" Custom_BMS
+SG_ BMS_M1_Thermistor_8 : 56|8@1- (1,0) [-128|127] "C" Custom_BMS
+
+BO_ 1665 BMS_M1_M2_Thermistor_Data_2: 8 Custom_BMS
+SG_ BMS_M1_Thermistor_9  : 0|8@1- (1,0) [-128|127] "C" Custom_BMS
+SG_ BMS_M1_Thermistor_10 : 8|8@1- (1,0) [-128|127] "C" Custom_BMS
+SG_ BMS_M2_Thermistor_1  : 16|8@1- (1,0) [-128|127] "C" Custom_BMS
+SG_ BMS_M2_Thermistor_2  : 24|8@1- (1,0) [-128|127] "C" Custom_BMS
+SG_ BMS_M2_Thermistor_3  : 32|8@1- (1,0) [-128|127] "C" Custom_BMS
+SG_ BMS_M2_Thermistor_4  : 40|8@1- (1,0) [-128|127] "C" Custom_BMS
+SG_ BMS_M2_Thermistor_5  : 48|8@1- (1,0) [-128|127] "C" Custom_BMS
+SG_ BMS_M2_Thermistor_6  : 56|8@1- (1,0) [-128|127] "C" Custom_BMS
+
+BO_ 1666 BMS_M2_M3_Thermistor_Data_3: 8 Custom_BMS
+SG_ BMS_M2_Thermistor_7  : 0|8@1- (1,0) [-128|127] "C" Custom_BMS
+SG_ BMS_M2_Thermistor_8  : 8|8@1- (1,0) [-128|127] "C" Custom_BMS
+SG_ BMS_M2_Thermistor_9  : 16|8@1- (1,0) [-128|127] "C" Custom_BMS
+SG_ BMS_M2_Thermistor_10 : 24|8@1- (1,0) [-128|127] "C" Custom_BMS
+SG_ BMS_M3_Thermistor_1  : 32|8@1- (1,0) [-128|127] "C" Custom_BMS
+SG_ BMS_M3_Thermistor_2  : 40|8@1- (1,0) [-128|127] "C" Custom_BMS
+SG_ BMS_M3_Thermistor_3  : 48|8@1- (1,0) [-128|127] "C" Custom_BMS
+SG_ BMS_M3_Thermistor_4  : 56|8@1- (1,0) [-128|127] "C" Custom_BMS
+
+BO_ 1667 BMS_M3_M4_Thermistor_Data_4: 8 Custom_BMS
+SG_ BMS_M3_Thermistor_5  : 0|8@1- (1,0) [-128|127] "C" Custom_BMS
+SG_ BMS_M3_Thermistor_6  : 8|8@1- (1,0) [-128|127] "C" Custom_BMS
+SG_ BMS_M3_Thermistor_7  : 16|8@1- (1,0) [-128|127] "C" Custom_BMS
+SG_ BMS_M3_Thermistor_8  : 24|8@1- (1,0) [-128|127] "C" Custom_BMS
+SG_ BMS_M3_Thermistor_9  : 32|8@1- (1,0) [-128|127] "C" Custom_BMS
+SG_ BMS_M3_Thermistor_10 : 40|8@1- (1,0) [-128|127] "C" Custom_BMS
+SG_ BMS_M4_Thermistor_1  : 48|8@1- (1,0) [-128|127] "C" Custom_BMS
+SG_ BMS_M4_Thermistor_2  : 56|8@1- (1,0) [-128|127] "C" Custom_BMS
+
+BO_ 1668 BMS_M4_Thermistor_Data_5: 8 Custom_BMS
+SG_ BMS_M4_Thermistor_3  : 0|8@1- (1,0) [-128|127] "C" Custom_BMS
+SG_ BMS_M4_Thermistor_4  : 8|8@1- (1,0) [-128|127] "C" Custom_BMS
+SG_ BMS_M4_Thermistor_5  : 16|8@1- (1,0) [-128|127] "C" Custom_BMS
+SG_ BMS_M4_Thermistor_6  : 24|8@1- (1,0) [-128|127] "C" Custom_BMS
+SG_ BMS_M4_Thermistor_7  : 32|8@1- (1,0) [-128|127] "C" Custom_BMS
+SG_ BMS_M4_Thermistor_8  : 40|8@1- (1,0) [-128|127] "C" Custom_BMS
+SG_ BMS_M4_Thermistor_9  : 48|8@1- (1,0) [-128|127] "C" Custom_BMS
+SG_ BMS_M4_Thermistor_10 : 56|8@1- (1,0) [-128|127] "C" Custom_BMS
+
+BO_ 1669 BMS_M5_Thermistor_Data_6: 8 Custom_BMS
+SG_ BMS_M5_Thermistor_1 : 0|8@1- (1,0) [-128|127] "C" Custom_BMS
+SG_ BMS_M5_Thermistor_2 : 8|8@1- (1,0) [-128|127] "C" Custom_BMS
+SG_ BMS_M5_Thermistor_3 : 16|8@1- (1,0) [-128|127] "C" Custom_BMS
+SG_ BMS_M5_Thermistor_4 : 24|8@1- (1,0) [-128|127] "C" Custom_BMS
+SG_ BMS_M5_Thermistor_5 : 32|8@1- (1,0) [-128|127] "C" Custom_BMS
+SG_ BMS_M5_Thermistor_6 : 40|8@1- (1,0) [-128|127] "C" Custom_BMS
+SG_ BMS_M5_Thermistor_7 : 48|8@1- (1,0) [-128|127] "C" Custom_BMS
+SG_ BMS_M5_Thermistor_8 : 56|8@1- (1,0) [-128|127] "C" Custom_BMS
+
+BO_ 1670 BMS_M5_M6_Thermistor_Data_7: 8 Custom_BMS
+SG_ BMS_M5_Thermistor_9  : 0|8@1- (1,0) [-128|127] "C" Custom_BMS
+SG_ BMS_M5_Thermistor_10 : 8|8@1- (1,0) [-128|127] "C" Custom_BMS
+SG_ BMS_M6_Thermistor_1  : 16|8@1- (1,0) [-128|127] "C" Custom_BMS
+SG_ BMS_M6_Thermistor_2  : 24|8@1- (1,0) [-128|127] "C" Custom_BMS
+SG_ BMS_M6_Thermistor_3  : 32|8@1- (1,0) [-128|127] "C" Custom_BMS
+SG_ BMS_M6_Thermistor_4  : 40|8@1- (1,0) [-128|127] "C" Custom_BMS
+SG_ BMS_M6_Thermistor_5  : 48|8@1- (1,0) [-128|127] "C" Custom_BMS
+SG_ BMS_M6_Thermistor_6  : 56|8@1- (1,0) [-128|127] "C" Custom_BMS
+
+BO_ 1671 BMS_M6_M7_Thermistor_Data_8: 8 Custom_BMS
+SG_ BMS_M6_Thermistor_7  : 0|8@1- (1,0) [-128|127] "C" Custom_BMS
+SG_ BMS_M6_Thermistor_8  : 8|8@1- (1,0) [-128|127] "C" Custom_BMS
+SG_ BMS_M6_Thermistor_9  : 16|8@1- (1,0) [-128|127] "C" Custom_BMS
+SG_ BMS_M6_Thermistor_10 : 24|8@1- (1,0) [-128|127] "C" Custom_BMS
+SG_ BMS_M7_Thermistor_1  : 32|8@1- (1,0) [-128|127] "C" Custom_BMS
+SG_ BMS_M7_Thermistor_2  : 40|8@1- (1,0) [-128|127] "C" Custom_BMS
+SG_ BMS_M7_Thermistor_3  : 48|8@1- (1,0) [-128|127] "C" Custom_BMS
+SG_ BMS_M7_Thermistor_4  : 56|8@1- (1,0) [-128|127] "C" Custom_BMS
+
+BO_ 1672 BMS_M7_M8_Thermistor_Data_9: 8 Custom_BMS
+SG_ BMS_M7_Thermistor_5  : 0|8@1- (1,0) [-128|127] "C" Custom_BMS
+SG_ BMS_M7_Thermistor_6  : 8|8@1- (1,0) [-128|127] "C" Custom_BMS
+SG_ BMS_M7_Thermistor_7  : 16|8@1- (1,0) [-128|127] "C" Custom_BMS
+SG_ BMS_M7_Thermistor_8  : 24|8@1- (1,0) [-128|127] "C" Custom_BMS
+SG_ BMS_M7_Thermistor_9  : 32|8@1- (1,0) [-128|127] "C" Custom_BMS
+SG_ BMS_M7_Thermistor_10 : 40|8@1- (1,0) [-128|127] "C" Custom_BMS
+SG_ BMS_M8_Thermistor_1  : 48|8@1- (1,0) [-128|127] "C" Custom_BMS
+SG_ BMS_M8_Thermistor_2  : 56|8@1- (1,0) [-128|127] "C" Custom_BMS
+
+BO_ 1673 BMS_M8_Thermistor_Data_10: 8 Custom_BMS
+SG_ BMS_M8_Thermistor_3  : 0|8@1- (1,0) [-128|127] "C" Custom_BMS
+SG_ BMS_M8_Thermistor_4  : 8|8@1- (1,0) [-128|127] "C" Custom_BMS
+SG_ BMS_M8_Thermistor_5  : 16|8@1- (1,0) [-128|127] "C" Custom_BMS
+SG_ BMS_M8_Thermistor_6  : 24|8@1- (1,0) [-128|127] "C" Custom_BMS
+SG_ BMS_M8_Thermistor_7  : 32|8@1- (1,0) [-128|127] "C" Custom_BMS
+SG_ BMS_M8_Thermistor_8  : 40|8@1- (1,0) [-128|127] "C" Custom_BMS
+SG_ BMS_M8_Thermistor_9  : 48|8@1- (1,0) [-128|127] "C" Custom_BMS
+SG_ BMS_M8_Thermistor_10 : 56|8@1- (1,0) [-128|127] "C" Custom_BMS
+
+BO_ 1674 BMS_M9_Thermistor_Data_11: 8 Custom_BMS
+SG_ BMS_M9_Thermistor_1 : 0|8@1- (1,0) [-128|127] "C" Custom_BMS
+SG_ BMS_M9_Thermistor_2 : 8|8@1- (1,0) [-128|127] "C" Custom_BMS
+SG_ BMS_M9_Thermistor_3 : 16|8@1- (1,0) [-128|127] "C" Custom_BMS
+SG_ BMS_M9_Thermistor_4 : 24|8@1- (1,0) [-128|127] "C" Custom_BMS
+SG_ BMS_M9_Thermistor_5 : 32|8@1- (1,0) [-128|127] "C" Custom_BMS
+SG_ BMS_M9_Thermistor_6 : 40|8@1- (1,0) [-128|127] "C" Custom_BMS
+SG_ BMS_M9_Thermistor_7 : 48|8@1- (1,0) [-128|127] "C" Custom_BMS
+SG_ BMS_M9_Thermistor_8 : 56|8@1- (1,0) [-128|127] "C" Custom_BMS
+
+BO_ 1675 BMS_M9_M10_Thermistor_Data_12: 8 Custom_BMS
+SG_ BMS_M9_Thermistor_9  : 0|8@1- (1,0) [-128|127] "C" Custom_BMS
+SG_ BMS_M9_Thermistor_10 : 8|8@1- (1,0) [-128|127] "C" Custom_BMS
+SG_ BMS_M10_Thermistor_1 : 16|8@1- (1,0) [-128|127] "C" Custom_BMS
+SG_ BMS_M10_Thermistor_2 : 24|8@1- (1,0) [-128|127] "C" Custom_BMS
+SG_ BMS_M10_Thermistor_3 : 32|8@1- (1,0) [-128|127] "C" Custom_BMS
+SG_ BMS_M10_Thermistor_4 : 40|8@1- (1,0) [-128|127] "C" Custom_BMS
+SG_ BMS_M10_Thermistor_5 : 48|8@1- (1,0) [-128|127] "C" Custom_BMS
+SG_ BMS_M10_Thermistor_6 : 56|8@1- (1,0) [-128|127] "C" Custom_BMS
+
+BO_ 1676 BMS_M10_Thermistor_Data_13: 4 Custom_BMS
+SG_ BMS_M10_Thermistor_7  : 0|8@1- (1,0) [-128|127] "C" Custom_BMS
+SG_ BMS_M10_Thermistor_8  : 8|8@1- (1,0) [-128|127] "C" Custom_BMS
+SG_ BMS_M10_Thermistor_9  : 16|8@1- (1,0) [-128|127] "C" Custom_BMS
+SG_ BMS_M10_Thermistor_10 : 24|8@1- (1,0) [-128|127] "C" Custom_BMS
+
+BO_ 1694 BMS_Faults_Message_1: 8 Custom_BMS
+SG_ BMS_Enable_Balance_Message  : 0|1@1+ (0,0) [0|1] "" Custom_BMS
+SG_ BMS_Cell_Overvolt_Fault	    : 1|1@1+ (0,0) [0|1] "" Custom_BMS
+SG_ BMS_Cell_Undervolt_Fault	: 2|1@1+ (0,0) [0|1] "" Custom_BMS
+SG_ BMS_Cell_High_Temp_Fault	: 3|1@1+ (0,0) [0|1] "" Custom_BMS
+SG_ BMS_Cell_Low_Temp_Fault	    : 4|1@1+ (0,0) [0|1] "" Custom_BMS
+SG_ BMS_Redundant_Voltage_Fault : 5|1@1+ (0,0) [0|1] "" Custom_BMS
+SG_ BMS_Redundant_Temp_Fault	: 6|1@1+ (0,0) [0|1] "" Custom_BMS
+SG_ BMS_Invalid_Data_Fault	    : 7|1@1+ (0,0) [0|1] "" Custom_BMS
+SG_ BMS_Open_Wire_Detection_Fault : 8|1@1+ (0,0) [0|1] "" Custom_BMS 
+
+BO_ 1695 BMS_Pack_Data : 2 Custom_BMS
+SG_ MCU_Pressure  : 0|8@1+ (0.001, 0) [0|6.5535] "" Custom_BMS
+SG_ MCU_Humidity  : 8|8@1+ (0.001, 0) [0|6.5535] "" Custom_BMS 
+
+B0_ 1696 BMS_Pack_Voltage_Data : 4 Custom_BMS
+SG_ BMS_HVsens_Pack_Voltage : 0|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS	
+SG_ BMS_Sum_Pack_Voltage    : 16|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS 
+
+BO_ 1697 BMS_avg_module_temp_1  : 8 Custom_BMS
+SG_ BMS_avg_M1_Voltage : 0|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+SG_ BMS_avg_M2_Voltage : 16|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+SG_ BMS_avg_M3_Voltage : 32|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+SG_ BMS_avg_M4_Voltage : 48|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+
+BO_ 1698 BMS_avg_module_temp_2  : 8 Custom_BMS
+SG_ BMS_avg_M5_Voltage : 0|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+SG_ BMS_avg_M6_Voltage : 16|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+SG_ BMS_avg_M7_Voltage : 32|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+SG_ BMS_avg_M8_Voltage : 48|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+
+BO_ 1699 BMS_avg_module_temp_3  : 4 Custom_BMS
+SG_ BMS_avg_M9_Voltage : 0|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+SG_ BMS_avg_M10_Voltage: 16|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+
+BO_ 1700 BMS_M1_Module_Voltage_Summary  : 8 Custom_BMS
+SG_ BMS_M1_Max_Voltage 	  : 0|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+SG_ BMS_M1_Min_Voltage 	  : 16|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+SG_ BMS_M1_Avg_Voltage 	  : 32|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+SG_ BMS_M1_Max_Voltage_Cell_Number : 48|8@1+ (1,0) [0|255] "" Custom_BMS
+SG_ BMS_M1_Min_Voltage_Cell_Number : 56|8@1+ (1,0) [0|255] "" Custom_BMS
+
+BO_ 1701 BMS_M2_Module_Voltage_Summary  : 8 Custom_BMS
+SG_ BMS_M2_Max_Voltage 	  : 0|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+SG_ BMS_M2_Min_Voltage 	  : 16|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+SG_ BMS_M2_Avg_Voltage 	  : 32|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+SG_ BMS_M2_Max_Voltage_Cell_Number : 48|8@1+ (1,0) [0|255] "" Custom_BMS
+SG_ BMS_M2_Min_Voltage_Cell_Number : 56|8@1+ (1,0) [0|255] "" Custom_BMS
+
+BO_ 1702 BMS_M3_Module_Voltage_Summary  : 8 Custom_BMS
+SG_ BMS_M3_Max_Voltage 	  : 0|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+SG_ BMS_M3_Min_Voltage 	  : 16|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+SG_ BMS_M3_Avg_Voltage 	  : 32|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+SG_ BMS_M3_Max_Voltage_Cell_Number : 48|8@1+ (1,0) [0|255] "" Custom_BMS
+SG_ BMS_M3_Min_Voltage_Cell_Number : 56|8@1+ (1,0) [0|255] "" Custom_BMS
+
+BO_ 1703 BMS_M4_Module_Voltage_Summary  : 8 Custom_BMS
+SG_ BMS_M4_Max_Voltage 	  : 0|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+SG_ BMS_M4_Min_Voltage 	  : 16|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+SG_ BMS_M4_Avg_Voltage 	  : 32|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+SG_ BMS_M4_Max_Voltage_Cell_Number : 48|8@1+ (1,0) [0|255] "" Custom_BMS
+SG_ BMS_M4_Min_Voltage_Cell_Number : 56|8@1+ (1,0) [0|255] "" Custom_BMS
+
+BO_ 1704 BMS_M5_Module_Voltage_Summary  : 8 Custom_BMS
+SG_ BMS_M5_Max_Voltage 	  : 0|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+SG_ BMS_M5_Min_Voltage 	  : 16|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+SG_ BMS_M5_Avg_Voltage 	  : 32|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+SG_ BMS_M5_Max_Voltage_Cell_Number : 48|8@1+ (1,0) [0|255] "" Custom_BMS
+SG_ BMS_M5_Min_Voltage_Cell_Number : 56|8@1+ (1,0) [0|255] "" Custom_BMS
+
+BO_ 1705 BMS_M6_Module_Voltage_Summary  : 8 Custom_BMS
+SG_ BMS_M6_Max_Voltage 	  : 0|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+SG_ BMS_M6_Min_Voltage 	  : 16|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+SG_ BMS_M6_Avg_Voltage 	  : 32|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+SG_ BMS_M6_Max_Voltage_Cell_Number : 48|8@1+ (1,0) [0|255] "" Custom_BMS
+SG_ BMS_M6_Min_Voltage_Cell_Number : 56|8@1+ (1,0) [0|255] "" Custom_BMS
+
+BO_ 1706 BMS_M7_Module_Voltage_Summary  : 8 Custom_BMS
+SG_ BMS_M7_Max_Voltage 	  : 0|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+SG_ BMS_M7_Min_Voltage 	  : 16|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+SG_ BMS_M7_Avg_Voltage 	  : 32|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+SG_ BMS_M7_Max_Voltage_Cell_Number : 48|8@1+ (1,0) [0|255] "" Custom_BMS
+SG_ BMS_M7_Min_Voltage_Cell_Number : 56|8@1+ (1,0) [0|255] "" Custom_BMS
+
+BO_ 1707 BMS_M8_Module_Voltage_Summary  : 8 Custom_BMS
+SG_ BMS_M8_Max_Voltage 	  : 0|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+SG_ BMS_M8_Min_Voltage 	  : 16|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+SG_ BMS_M8_Avg_Voltage 	  : 32|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+SG_ BMS_M8_Max_Voltage_Cell_Number : 48|8@1+ (1,0) [0|255] "" Custom_BMS
+SG_ BMS_M8_Min_Voltage_Cell_Number : 56|8@1+ (1,0) [0|255] "" Custom_BMS
+
+BO_ 1708 BMS_M9_Module_Voltage_Summary  : 8 Custom_BMS
+SG_ BMS_M9_Max_Voltage 	  : 0|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+SG_ BMS_M9_Min_Voltage 	  : 16|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+SG_ BMS_M9_Avg_Voltage 	  : 32|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+SG_ BMS_M9_Max_Voltage_Cell_Number : 48|8@1+ (1,0) [0|255] "" Custom_BMS
+SG_ BMS_M9_Min_Voltage_Cell_Number : 56|8@1+ (1,0) [0|255] "" Custom_BMS
+
+BO_ 1709 BMS_M10_Module_Voltage_Summary  : 8 Custom_BMS
+SG_ BMS_M10_Max_Voltage 	: 0|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+SG_ BMS_M10_Min_Voltage 	: 16|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+SG_ BMS_M10_Avg_Voltage 	: 32|16@1- (0.001,0) [-32.768|32.767] "V" Custom_BMS
+SG_ BMS_M10_Max_Voltage_Cell_Number  : 48|8@1+ (1,0) [0|255] "" Custom_BMS
+SG_ BMS_M10_Min_Voltage_Cell_Number  : 56|8@1+ (1,0) [0|255] "" Custom_BMS
+
+BO_ 1710 BMS_Fault_Status_M1_to_M4  : 8 Custom_BMS
+SG_ BMS_M1_Cell_1_Fault 	: 0|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M1_Cell_2_Fault  	: 1|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M1_Cell_3_Fault  	: 2|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M1_Cell_4_Fault   	: 3|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M1_Cell_5_Fault   	: 4|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M1_Cell_6_Fault 	: 5|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M1_Cell_7_Fault  	: 6|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M1_Cell_8_Fault  	: 7|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M1_Cell_9_Fault   	: 8|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M1_Cell_10_Fault   	: 9|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M1_Cell_11_Fault 	: 10|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M1_Cell_12_Fault  	: 11|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M1_Cell_13_Fault  	: 12|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M1_Cell_14_Fault   	: 13|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M2_Cell_1_Fault   	: 16|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M2_Cell_2_Fault 	: 17|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M2_Cell_3_Fault  	: 18|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M2_Cell_4_Fault  	: 19|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M2_Cell_5_Fault   	: 20|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M2_Cell_6_Fault   	: 21|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M2_Cell_7_Fault  	: 22|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M2_Cell_8_Fault  	: 23|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M2_Cell_9_Fault   	: 24|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M2_Cell_10_Fault   	: 25|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M2_Cell_11_Fault 	: 26|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M2_Cell_12_Fault  	: 27|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M2_Cell_13_Fault  	: 28|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M2_Cell_14_Fault   	: 29|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M3_Cell_1_Fault   	: 32|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M3_Cell_2_Fault 	: 33|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M3_Cell_3_Fault  	: 34|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M3_Cell_4_Fault  	: 35|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M3_Cell_5_Fault   	: 36|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M3_Cell_6_Fault   	: 37|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M3_Cell_7_Fault  	: 38|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M3_Cell_8_Fault  	: 39|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M3_Cell_9_Fault   	: 40|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M3_Cell_10_Fault   	: 41|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M3_Cell_11_Fault 	: 42|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M3_Cell_12_Fault  	: 43|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M3_Cell_13_Fault  	: 44|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M3_Cell_14_Fault   	: 45|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M4_Cell_1_Fault   	: 48|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M4_Cell_2_Fault 	: 49|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M4_Cell_3_Fault  	: 50|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M4_Cell_4_Fault  	: 51|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M4_Cell_5_Fault   	: 52|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M4_Cell_6_Fault   	: 53|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M4_Cell_7_Fault  	: 54|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M4_Cell_8_Fault  	: 55|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M4_Cell_9_Fault   	: 56|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M4_Cell_10_Fault   	: 57|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M4_Cell_11_Fault 	: 58|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M4_Cell_12_Fault  	: 59|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M4_Cell_13_Fault  	: 60|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M4_Cell_14_Fault   	: 61|1@1+ (1,0) [0|1] "" Custom_BMS
+
+BO_ 1711 BMS_Fault_Status_M5_to_M8  : 8 Custom_BMS
+SG_ BMS_M5_Cell_1_Fault 	: 0|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M5_Cell_2_Fault  	: 1|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M5_Cell_3_Fault  	: 2|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M5_Cell_4_Fault   	: 3|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M5_Cell_5_Fault   	: 4|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M5_Cell_6_Fault 	: 5|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M5_Cell_7_Fault  	: 6|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M5_Cell_8_Fault  	: 7|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M5_Cell_9_Fault   	: 8|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M5_Cell_10_Fault   	: 9|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M5_Cell_11_Fault 	: 10|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M5_Cell_12_Fault  	: 11|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M5_Cell_13_Fault  	: 12|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M5_Cell_14_Fault   	: 13|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M6_Cell_1_Fault   	: 16|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M6_Cell_2_Fault 	: 17|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M6_Cell_3_Fault  	: 18|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M6_Cell_4_Fault  	: 19|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M6_Cell_5_Fault   	: 20|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M6_Cell_6_Fault   	: 21|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M6_Cell_7_Fault  	: 22|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M6_Cell_8_Fault  	: 23|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M6_Cell_9_Fault   	: 24|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M6_Cell_10_Fault   	: 25|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M6_Cell_11_Fault 	: 26|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M6_Cell_12_Fault  	: 27|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M6_Cell_13_Fault  	: 28|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M6_Cell_14_Fault   	: 29|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M7_Cell_1_Fault   	: 32|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M7_Cell_2_Fault 	: 33|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M7_Cell_3_Fault  	: 34|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M7_Cell_4_Fault  	: 35|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M7_Cell_5_Fault   	: 36|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M7_Cell_6_Fault   	: 37|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M7_Cell_7_Fault  	: 38|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M7_Cell_8_Fault  	: 39|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M7_Cell_9_Fault   	: 40|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M7_Cell_10_Fault   	: 41|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M7_Cell_11_Fault 	: 42|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M7_Cell_12_Fault  	: 43|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M7_Cell_13_Fault  	: 44|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M7_Cell_14_Fault   	: 45|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M8_Cell_1_Fault   	: 48|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M8_Cell_2_Fault 	: 49|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M8_Cell_3_Fault  	: 50|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M8_Cell_4_Fault  	: 51|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M8_Cell_5_Fault   	: 52|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M8_Cell_6_Fault   	: 53|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M8_Cell_7_Fault  	: 54|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M8_Cell_8_Fault  	: 55|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M8_Cell_9_Fault   	: 56|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M8_Cell_10_Fault   	: 57|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M8_Cell_11_Fault 	: 58|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M8_Cell_12_Fault  	: 59|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M8_Cell_13_Fault  	: 60|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M8_Cell_14_Fault   	: 61|1@1+ (1,0) [0|1] "" Custom_BMS
+
+BO_ 1712 BMS_Fault_Status_M9_to_M10  : 8 Custom_BMS
+SG_ BMS_M9_Cell_1_Fault 	: 0|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M9_Cell_2_Fault  	: 1|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M9_Cell_3_Fault  	: 2|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M9_Cell_4_Fault   	: 3|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M9_Cell_5_Fault   	: 4|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M9_Cell_6_Fault 	: 5|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M9_Cell_7_Fault  	: 6|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M9_Cell_8_Fault  	: 7|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M9_Cell_9_Fault   	: 8|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M9_Cell_10_Fault   	: 9|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M9_Cell_11_Fault 	: 10|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M9_Cell_12_Fault  	: 11|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M9_Cell_13_Fault  	: 12|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M9_Cell_14_Fault   	: 13|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M10_Cell_1_Fault   	: 16|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M10_Cell_2_Fault 	: 17|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M10_Cell_3_Fault  	: 18|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M10_Cell_4_Fault  	: 19|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M10_Cell_5_Fault   	: 20|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M10_Cell_6_Fault   	: 21|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M10_Cell_7_Fault  	: 22|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M10_Cell_8_Fault  	: 23|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M10_Cell_9_Fault   	: 24|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M10_Cell_10_Fault   : 25|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M10_Cell_11_Fault 	: 26|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M10_Cell_12_Fault  	: 27|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M10_Cell_13_Fault  	: 28|1@1+ (1,0) [0|1] "" Custom_BMS
+SG_ BMS_M10_Cell_14_Fault   : 29|1@1+ (1,0) [0|1] "" Custom_BMS
+
+BO_ 1713 BMS_Heartbeat_Message  : 1 Custom_BMS
+SG_ BMS_HeartBeat 	: 0|8@1+ (1,0) [0|1] "" Custom_BMS
+
+BO_ 1714 BMS_Fault_And_Warning_Summary  : 8 Custom_BMS
+SG_ BMS_Fault_Module_Id		: 0|8@1+ (1,0) [0|255] "" Custom_BMS
+SG_ BMS_Fault_Cell_Id		: 8|8@1+ (1,0) [0|255] "" Custom_BMS
+SG_ BMS_Fault_Over_Volt		: 16|1@1+ (1,0) [0|255] "" Custom_BMS
+SG_ BMS_Fault_Under_Volt	: 17|1@1+ (1,0) [0|255] "" Custom_BMS
+SG_ BMS_Fault_Open_Wire		: 18|1@1+ (1,0) [0|255] "" Custom_BMS
+SG_ BMS_Fault_PEC			: 19|1@1+ (1,0) [0|255] "" Custom_BMS
+SG_ BMS_Fault_Over_Temp		: 20|1@1+ (1,0) [0|255] "" Custom_BMS
+SG_ BMS_Fault_Under_Temp	: 21|1@1+ (1,0) [0|255] "" Custom_BMS
+SG_ BMS_Fault_Redundant_Volt: 22|1@1+ (1,0) [0|255] "" Custom_BMS
+SG_ BMS_Fault_Redundant_Temp: 23|1@1+ (1,0) [0|255] "" Custom_BMS
+SG_ BMS_Warning_Module_Id	: 24|8@1+ (1,0) [0|255] "" Custom_BMS
+SG_ BMS_Warning_Cell_Id		: 32|8@1+ (1,0) [0|255] "" Custom_BMS
+SG_ BMS_Warning_Over_Volt	: 40|1@1+ (1,0) [0|255] "" Custom_BMS
+SG_ BMS_Warning_Under_Volt	: 41|1@1+ (1,0) [0|255] "" Custom_BMS
+SG_ BMS_Warning_Over_Temp	: 42|1@1+ (1,0) [0|255] "" Custom_BMS
+SG_ BMS_Warning_Under_Temp	: 43|1@1+ (1,0) [0|255] "" Custom_BMS
+SG_ BMS_Warning_Imbalance	: 44|1@1+ (1,0) [0|255] "" Custom_BMS
+
+CM_ BO_ 1536 "This message is for backwards compatibility with SR16";
+CM_ BO_ 1536 "Read pack voltage from BMS_Safety_Checker message if you want backwards compatibilty with SR16 BMS";
+CM_ BO_ 1570 "This message is backwards compatible with SR16 EXCEPT for pack voltage";
+CM_ BO_ 1571 "SR16 BMS does not have this CAN message. If you want backwards compatibility, use BMS_Safety_Checker message";
