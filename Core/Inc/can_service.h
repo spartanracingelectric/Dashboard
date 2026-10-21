@@ -32,5 +32,7 @@ bool  init_vcu(FdcanBus& bus);   // FDCAN2: TPS/LV/PL/Shunt
 bool  init_bms(FdcanBus& bus);   // FDCAN1: Safety_Checker/Pack_Summary_1/2
 void  poll(FdcanBus& bus);
 void  send_test(FdcanBus& bus);
+const char* bms_git_sha();
+bool bms_git_sha_valid();
 
 } // namespace

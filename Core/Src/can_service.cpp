@@ -4,6 +4,7 @@
 #include "config.h"
 #include "timebase.h"
 #include "leds.h"
+#include <cstring>
 
 static float s_curr_hv = 0, s_curr_hvlow = 0, s_curr_celltemp = 0;
 static float s_curr_tps0p = 0, s_curr_tps1p = 0, s_curr_pl = 0;
@@ -14,6 +15,8 @@ static float s_fr_temp = 0, s_rl_temp = 0, s_rr_temp = 0, s_long_g = 0;
 static float s_lat_g = 0, s_pack_imbal = 0;
 static float s_curr_slip = 0, s_slip_target = 0;
 static bool  s_term_sense = false;
+static char s_bms_git_sha[9] = "--------";
+static bool s_bms_git_sha_valid = false;
 
 namespace cansvc {
 
@@ -56,8 +59,11 @@ bool init_vcu(FdcanBus& bus) {
 bool init_bms(FdcanBus& bus) {
   if (!bus.initClassic500k()) return false;
   const uint16_t ids[] = {
-    CAN_BMS_SAFETY_CHECKER_ADDR, CAN_HV_ADDR, CAN_BMS_SUMMARY_2_ADDR,
-  };
+    CAN_BMS_SAFETY_CHECKER_ADDR,
+    CAN_HV_ADDR,
+    CAN_BMS_SUMMARY_2_ADDR,
+    CAN_ID_BMS_GIT_SHA,
+};
   for (uint16_t id : ids) bus.addStdFilter(id);
   return true;
 }
@@ -76,6 +82,16 @@ static inline float mag(float x) { return x < 0 ? -x : x; }
 static inline float tire_avg(const uint8_t* d) {
   uint32_t sum = (uint32_t)be16(d, 0, 1) + be16(d, 2, 3) + be16(d, 4, 5) + be16(d, 6, 7);
   return (sum * 0.25f) * 0.001f - 100.0f;
+}
+
+const char* bms_git_sha()
+{
+    return s_bms_git_sha;
+}
+
+bool bms_git_sha_valid()
+{
+    return s_bms_git_sha_valid;
 }
 
 void poll(FdcanBus& bus) {
@@ -145,6 +161,13 @@ void poll(FdcanBus& bus) {
         break;
       case CAN_TERM_SENSE:
         s_term_sense = (d[0] != 0);
+        break;
+      case CAN_ID_BMS_GIT_SHA:
+        if (f.len >= 8) {
+          std::memcpy(s_bms_git_sha, d, 8);
+          s_bms_git_sha[8] = '\0';
+          s_bms_git_sha_valid = true;
+        }
         break;
       default:
         break;

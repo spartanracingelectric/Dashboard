@@ -7,6 +7,7 @@
 #include "can_service.h"
 #include "dash_fault.h"
 #include <stdint.h>
+#include "can_ids.h"
 
 const uint8_t DLCODE_BOOTUP[12] =
 {
@@ -43,7 +44,7 @@ float max_power = 0.0f;
 // The bottom third of the panel (y >= VISIBLE_H) is hidden behind the steering
 // wheel, so the whole dashboard is packed into the visible top region above it.
 #define LCD_W       800
-#define LCD_H       480
+// #define LCD_HEIGHT       480
 #define VISIBLE_H   320          // steering wheel hides everything below this y
 #define BOX_W       200
 #define BOX_H       100
@@ -229,7 +230,7 @@ static uint16_t drawFaultOverlay(uint16_t FWo, uint8_t fault_mask,
     uint8_t bg_v = flash_on ? 180 : 110;
 
     FWo = EVE_Cmd_Dat_0(FWo, EVE_ENC_COLOR_RGB(bg_v, bg_v, 0));
-    FWo = EVE_Filled_Rectangle(FWo, 0, 0, LCD_W, LCD_H);
+    FWo = EVE_Filled_Rectangle(FWo, 0, 0, LCD_W, LCD_HEIGHT);
 
     FWo = EVE_Cmd_Dat_0(FWo, EVE_ENC_COLOR_RGB(255, 255, 255));
     FWo = EVE_Open_Rectangle(FWo, 20, 20, 780, 460, 8);
@@ -284,7 +285,7 @@ static uint16_t drawLimpOverlay(uint16_t FWo) {
     uint8_t bg_v = flash_on ? 200 : 120;
 
     FWo = EVE_Cmd_Dat_0(FWo, EVE_ENC_COLOR_RGB(bg_v, bg_v, 0));
-    FWo = EVE_Filled_Rectangle(FWo, 0, 0, LCD_W, LCD_H);
+    FWo = EVE_Filled_Rectangle(FWo, 0, 0, LCD_W, LCD_HEIGHT);
 
     FWo = EVE_Cmd_Dat_0(FWo, EVE_ENC_COLOR_RGB(255, 255, 255));
     FWo = EVE_Open_Rectangle(FWo, 20, 20, 780, 460, 8);
@@ -431,6 +432,60 @@ static uint16_t drawTorqueLimit(uint16_t FWo, const Theme& th,
     return FWo;
 }
 
+static uint16_t drawBmsSoftwareInfo(
+    uint16_t FWo,
+    const Theme& th)
+{
+    FWo = setColor(FWo, th.value);
+
+    FWo = EVE_PrintF(
+        FWo,
+        LCD_W / 2,
+        70,
+        31,
+        EVE_OPT_CENTER,
+        "BMS SOFTWARE"
+    );
+
+    FWo = setColor(FWo, th.label);
+
+    if (cansvc::bms_git_sha_valid())
+    {
+        FWo = EVE_PrintF(
+            FWo,
+            LCD_W / 2,
+            150,
+            30,
+            EVE_OPT_CENTER,
+            "SHA: %s",
+            cansvc::bms_git_sha()
+        );
+    }
+    else
+    {
+        FWo = EVE_PrintF(
+            FWo,
+            LCD_W / 2,
+            150,
+            30,
+            EVE_OPT_CENTER,
+            "SHA: WAITING"
+        );
+    }
+
+    FWo = EVE_PrintF(
+        FWo,
+        LCD_W / 2,
+        230,
+        26,
+        EVE_OPT_CENTER,
+        "CAN ID: 0x%03X",
+        CAN_ID_BMS_GIT_SHA
+    );
+
+    return FWo;
+}
+
 static void renderDash(const DashData& d, uint8_t mode)
 {
     uint16_t FWo = EVE_REG_Read_16(EVE_REG_CMD_WRITE);
@@ -462,6 +517,9 @@ static void renderDash(const DashData& d, uint8_t mode)
                         d.cell_low,
                         d.slip_target,
                         d.slip);
+    }
+    else if (mode ==4) {
+        FWo = drawBmsSoftwareInfo(FWo, kTheme);
     }
     else if (mode == 6) {
         FWo = drawTorqueLimit(FWo, kTheme,

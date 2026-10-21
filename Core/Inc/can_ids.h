@@ -35,3 +35,4 @@
     constexpr uint16_t CAN_BMS_SAFETY_CHECKER_ADDR = 0x600; // [6:7] Sum pack V × 0.01
     constexpr uint16_t CAN_HV_ADDR                 = 0x622; // [2:3] lowest cell V × 0.0001; [4] highest cell temp s8
     constexpr uint16_t CAN_BMS_SUMMARY_2_ADDR      = 0x623; // [0] fault bits (dash_fault.h); [2:3] pack imbalance mV int16
+    constexpr uint16_t CAN_ID_BMS_GIT_SHA         = 0x550; 
