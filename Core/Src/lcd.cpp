@@ -71,6 +71,7 @@ typedef struct {
     // default dash
     float voltage;
     float max_power;
+    float rpm;
     float cell_high;
     float cell_low;
     float PL;
@@ -205,7 +206,7 @@ static uint16_t drawEnergyBar(uint16_t FWo, const Theme& th, float pct) {
 // Renders the normal data dashboard using the single Spartan theme.
 static uint16_t drawDataDashboard(uint16_t FWo, const Theme& th,
                                   float voltage, float cell_high, float cell_low,
-                                  float TPS, float PL, float power, float energy) { // add brake pressure parameter
+                                  float TPS, float PL, float power, float rpm, float energy) { // add brake pressure parameter
     const MetricCell top[3] = {
         {"Pack V",     voltage,   "V"},
         {"High Temp",  cell_high, "C"},
@@ -214,7 +215,7 @@ static uint16_t drawDataDashboard(uint16_t FWo, const Theme& th,
     const MetricCell bot[3] = {
         {"TPS",   TPS,   "%"},
         {"PL",    PL,    "kW"},
-        {"Power", power, "kW"},
+        {"RPM", rpm, "RPM"},
     };
 
     FWo = drawMetricRow(FWo, th, TOP_ROW_Y, top, /*decimals=*/2);
@@ -478,6 +479,7 @@ static void renderDash(const DashData& d, uint8_t mode)
                         d.TPS,
                         d.PL,
                         d.max_power,
+                        d.rpm,
                         d.energy);
     }
 
@@ -533,6 +535,7 @@ void LCD_demoCodeTest(void)
         // Normal dash
         .voltage    = cansvc::hv(),
         .max_power  = max_power,
+        .rpm = cansvc::motor_rpm(),
         .cell_high  = cansvc::celltemp(),
         .cell_low   = cansvc::hv_low(),
         .PL         = cansvc::pl(),

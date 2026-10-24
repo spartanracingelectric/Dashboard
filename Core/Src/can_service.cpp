@@ -10,6 +10,7 @@ static float s_curr_tps0p = 0, s_curr_tps1p = 0, s_curr_pl = 0;
 static float s_curr_bms_fault = 0, s_curr_energy_pct = 0, s_dash_mode = 0;
 static float s_shunt_voltage = 0, s_shunt_current = 0;
 static float s_motor_temp = 0, s_mcu_temp = 0;
+static float s_motor_rpm = 0;
 static float s_fr_temp = 0, s_rl_temp = 0, s_rr_temp = 0, s_long_g = 0;
 static float s_lat_g = 0, s_pack_imbal = 0;
 static float s_curr_slip = 0, s_slip_target = 0;
@@ -32,6 +33,7 @@ float slip_ratio()   { return s_curr_slip; }
 float slip_target()  { return s_slip_target; }
 float motor_temp()   { return s_motor_temp;}
 float mcu_temp()     { return s_mcu_temp;}
+float motor_rpm()    {return s_motor_rpm;}
 float tire_fr_temp() { return s_fr_temp;}
 float tire_rl_temp() { return s_rl_temp;}
 float tire_rr_temp() { return s_rr_temp;}
@@ -46,7 +48,7 @@ bool init_vcu(FdcanBus& bus) {
     CAN_TPS0, CAN_TPS1, CAN_LV_ADDR, CAN_PL, CAN_LC_STATUS_A,
     CAN_SHUNT_CURRENT, CAN_SHUNT_VOLTAGE,
     // diagnostics
-    CAN_MCM_TEMP, CAN_MOTOR_TEMP, CAN_IMU_ACCEL,
+    CAN_MCM_TEMP, CAN_MOTOR_TEMP, CAN_MOTOR_RPM, CAN_IMU_ACCEL,
     CAN_TIRE_FR, CAN_TIRE_RL, CAN_TIRE_RR, CAN_TERM_SENSE,
   };
   for (uint16_t id : ids) bus.addStdFilter(id);
@@ -125,6 +127,11 @@ void poll(FdcanBus& bus) {
         break;
       case CAN_MOTOR_TEMP:
         s_motor_temp = (int16_t)u16(d, 4, 5) * 0.1f;
+        break;
+      case CAN_MOTOR_RPM:
+        if (f.len >= 3) {
+          s_motor_rpm = u16(d, 1, 2);
+        }
         break;
       case CAN_IMU_ACCEL: {
         // hold the largest-magnitude G seen on each axis (sign preserved)

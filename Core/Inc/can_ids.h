@@ -30,6 +30,7 @@
     constexpr uint16_t CAN_LC_STATUS_A   = 0x50B; // [2:3] current slip s16 LE ×1000; [4] LC state; [5] LC phase; [6:7] target slip s16 LE ×1000
     constexpr uint16_t CAN_SHUNT_CURRENT = 0x3F1; // [0:3] s32 LE, mA
     constexpr uint16_t CAN_SHUNT_VOLTAGE = 0x3F3; // [0:3] s32 LE, mV
+    constexpr uint16_t CAN_MOTOR_RPM = 0x0A5;
 
     // BMS-sourced
     constexpr uint16_t CAN_BMS_SAFETY_CHECKER_ADDR = 0x600; // [6:7] Sum pack V × 0.01
