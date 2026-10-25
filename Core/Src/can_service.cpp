@@ -130,7 +130,7 @@ void poll(FdcanBus& bus) {
         break;
       case CAN_MOTOR_RPM:
         if (f.len >= 3) {
-          s_motor_rpm = u16(d, 1, 2);
+          s_motor_rpm = (u16(d, 2, 3))*0.014938;
         }
         break;
       case CAN_IMU_ACCEL: {
